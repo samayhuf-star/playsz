@@ -23,14 +23,7 @@ import {
 
 import { Colors } from '@/constants/colors';
 import { formatTimecode } from '@/lib/resume-position';
-
-/** Public-domain sample used on web / when the library is empty, so the player can be exercised. */
-export const SAMPLE_VIDEO = {
-  id: 'sample',
-  uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  title: 'Big Buck Bunny (sample)',
-  duration: 596,
-} as const;
+import { useIapContext } from '@/providers/iap-provider';
 
 type LibraryItem = {
   id: string;
@@ -60,6 +53,7 @@ async function loadVideos(): Promise<LibraryItem[]> {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { isPro } = useIapContext();
   const [permission, setPermission] = useState<PermissionState>(
     Platform.OS === 'web' ? 'unsupported' : 'loading'
   );
@@ -105,16 +99,9 @@ export default function HomeScreen() {
 
   const openVideo = useCallback(
     async (item: LibraryItem) => {
-      let uri = '';
-      let title = item.title;
-      if (item.id === SAMPLE_VIDEO.id) {
-        uri = SAMPLE_VIDEO.uri;
-        title = SAMPLE_VIDEO.title;
-      } else {
-        const info = await new Asset(item.id).getInfo();
-        uri = info.uri;
-        title = info.filename || item.title;
-      }
+      const info = await new Asset(item.id).getInfo();
+      const uri = info.uri;
+      const title = info.filename || item.title;
       router.push({
         pathname: '/player',
         params: { id: item.id, uri, title },
@@ -123,23 +110,22 @@ export default function HomeScreen() {
     [router]
   );
 
-  const openSample = useCallback(() => {
-    router.push({
-      pathname: '/player',
-      params: {
-        id: SAMPLE_VIDEO.id,
-        uri: SAMPLE_VIDEO.uri,
-        title: SAMPLE_VIDEO.title,
-      },
-    });
-  }, [router]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <StatusBar style="light" />
       <View style={styles.header}>
-        <Text style={styles.kicker}>Working title</Text>
-        <Text style={styles.title}>OpenPlay</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.title}>OpenPlay</Text>
+          <View style={styles.headerActions}>
+            <Pressable style={styles.headerBtn} onPress={() => router.push('/settings')}>
+              <Text style={styles.headerBtnLabel}>Settings</Text>
+            </Pressable>
+            <Pressable style={styles.headerBtnAccent} onPress={() => router.push('/paywall')}>
+              <Text style={styles.headerBtnAccentLabel}>{isPro ? 'Pro' : 'Unlock Pro'}</Text>
+            </Pressable>
+          </View>
+        </View>
         <Text style={styles.subtitle}>
           No ads. Your files stay standard and yours.
         </Text>
@@ -162,12 +148,9 @@ export default function HomeScreen() {
         <View style={styles.message}>
           <Text style={styles.messageTitle}>Library scan needs a phone</Text>
           <Text style={styles.messageBody}>
-            Video library access is available on Android and iOS. Play the
-            sample video to try the player on web.
+            Video library access is available on Android and iOS. This
+            preview cannot scan a library or play bundled sample media.
           </Text>
-          <Pressable style={styles.cta} onPress={openSample}>
-            <Text style={styles.ctaLabel}>Play sample video</Text>
-          </Pressable>
         </View>
       ) : null}
 
@@ -197,11 +180,8 @@ export default function HomeScreen() {
               <Text style={styles.messageTitle}>No videos on this device</Text>
               <Text style={styles.messageBody}>
                 Copy a standard MP4 or MKV onto the phone, then pull to
-                refresh. Or play the sample to try the player now.
+                refresh. OpenPlay does not bundle sample videos.
               </Text>
-              <Pressable style={styles.cta} onPress={openSample}>
-                <Text style={styles.ctaLabel}>Play sample video</Text>
-              </Pressable>
             </View>
           }
           renderItem={({ item }) => (
@@ -248,12 +228,39 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     gap: 6,
   },
-  kicker: {
-    color: Colors.accent,
-    fontSize: 12,
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerBtn: {
+    borderColor: Colors.border,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  headerBtnLabel: {
+    color: Colors.text,
     fontWeight: '700',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+    fontSize: 12,
+  },
+  headerBtnAccent: {
+    backgroundColor: Colors.accent,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  headerBtnAccentLabel: {
+    color: Colors.accentDim,
+    fontWeight: '800',
+    fontSize: 12,
   },
   title: {
     color: Colors.text,

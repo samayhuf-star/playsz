@@ -9,6 +9,7 @@ Product docs:
 - [docs/SPEC.md](docs/SPEC.md) — problem, users, MVP vs v2, stack, monetization, risks
 - [docs/STORE_LISTING.md](docs/STORE_LISTING.md) — Play Store and App Store drafts
 - [docs/PAYWALL_PLAN.md](docs/PAYWALL_PLAN.md) — free vs Pro, prices, trials, store billing
+- [docs/QA_STATUS.md](docs/QA_STATUS.md) — QA checklist mapped to the real repo (not a PASS yet)
 
 Identifiers (proposal): `com.allinone.videoplayer` as the Android application id and the iOS bundle identifier.
 
@@ -78,7 +79,7 @@ Both are set in `app/app.json`. The display name is the working title OpenPlay, 
 
 ## Install and run locally
 
-You need Node.js 20+ and a current Expo-compatible environment. For a device library and hardware playback, use an Android device/emulator or an iPhone/simulator. The web target can open the sample video only; it cannot scan the device library.
+You need Node.js 20+ and a current Expo-compatible environment. For a device library and hardware playback, use an Android device/emulator or an iPhone/simulator. The web target cannot scan a device library and does not bundle a sample video.
 
 ```bash
 cd app
@@ -127,7 +128,32 @@ eas build -p ios --profile production
 
 `eas build -p android` and `eas build -p ios` without a profile will need the default profile defined in `eas.json`. Production submits use `eas submit` only after the listings, privacy policy, and billing products are real.
 
+## Legal URLs (required before QA)
+
+Terms and Privacy links are read from a single config file: `app/src/constants/legal.ts` (`LEGAL_URLS.terms` and `LEGAL_URLS.privacy`).
+
+Both strings are **unset** in this commit. That is intentional. Do not fill them with example.com or any other placeholder host. The paywall shows an on-screen note instead of links until both are set to live, public pages.
+
+**QA and store submit require those two URLs to be real** and to match the policy text. There is no sign-up, so there is no account-deletion flow.
+
+## Icons and splash
+
+The mark is an original play-button on a dark field (no third-party art). Source SVG: `app/assets/source/icon-mark.svg`. Raster sizes are produced locally:
+
+```bash
+cd app
+npm run icons    # node scripts/render-icons.mjs (uses sharp)
+```
+
+Outputs, all wired in `app/app.json`:
+
+- `assets/images/icon.png` — 1024×1024, RGB, no alpha (iOS and app icon)
+- `assets/images/android-icon-background.png` / `android-icon-foreground.png` / `android-icon-monochrome.png`
+- `assets/images/splash-icon.png` and `favicon.png`
+
 ## Paywall setup
+
+The app integrates **expo-iap** (MIT) against Google Play Billing and Apple StoreKit. There is no RevenueCat and no backend. Entitlements are saved on the device. The paywall screen loads prices from the store; if the store returns none, it shows a clear unavailable state and will not pretend a local price is a store price. Buy, restore, cancel, and failure are handled. Auto-renewal is disclosed on the paywall. Capped extras (3 free exports per day, 10 free private-folder items, Pro-only encrypted export) are gated from Settings and open the paywall when a cap is hit.
 
 Final USD prices (not proposals):
 
@@ -145,17 +171,19 @@ Free is the full player with caps on extras (exports and private-folder size). P
 
 ## Current status and TODOs
 
-**Status (scaffold):** Expo SDK 58 app in `app/` with a home screen that lists device videos and a player screen that plays them, including gesture stubs and AsyncStorage resume. Docs and this README are in place. Git is local only. No EAS project, no store submit, no IAP wiring yet.
+**Status:** Expo SDK 58 app in `app/` with a library, player (gesture stubs, resume), Settings, and a paywall wired to expo-iap and on-device entitlements. Original icons and splash are generated from a first-party SVG. Docs, including the QA map, are in place. Git is local only. No EAS project and no store submit. This is **not** a QA PASS. See [docs/QA_STATUS.md](docs/QA_STATUS.md).
 
 **TODOs**
 
 - Approve or replace the working title OpenPlay and confirm `com.allinone.videoplayer`.
-- Replace or extend expo-video with an open-source engine that covers 4K and EAC3/Dolby on mid-range devices; verify PLAYit/VidMate file playback before advertising it.
-- Implement the private folder, capped exports, local encrypted export/import, and settings (including delete-my-data).
-- Add expo-iap or react-native-iap, create the three store products, and ship the paywall with restore and the yearly trial reminder.
+- Set live Terms and Privacy URLs in `app/src/constants/legal.ts` before QA (no placeholder hosts).
+- Replace or extend expo-video with an open-source engine that covers 4K and EAC3/Dolby on mid-range devices; verify lock-in-format playback before advertising it.
+- Finish the real export encoder, private-folder vault, local encrypted export/import, and Settings > Delete my data (caps are already gated).
+- Create the three store products and sandbox-test buy, cancel, failure, and restore on a dev-client or store binary.
+- Add the yearly trial reminder once store trials are configured.
 - Build on-device AI subtitles (v2) and SMB/DLNA (v2) with open-source code only.
-- Write the privacy policy and create Play / App Store listings from the drafts. No secrets or contact addresses belong in this repository.
-- Create the EAS project on the krosz Expo account and add `eas.json` with development, preview, and production profiles when it is time to build.
+- Write the privacy policy and capture store screenshots from a real build. No secrets or contact addresses belong in this repository.
+- Create the EAS project on the krosz Expo account and add `eas.json` with development, preview, and production profiles when it is time to build. Nothing ships to a store without a Testing E2E Bot PASS.
 
 ## Dependencies and licenses
 
@@ -172,6 +200,7 @@ Direct dependencies of the Expo app in `app/package.json`. Versions are what the
 | expo-device | 58.0.5 | MIT |
 | expo-font | 58.0.12 | MIT |
 | expo-glass-effect | 58.0.5 | MIT |
+| expo-iap | 6.4.3 | MIT |
 | expo-image | 58.0.18 | MIT |
 | expo-linking | 58.0.17 | MIT |
 | expo-media-library | 58.0.14 | MIT |
@@ -198,12 +227,13 @@ Direct dependencies of the Expo app in `app/package.json`. Versions are what the
 | --- | --- | --- |
 | @types/react | 19.3.0 | MIT |
 | typescript | 6.0.3 | Apache-2.0 |
+| sharp | 0.35.5 | Apache-2.0 |
 
 ### Planned open-source additions (not installed)
 
 | Library | Role | Expected license |
 | --- | --- | --- |
-| expo-iap or react-native-iap | Play Billing and StoreKit on the device | MIT (confirm at add time) |
+| expo-iap (installed) or react-native-iap | Play Billing and StoreKit on the device | MIT |
 | Media3/ExoPlayer + FFmpeg and/or libVLC | Production format and Dolby-audio coverage | Apache-2.0 / LGPL-style (confirm and comply at add time) |
 | whisper.cpp (v2) | On-device speech-to-text / translation | MIT (confirm at add time) |
 

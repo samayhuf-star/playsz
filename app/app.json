@@ -8,7 +8,7 @@
     "scheme": "openplay",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.allinone.videoplayer",
       "supportsTablet": true,
       "infoPlist": {
@@ -60,7 +60,8 @@
           ],
           "isAccessMediaLocationEnabled": false
         }
-      ]
+      ],
+      "expo-iap"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 
 import { Colors } from '@/constants/colors';
+import { IapProvider } from '@/providers/iap-provider';
 
 const navTheme = {
   ...DarkTheme,
@@ -22,6 +23,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <ThemeProvider value={navTheme}>
+        <IapProvider>
         <StatusBar style="light" />
         <Stack
           screenOptions={{
@@ -47,7 +49,16 @@ export default function RootLayout() {
               statusBarHidden: true,
             }}
           />
+          <Stack.Screen
+            name="paywall"
+            options={{ headerShown: false, title: 'OpenPlay Pro', presentation: 'modal' }}
+          />
+          <Stack.Screen
+            name="settings"
+            options={{ headerShown: false, title: 'Settings' }}
+          />
         </Stack>
+        </IapProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

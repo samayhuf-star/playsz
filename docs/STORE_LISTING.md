@@ -4,9 +4,11 @@
 
 Android and iOS **launch together**. This file holds the Play Store draft and the App Store draft.
 
-This is launch copy for the **MVP**. Do not submit claims about on-device AI subtitles, SMB/DLNA streaming, or Android TV until those features ship. Verify 4K, EAC3/Dolby, Bluetooth queue, and PLAYit/VidMate file playback on real Android and iOS devices before using those lines.
+This is launch copy for the **MVP**. Do not submit claims about on-device AI subtitles, SMB/DLNA streaming, or Android TV until those features ship. Verify 4K, EAC3/Dolby, Bluetooth queue, and playback of lock-in formats on real Android and iOS devices before using those lines.
 
-The app has **no ads**, **no third-party APIs**, and **no backend**. Do not mention Chromecast, cloud backup, OpenSubtitles, or "remove ads" as a Pro benefit.
+The app has **no ads**, **no third-party APIs**, and **no backend**. Do not mention vendor casting SDKs, cloud backup, online subtitle catalogs, or "remove ads" as a Pro benefit. Do not claim DRM removal or circumvention. Do not name competitors in any field that is pasted into a store; see the internal notes at the end of this file.
+
+**QA gate:** nothing is submitted to a store without a PASS from Testing E2E Bot (`/home/box/shared/app-monitor/qa-checklist.md`).
 
 ---
 
@@ -28,7 +30,7 @@ No ads, ever. Standard files, 4K-ready player, one-time or monthly Pro.
 
 Character count: 71 (limit 80).
 
-### Full description (2781/4,000 characters)
+### Full description (2774/4,000 characters)
 
 ```
 OpenPlay is the offline video player that never interrupts your video — and never shows an ad.
@@ -37,13 +39,13 @@ NO ADS, ANYWHERE
 Pause, resume, skip to the next file, play offline, or listen in the background. There is no ad on the player, no "take a break" screen, and no banner in your library. OpenPlay makes money only from an optional Pro upgrade, never from advertising.
 
 YOUR FILES STAY YOURS
-Every file you save or export is a standard format such as MP4, MKV, or MP3, so it plays in other apps. No lock-in and no hidden containers. OpenPlay can also play many videos that other apps refuse, including files saved by PLAYit or VidMate, where the format allows, and can help you convert your own files to a standard format.
+Every file you save or export is a standard format such as MP4, MKV, or MP3, so it plays in other apps. No lock-in and no hidden containers. OpenPlay can also open files other apps lock in, where the format allows, and can help you convert your own files to a standard format.
 
 PLAYS THE FORMATS YOU ACTUALLY HAVE
 MKV, MP4, AVI, WebM, FLV, TS, MOV, 3GP and more. Built to play 4K smoothly on capable devices and to handle audio tracks other players drop, including EAC3 and other Dolby formats. Resume exactly where you left off. Playlists keep going, including over Bluetooth and after a call.
 
 GESTURES YOU ALREADY KNOW
-Swipe to seek, adjust volume or brightness, and double-tap to skip — the same muscle memory as MX Player and VLC. Playback speed from 0.25x to 4x, screen lock, picture-in-picture, background play, video-to-MP3, and subtitle files you add yourself, with sync saved per video.
+Swipe to seek, adjust volume or brightness, and double-tap to skip — gestures you already know. Playback speed from 0.25x to 4x, screen lock, picture-in-picture, background play, video-to-MP3, and subtitle files you add yourself, with sync saved per video.
 
 BUILT FOR PRIVACY
 OpenPlay asks for access to your videos so it can play them. It does not ask for location, camera, or a list of running apps. Picture-in-picture is requested only if you turn it on. There is no account to create, no cloud, and no analytics service. Your playback position and preferences stay on the device. You can delete in-app data from Settings. The private folder is built so hidden files cannot silently disappear, with a recovery path and a local encrypted export you control.
@@ -52,21 +54,21 @@ SIMPLE, HONEST PRICING
 The player is free. Optional OpenPlay Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-MP3 exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
 
 WHAT OPENPLAY IS NOT
-OpenPlay does not include a YouTube or social-video downloader. It does not bundle a game hall or a content feed. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA).
+OpenPlay does not include a YouTube or social-video downloader. It does not bundle a game hall, a content feed, or sample videos. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA). OpenPlay does not claim to remove or bypass DRM.
 
 OpenPlay launches on Android and iOS together.
 
 If something breaks, rate honestly and tell us in a review — we read and reply to critical reviews.
 ```
 
-Character count: 2781 (limit 4,000).
+Character count: 2774 (limit 4,000).
 
 ### Keyword and ASO notes (Play)
 
 - Primary promise: "ad free video player", "video player without ads", "offline video player", "MKV player", "4K video player".
 - Secondary: "EAC3 player", "Dolby audio player", "MP4 to MP3", "floating video player", "background play", "private folder video", "subtitle player Hindi".
 - Regional listings (not stuffed into the English title): Hindi, Bahasa, and Arabic equivalents of "video player without ads" / "offline video player".
-- Do not lead with AI photo-to-video or "all in one video player" — that is PLAYit's title phrase and current pivot. Win on uninterrupted playback, no ads, and standard files.
+- Lead with uninterrupted playback, no ads, and standard files. Do not lead with AI photo-to-video or the generic phrase "all in one video player."
 - Short promo video: a single take of a video being paused, resumed, and skipped, with no ad. That contrast is the listing's job.
 - Update cadence after launch: every 2–4 weeks, with real changelog notes (not only "bug fixes").
 - Review prompt: ask after a completed playback, never intercept the player, never ask for 5 stars specifically.
@@ -76,13 +78,13 @@ Character count: 2781 (limit 4,000).
 1. No ads — not during playback, not in your library.
 2. Your library. Standard files you can open anywhere.
 3. 4K-ready, with audio tracks other players drop.
-4. Gestures you already know from MX Player and VLC.
+4. Gestures you already know.
 5. Resume where you left off. Playlists that actually continue.
 6. A private folder with a recovery path — files don't vanish.
-7. Can't open a PLAYit or VidMate file? OpenPlay can try.
+7. Opens files other apps lock in.
 8. Optional Pro: $2.99/month, $9.99/year, or $29.99 once.
 
-Use dark-UI screenshots on mid-range Android and current iPhone frames. Show a real library and a mid-playback screen with no ad units. Screenshot 7 should only be used after Smart Muxer playback is verified.
+Use dark-UI screenshots on mid-range Android and current iPhone frames. Show a real library and a mid-playback screen with no ad units. Screenshot 7 should only be used after lock-in-format playback is verified. Do not bundle or show third-party sample clips or artwork.
 
 ### Play Data safety answers (draft)
 
@@ -102,7 +104,7 @@ Proposed Data safety entries:
 
 - Data is encrypted in transit: not applicable for app-collected data (none). Store checkout uses Google Play's transport.
 - Data encrypted at rest: follow device encryption; private-folder files and local encrypted exports are encrypted on device.
-- Users can request that data be deleted: **Yes**, because it lives on the device. Settings > Delete my data clears preferences, resume positions, entitlement cache (restore will recover Pro), and local logs. This contrasts with PLAYit, whose Data safety form says data cannot be deleted.
+- Users can request that data be deleted: **Yes**, because it lives on the device. Settings > Delete my data clears preferences, resume positions, entitlement cache (restore will recover Pro), and local logs.
 - Independent security review: No (unless we later commission one).
 - Not a children's-directed app; do not target children.
 
@@ -145,7 +147,7 @@ The offline video player with no ads at all. Pause, resume, and skip in peace. S
 
 Character count: 161 (limit 170). Promotional text can be updated without a new binary.
 
-### Description (2781/4,000 characters)
+### Description (2774/4,000 characters)
 
 ```
 OpenPlay is the offline video player that never interrupts your video — and never shows an ad.
@@ -154,13 +156,13 @@ NO ADS, ANYWHERE
 Pause, resume, skip to the next file, play offline, or listen in the background. There is no ad on the player, no "take a break" screen, and no banner in your library. OpenPlay makes money only from an optional Pro upgrade, never from advertising.
 
 YOUR FILES STAY YOURS
-Every file you save or export is a standard format such as MP4, MKV, or MP3, so it plays in other apps. No lock-in and no hidden containers. OpenPlay can also play many videos that other apps refuse, including files saved by PLAYit or VidMate, where the format allows, and can help you convert your own files to a standard format.
+Every file you save or export is a standard format such as MP4, MKV, or MP3, so it plays in other apps. No lock-in and no hidden containers. OpenPlay can also open files other apps lock in, where the format allows, and can help you convert your own files to a standard format.
 
 PLAYS THE FORMATS YOU ACTUALLY HAVE
 MKV, MP4, AVI, WebM, FLV, TS, MOV, 3GP and more. Built to play 4K smoothly on capable devices and to handle audio tracks other players drop, including EAC3 and other Dolby formats. Resume exactly where you left off. Playlists keep going, including over Bluetooth and after a call.
 
 GESTURES YOU ALREADY KNOW
-Swipe to seek, adjust volume or brightness, and double-tap to skip — the same muscle memory as MX Player and VLC. Playback speed from 0.25x to 4x, screen lock, picture-in-picture, background play, video-to-MP3, and subtitle files you add yourself, with sync saved per video.
+Swipe to seek, adjust volume or brightness, and double-tap to skip — gestures you already know. Playback speed from 0.25x to 4x, screen lock, picture-in-picture, background play, video-to-MP3, and subtitle files you add yourself, with sync saved per video.
 
 BUILT FOR PRIVACY
 OpenPlay asks for access to your videos so it can play them. It does not ask for location, camera, or a list of running apps. Picture-in-picture is requested only if you turn it on. There is no account to create, no cloud, and no analytics service. Your playback position and preferences stay on the device. You can delete in-app data from Settings. The private folder is built so hidden files cannot silently disappear, with a recovery path and a local encrypted export you control.
@@ -169,14 +171,14 @@ SIMPLE, HONEST PRICING
 The player is free. Optional OpenPlay Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-MP3 exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
 
 WHAT OPENPLAY IS NOT
-OpenPlay does not include a YouTube or social-video downloader. It does not bundle a game hall or a content feed. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA).
+OpenPlay does not include a YouTube or social-video downloader. It does not bundle a game hall, a content feed, or sample videos. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA). OpenPlay does not claim to remove or bypass DRM.
 
 OpenPlay launches on Android and iOS together.
 
 If something breaks, rate honestly and tell us in a review — we read and reply to critical reviews.
 ```
 
-Character count: 2781 (limit 4,000). Same story as Play, including the line that OpenPlay launches on Android and iOS together.
+Character count: 2774 (limit 4,000). Same story as Play, including the line that OpenPlay launches on Android and iOS together.
 
 ### Keywords (79/100 characters)
 
@@ -207,6 +209,19 @@ Notes for App Review (not shown on the nutrition label):
 - In-app purchases are sold through StoreKit. Apple processes the payment. The app keeps an on-device entitlement; it does not send receipts to our server (there is no server).
 - Photo Library access is for playing videos already on the device (purpose string is set in `app.json`). We do not upload the library.
 - Background audio uses the standard audio background mode.
+- The app does not bundle sample videos, TV clips, or third-party artwork, and it does not claim to remove or bypass DRM.
 - If a future build introduces on-device model packs, those files stay on the device and still are not collected.
 
 App Privacy policy URL, support URL, and the legal entity name are required at submit time and are owned by Samay (open questions in the handoff). Do not store emails or secrets in this repo.
+
+---
+
+## Internal notes — never paste this section into a store
+
+This section is for the team only. Competitor names and research context live here so they cannot be copied into Play Console or App Store Connect with the listing fields above.
+
+- The product is built to beat PLAYit (`com.playit.videoplayer`). Do not use PLAYit's "All in One Video Player" title phrase in our title or name.
+- User-facing copy used to mention PLAYit, VidMate, MX Player, and VLC. Those names were removed from titles, descriptions, keywords, screenshot captions, and Data safety answers (P1 #11). Prefer "gestures you already know" and "opens files other apps lock in."
+- "Opens files other apps lock in" refers to proprietary player containers (for example Smart Muxer files associated with PLAYit/VidMate), not DRM. Never claim we decrypt, strip, or bypass DRM, and never bundle or link to pirated content.
+- Verify lock-in-format playback on device before using screenshot 7 or the corresponding description sentence.
+- Data safety previously contrasted our deletion flow with PLAYit's form, which says data cannot be deleted. Keep that comparison out of the Play form itself.
