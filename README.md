@@ -1,0 +1,210 @@
+# OpenPlay
+
+**Working title: OpenPlay.** This name is waiting for Samay's approval and must be cleared (trademark and store uniqueness) before any store submit.
+
+OpenPlay is an offline video player for **Android and iOS**, launching on both platforms together. It is built to beat PLAYit by never interrupting playback, never showing ads, saving only standard file formats (no lock-in), and asking for as few permissions as possible.
+
+Product docs:
+
+- [docs/SPEC.md](docs/SPEC.md) — problem, users, MVP vs v2, stack, monetization, risks
+- [docs/STORE_LISTING.md](docs/STORE_LISTING.md) — Play Store and App Store drafts
+- [docs/PAYWALL_PLAN.md](docs/PAYWALL_PLAN.md) — free vs Pro, prices, trials, store billing
+
+Identifiers (proposal): `com.allinone.videoplayer` as the Android application id and the iOS bundle identifier.
+
+## No third-party APIs
+
+Hard rule: **no third-party APIs and no paid services or access.** Everything is built in-house. Open-source libraries are allowed.
+
+That means:
+
+- No RevenueCat, no billing backend, no custom account server. Digital goods are sold only through **Google Play Billing** and **Apple StoreKit** (the stores require this) using an open-source on-device library such as expo-iap or react-native-iap when the paywall is implemented. Entitlements are checked on the device.
+- No ad networks and no ad SDKs. There are no ads in any tier. Revenue is monthly, yearly, and lifetime purchases only.
+- No cloud APIs. AI subtitles and translation, when they ship in v2, run on the device with open-source models (for example whisper.cpp). Private-folder backup is a local encrypted export/import, not cloud sync. Subtitles come from embedded tracks, local files, and manual import — no OpenSubtitles or other catalog APIs. Casting and LAN streaming, when they ship in v2, use open protocols (DLNA/UPnP, SMB) implemented with open-source code, not the Google Cast SDK or other vendor SDKs.
+- No analytics or crash-reporting SDKs (no Firebase, Sentry, or similar). Logs stay on the device and are not uploaded.
+- No YouTube or social-video downloader (store policy risk), in addition to the API rule.
+
+The stores' own billing and the operating systems themselves are not "third-party APIs" in this rule; they are required platform services. Expo and other MIT/Apache open-source libraries in this repository are allowed.
+
+## Features
+
+### MVP (first store release)
+
+- Local video library (device and SD card): folders, recents, search
+- Playback of common formats, with a path to FFmpeg/libVLC so 4K and EAC3/Dolby audio work on real devices
+- No ads anywhere
+- Resume position, playlists, Bluetooth-safe continuation
+- MX Player / VLC-style gestures (seek, volume/brightness stubs in this scaffold, double-tap skip, speed later)
+- Background audio and picture-in-picture / popup player
+- Local and embedded subtitles with manual import and per-file sync
+- Video-to-MP3 and other exports in standard formats only (capped on the free tier)
+- Play PLAYit/VidMate files where legally and technically possible; no proprietary lock-in of our own
+- Private folder with a recovery key and a Pro local encrypted export/import
+- Minimal permissions and on-device data deletion
+- Optional Pro via Play Billing and StoreKit
+
+The current scaffold implements the library screen, the player screen (expo-video), gesture stubs, and on-device resume via AsyncStorage. The production playback engine, IAP, private folder, and exports are still to be built.
+
+### v2
+
+- On-device AI subtitles and translation (open-source models, e.g. whisper.cpp)
+- SMB and DLNA/UPnP streaming implemented with open-source code
+- Equalizer / advanced audio, HDR/AV1 tuning
+- Further localized UI and store listings
+
+### Excluded
+
+- YouTube or social-video downloaders
+- Game hall, coin economy, content feeds
+- Any third-party or paid API listed in the section above
+
+## Tech stack
+
+- Expo SDK 58, TypeScript, expo-router, React Native
+- expo-video for the scaffold player (ExoPlayer on Android, AVPlayer on iOS)
+- expo-media-library for the on-device video list
+- AsyncStorage for resume positions
+- react-native-gesture-handler for player gestures
+- Planned, not in the scaffold yet: Media3/ExoPlayer + FFmpeg and/or libVLC for production playback; expo-iap or react-native-iap for store billing; whisper.cpp for v2 on-device subtitles
+
+## Identifiers
+
+| Platform | Identifier (proposal) |
+| --- | --- |
+| Android application id | `com.allinone.videoplayer` |
+| iOS bundle identifier | `com.allinone.videoplayer` |
+
+Both are set in `app/app.json`. The display name is the working title OpenPlay, pending approval.
+
+## Install and run locally
+
+You need Node.js 20+ and a current Expo-compatible environment. For a device library and hardware playback, use an Android device/emulator or an iPhone/simulator. The web target can open the sample video only; it cannot scan the device library.
+
+```bash
+cd app
+npm install
+npm run typecheck
+npx expo start
+```
+
+Then press `a` for Android or `i` for iOS, or scan the QR code with Expo Go. Grant video/photo-library access when the home screen asks, then tap a video. Resume position is stored on the device and restored the next time you open the same file.
+
+Useful scripts (run from `app/`):
+
+```bash
+npm run typecheck          # tsc --noEmit
+npx expo start --android
+npx expo start --ios
+npx expo export --platform android
+npx expo export --platform ios
+```
+
+Do not put secrets, tokens, or emails in this repo or in local env files that might be committed. `.env` files are gitignored.
+
+## Build with EAS
+
+Builds will later use the **krosz Expo account**. An EAS project has **not** been created yet. Do not run `eas init`, `eas build`, or `eas submit` until that account and project are set up on purpose.
+
+When the project exists, intended usage is:
+
+- Add an `eas.json` (not in the repo yet) with profiles **`development`**, **`preview`**, and **`production`**.
+- Development: dev client, internal distribution, for day-to-day device work.
+- Preview: store-like binary for testers (internal or TestFlight / Play internal testing).
+- Production: the store binary. No placeholders, no missing paywall, no missing store description.
+
+Commands (for later, not now):
+
+```bash
+cd app
+# after eas.json exists and the krosz account is logged in
+eas build -p android --profile development
+eas build -p ios --profile development
+eas build -p android --profile preview
+eas build -p ios --profile preview
+eas build -p android --profile production
+eas build -p ios --profile production
+```
+
+`eas build -p android` and `eas build -p ios` without a profile will need the default profile defined in `eas.json`. Production submits use `eas submit` only after the listings, privacy policy, and billing products are real.
+
+## Paywall setup
+
+Final USD prices (not proposals):
+
+| Product id (proposal) | Type | Price |
+| --- | --- | --- |
+| `openplay_pro_monthly` | Auto-renewing subscription | $2.99 / month |
+| `openplay_pro_yearly` | Auto-renewing subscription | $9.99 / year |
+| `openplay_pro_lifetime` | One-time unlock | $29.99 |
+
+Suggested regional equivalents (INR, IDR, PHP, AED, SAR) are in [docs/PAYWALL_PLAN.md](docs/PAYWALL_PLAN.md) and are suggestions only.
+
+Billing approach: **Google Play Billing** and **Apple StoreKit only**, through an open-source on-device library such as **expo-iap** or **react-native-iap** when that screen is built. Entitlement checks stay on the device. There is no RevenueCat and no receipt-validation backend. Create the three product ids in Play Console and App Store Connect before wiring the library. A 7-day opt-in trial is planned for the yearly plan only, with a 24-hour local reminder before the first charge. Restore purchases must be visible on the paywall and in Settings.
+
+Free is the full player with caps on extras (exports and private-folder size). Pro lifts those caps and later unlocks on-device AI subtitles and SMB/DLNA. There are no ads to remove.
+
+## Current status and TODOs
+
+**Status (scaffold):** Expo SDK 58 app in `app/` with a home screen that lists device videos and a player screen that plays them, including gesture stubs and AsyncStorage resume. Docs and this README are in place. Git is local only. No EAS project, no store submit, no IAP wiring yet.
+
+**TODOs**
+
+- Approve or replace the working title OpenPlay and confirm `com.allinone.videoplayer`.
+- Replace or extend expo-video with an open-source engine that covers 4K and EAC3/Dolby on mid-range devices; verify PLAYit/VidMate file playback before advertising it.
+- Implement the private folder, capped exports, local encrypted export/import, and settings (including delete-my-data).
+- Add expo-iap or react-native-iap, create the three store products, and ship the paywall with restore and the yearly trial reminder.
+- Build on-device AI subtitles (v2) and SMB/DLNA (v2) with open-source code only.
+- Write the privacy policy and create Play / App Store listings from the drafts. No secrets or contact addresses belong in this repository.
+- Create the EAS project on the krosz Expo account and add `eas.json` with development, preview, and production profiles when it is time to build.
+
+## Dependencies and licenses
+
+Direct dependencies of the Expo app in `app/package.json`. Versions are what the scaffold was generated and installed with (Expo SDK 58). All of these are open source. Transitive packages in `node_modules` are also open source and are not listed one-by-one.
+
+### Runtime
+
+| Package | Version | License |
+| --- | --- | --- |
+| @expo/ui | 58.0.28 | MIT |
+| @react-native-async-storage/async-storage | 2.2.0 | MIT |
+| expo | 58.0.24 | MIT |
+| expo-constants | 58.0.16 | MIT |
+| expo-device | 58.0.5 | MIT |
+| expo-font | 58.0.12 | MIT |
+| expo-glass-effect | 58.0.5 | MIT |
+| expo-image | 58.0.18 | MIT |
+| expo-linking | 58.0.17 | MIT |
+| expo-media-library | 58.0.14 | MIT |
+| expo-router | 58.0.31 | MIT |
+| expo-splash-screen | 58.0.14 | MIT |
+| expo-status-bar | 58.0.5 | MIT |
+| expo-symbols | 58.0.5 | MIT |
+| expo-system-ui | 58.0.7 | MIT |
+| expo-video | 58.0.14 | MIT |
+| expo-web-browser | 58.0.8 | MIT |
+| react | 19.3.0 | MIT |
+| react-dom | 19.3.0 | MIT |
+| react-native | 0.88.1 | MIT |
+| react-native-gesture-handler | 3.3.0 | MIT |
+| react-native-reanimated | 4.7.1 | MIT |
+| react-native-safe-area-context | 5.11.1 | MIT |
+| react-native-screens | 4.30.1 | MIT |
+| react-native-web | 0.21.4 | MIT |
+| react-native-worklets | 0.13.0 | MIT |
+
+### Development
+
+| Package | Version | License |
+| --- | --- | --- |
+| @types/react | 19.3.0 | MIT |
+| typescript | 6.0.3 | Apache-2.0 |
+
+### Planned open-source additions (not installed)
+
+| Library | Role | Expected license |
+| --- | --- | --- |
+| expo-iap or react-native-iap | Play Billing and StoreKit on the device | MIT (confirm at add time) |
+| Media3/ExoPlayer + FFmpeg and/or libVLC | Production format and Dolby-audio coverage | Apache-2.0 / LGPL-style (confirm and comply at add time) |
+| whisper.cpp (v2) | On-device speech-to-text / translation | MIT (confirm at add time) |
+
+FFmpeg and libVLC have license obligations (LGPL/GPL variants depending on the build). When they are added, ship the required notices and, if needed, offer the corresponding source. Do not add a package whose terms require a paid license or a network API key.
