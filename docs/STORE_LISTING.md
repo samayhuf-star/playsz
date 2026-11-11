@@ -125,13 +125,15 @@ Proposed Data safety entries:
 | --- | --- | --- |
 | Support email | samayhuf@gmail.com | Approved |
 | Privacy policy contact | samayhuf@gmail.com | Approved |
+| Grievance officer | Samay Vashsht (email only; no phone number is published) | Approved |
 | Privacy policy URL | The `site/privacy.html` page, once hosted at a live public URL | Pending hosting |
 | Apple seller (for reference; not the public-page publisher) | Sunny Vashisht (Individual) | Approved |
 | Google Play developer name | — | Pending confirmation; do not invent or file a name yet |
 | Google Play developer address | — | Pending confirmation; do not invent or file an address yet |
 | Copyright holder | © 2026 Samay Vashsht | Approved |
+| Legal-page postal address | Postal address: pending | Pending confirmation; clearly marked placeholder on `site/` pages. Blocker before publishing those pages; do not invent an address |
 
-Do not paste a Play developer name or address into the console until those pending fields are confirmed.
+Do not paste a Play developer name or address into the console until those pending fields are confirmed. Do not publish the legal pages until the postal address placeholder is replaced.
 
 ---
 
@@ -237,6 +239,8 @@ Notes for App Review (not shown on the nutrition label):
 | Support email (Privacy / Support contact) | samayhuf@gmail.com | Approved |
 | Privacy policy URL / support URL | The `site/privacy.html` and `site/index.html` (or terms) pages, once hosted at a live public URL | Pending hosting |
 | Copyright | © 2026 Samay Vashsht | Approved |
+| Legal-page postal address | Postal address: pending | Pending confirmation; clearly marked placeholder on `site/` pages. Blocker before publishing those pages; do not invent an address |
+| Grievance officer | Samay Vashsht (email only; no phone number is published) | Approved |
 
 The support and privacy contact email belongs in these store fields and on the public `site/` pages only — not in the README or in app source.
 
@@ -254,3 +258,4 @@ This section is for the team only. Competitor names and research context live he
 
 - Copyright holder is Samay Vashsht. Store listings, the Settings/About screen, and the public `site/` pages use "© 2026 Samay Vashsht". The operator/publisher named on the public legal pages is Samay Vashsht. The Apple seller remains Sunny Vashisht (Individual), team ID PGLT2QZX88; that seller name is documented here and in the App Store Connect fields, not as the publisher on the public pages.
 - Google Play developer name and address are not verified; leave them pending and do not invent values.
+- The public legal pages name Samay Vashsht as grievance officer and publish only the approved email, with no phone number. They also carry a clearly marked `Postal address: pending` placeholder. That address is a blocker before publishing the site; do not invent one.

@@ -133,7 +133,7 @@ Production submits use `eas submit` only after the listings, hosted legal pages,
 
 ## Legal URLs (required before QA)
 
-Public legal pages live in `site/` (`index.html`, `privacy.html`, `terms.html`). The operator/publisher and copyright holder named on those pages is Samay Vashsht (`© 2026 Samay Vashsht`).
+Public legal pages live in `site/` (`index.html`, `privacy.html`, `terms.html`) and are accepted as final. The operator/publisher, copyright holder, and grievance officer named on those pages is Samay Vashsht (`© 2026 Samay Vashsht`). Contact on those pages is email only; no phone number is published. The postal address is still pending, so the pages carry a clearly marked `Postal address: pending` placeholder. That address must be confirmed and filled in before the site is published.
 
 Terms and Privacy links in the app are read from `app/src/constants/legal.ts` (`LEGAL_URLS.terms` and `LEGAL_URLS.privacy`). Both strings stay **unset** until those pages are hosted at a real public URL. Do not fill them with a placeholder host. The paywall and Settings show Terms and Privacy only after the hosted URLs are set.
 
