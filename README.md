@@ -100,41 +100,46 @@ npx expo export --platform android
 npx expo export --platform ios
 ```
 
-Do not put secrets, tokens, or emails in this repo or in local env files that might be committed. `.env` files are gitignored.
+Do not put secrets or tokens in this repo or in local env files that might be committed. `.env` files are gitignored. Support contact belongs on the public `site/` pages and in the store listing fields only, not in this README or in app source.
 
 ## Build with EAS
 
-Builds will later use the **krosz Expo account**. An EAS project has **not** been created yet. Do not run `eas init`, `eas build`, or `eas submit` until that account and project are set up on purpose.
+The EAS project is **@krosz/openplay** on the krosz Expo account: https://expo.dev/accounts/krosz/projects/openplay
 
-When the project exists, intended usage is:
+`app/eas.json` defines three profiles:
 
-- Add an `eas.json` (not in the repo yet) with profiles **`development`**, **`preview`**, and **`production`**.
-- Development: dev client, internal distribution, for day-to-day device work.
-- Preview: store-like binary for testers (internal or TestFlight / Play internal testing).
-- Production: the store binary. No placeholders, no missing paywall, no missing store description.
+- **development** — dev client, internal distribution
+- **preview** — internal distribution; Android `apk`
+- **production** — Android `app-bundle` (AAB)
 
-Commands (for later, not now):
+The Android upload keystore is generated and stored on EAS (not in this repo).
+
+### iOS builds (not run yet)
+
+Future iOS builds and App Store submission use Apple team ID **PGLT2QZX88** (seller: Sunny Vashisht, Individual). The team ID is set as `expo.ios.appleTeamId` in `app/app.json` (this eas-cli version does not allow `appleTeamId` under `eas.json` build profiles). Do not run `eas build -p ios` or `eas submit` until that is requested.
 
 ```bash
 cd app
-# after eas.json exists and the krosz account is logged in
 eas build -p android --profile development
-eas build -p ios --profile development
 eas build -p android --profile preview
-eas build -p ios --profile preview
 eas build -p android --profile production
-eas build -p ios --profile production
+# iOS, when requested:
+# eas build -p ios --profile development
+# eas build -p ios --profile preview
+# eas build -p ios --profile production
 ```
 
-`eas build -p android` and `eas build -p ios` without a profile will need the default profile defined in `eas.json`. Production submits use `eas submit` only after the listings, privacy policy, and billing products are real.
+Production submits use `eas submit` only after the listings, hosted legal pages, and billing products are real.
 
 ## Legal URLs (required before QA)
 
-Terms and Privacy links are read from a single config file: `app/src/constants/legal.ts` (`LEGAL_URLS.terms` and `LEGAL_URLS.privacy`).
+Public legal pages live in `site/` (`index.html`, `privacy.html`, `terms.html`). The publisher name on those pages is Sunny Vashisht.
 
-Both strings are **unset** in this commit. That is intentional. Do not fill them with example.com or any other placeholder host. The paywall shows an on-screen note instead of links until both are set to live, public pages.
+Terms and Privacy links in the app are read from `app/src/constants/legal.ts` (`LEGAL_URLS.terms` and `LEGAL_URLS.privacy`). Both strings stay **unset** until those pages are hosted at a real public URL. Do not fill them with a placeholder host. The paywall and Settings show Terms and Privacy only after the hosted URLs are set.
 
-**QA and store submit require those two URLs to be real** and to match the policy text. There is no sign-up, so there is no account-deletion flow.
+**QA and store submit require those two URLs to be live** and to match the `site/` pages. There is no sign-up, so there is no account-deletion flow.
+
+The copyright holder name is still pending confirmation and is not shown in the app UI.
 
 ## Icons and splash
 
@@ -176,13 +181,13 @@ Free is the full player with caps on extras (exports and private-folder size). P
 **TODOs**
 
 - Approve or replace the working title OpenPlay and confirm `com.allinone.videoplayer`.
-- Set live Terms and Privacy URLs in `app/src/constants/legal.ts` before QA (no placeholder hosts).
+- Host the `site/` legal pages, then set the live URLs in `app/src/constants/legal.ts` before QA (no placeholder hosts).
 - Replace or extend expo-video with an open-source engine that covers 4K and EAC3/Dolby on mid-range devices; verify lock-in-format playback before advertising it.
 - Finish the real export encoder, private-folder vault, local encrypted export/import, and Settings > Delete my data (caps are already gated).
 - Create the three store products and sandbox-test buy, cancel, failure, and restore on a dev-client or store binary.
 - Add the yearly trial reminder once store trials are configured.
 - Build on-device AI subtitles (v2) and SMB/DLNA (v2) with open-source code only.
-- Write the privacy policy and capture store screenshots from a real build. No secrets or contact addresses belong in this repository.
+- Capture store screenshots from a real build. Confirm the copyright holder and the Google Play developer name and address before store submit.
 - Create the EAS project on the krosz Expo account and add `eas.json` with development, preview, and production profiles when it is time to build. Nothing ships to a store without a Testing E2E Bot PASS.
 
 ## Dependencies and licenses

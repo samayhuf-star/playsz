@@ -5,6 +5,8 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors } from '@/constants/colors';
+import { LEGAL_URLS, hasLegalUrl } from '@/constants/legal';
+import * as Linking from 'expo-linking';
 import {
   FREE_EXPORTS_PER_DAY,
   FREE_PRIVATE_FOLDER_ITEMS,
@@ -122,6 +124,22 @@ export default function SettingsScreen() {
             <Text style={styles.secondaryLabel}>Local encrypted export</Text>
           </Pressable>
         </View>
+
+        {hasLegalUrl('terms') || hasLegalUrl('privacy') ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Legal</Text>
+            {hasLegalUrl('terms') ? (
+              <Pressable style={styles.secondary} onPress={() => void Linking.openURL(LEGAL_URLS.terms)}>
+                <Text style={styles.secondaryLabel}>Terms of Use</Text>
+              </Pressable>
+            ) : null}
+            {hasLegalUrl('privacy') ? (
+              <Pressable style={styles.secondary} onPress={() => void Linking.openURL(LEGAL_URLS.privacy)}>
+                <Text style={styles.secondaryLabel}>Privacy Policy</Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
 
         {note ? <Text style={styles.note}>{note}</Text> : null}
       </ScrollView>

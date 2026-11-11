@@ -117,7 +117,19 @@ Proposed Data safety entries:
 - Internet: required by the OS for Play Billing restore and for the user to reach the store. The player itself works fully offline. No analytics, ads, or account calls.
 - Do **not** request location, camera, contacts, query all packages, or modify system settings.
 
-The privacy policy URL and developer legal name must be live before store submit. Those values are owned by Samay and are listed as open questions in the handoff, not as blanks inside this listing copy. Do not put contact emails in this repository.
+### Play Console contact and publisher fields
+
+| Field | Value | Status |
+| --- | --- | --- |
+| Support email | samayhuf@gmail.com | Approved |
+| Privacy policy contact | samayhuf@gmail.com | Approved |
+| Privacy policy URL | The `site/privacy.html` page, once hosted at a live public URL | Pending hosting |
+| Apple seller / publisher (for reference) | Sunny Vashisht (Individual) | Approved |
+| Google Play developer name | — | Pending confirmation; do not invent or file a name yet |
+| Google Play developer address | — | Pending confirmation; do not invent or file an address yet |
+| Copyright holder | — | Pending confirmation with Samay; do not put a copyright name in the app UI or on the public pages yet |
+
+Do not paste a Play developer name or address into the console until those pending fields are confirmed.
 
 ---
 
@@ -212,7 +224,17 @@ Notes for App Review (not shown on the nutrition label):
 - The app does not bundle sample videos, TV clips, or third-party artwork, and it does not claim to remove or bypass DRM.
 - If a future build introduces on-device model packs, those files stay on the device and still are not collected.
 
-App Privacy policy URL, support URL, and the legal entity name are required at submit time and are owned by Samay (open questions in the handoff). Do not store emails or secrets in this repo.
+### App Store Connect contact and publisher fields
+
+| Field | Value | Status |
+| --- | --- | --- |
+| Seller / publisher | Sunny Vashisht (Individual) | Approved |
+| Apple team ID | PGLT2QZX88 | Approved |
+| Support email (Privacy / Support contact) | samayhuf@gmail.com | Approved |
+| Privacy policy URL / support URL | The `site/privacy.html` and `site/index.html` (or terms) pages, once hosted at a live public URL | Pending hosting |
+| Copyright holder | — | Pending confirmation with Samay; leave out of the app UI for now |
+
+The support and privacy contact email belongs in these store fields and on the public `site/` pages only — not in the README or in app source.
 
 ---
 
@@ -225,3 +247,6 @@ This section is for the team only. Competitor names and research context live he
 - "Opens files other apps lock in" refers to proprietary player containers (for example Smart Muxer files associated with PLAYit/VidMate), not DRM. Never claim we decrypt, strip, or bypass DRM, and never bundle or link to pirated content.
 - Verify lock-in-format playback on device before using screenshot 7 or the corresponding description sentence.
 - Data safety previously contrasted our deletion flow with PLAYit's form, which says data cannot be deleted. Keep that comparison out of the Play form itself.
+
+- Copyright holder name is still being confirmed with Samay. Keep it out of the app UI and off the public legal pages until it is confirmed. Publisher on those pages is Sunny Vashisht (that is not a substitute for the copyright line).
+- Google Play developer name and address are not verified; leave them pending and do not invent values.

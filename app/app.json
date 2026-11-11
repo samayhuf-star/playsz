@@ -17,7 +17,8 @@
         "UIBackgroundModes": [
           "audio"
         ]
-      }
+      },
+      "appleTeamId": "PGLT2QZX88"
     },
     "android": {
       "package": "com.allinone.videoplayer",

@@ -26,8 +26,8 @@ Statuses below are based on the real repo state, not on intended product.
 | iOS TestFlight or EAS simulator build | not yet | Same; iOS-on-device stays pending without TestFlight or device evidence |
 | Test accounts + sandbox purchase testers | not yet | Store products are not created in the consoles |
 | Store listing drafts | done | `docs/STORE_LISTING.md` (Play + App Store). User-facing fields no longer name competitors |
-| Privacy policy URL | not yet | `LEGAL_URLS.privacy` in `app/src/constants/legal.ts` is empty on purpose |
-| Support URL / email | not yet | Not in the repo (emails must not be committed) |
+| Privacy policy URL | not yet | Pages exist in `site/privacy.html` (publisher: Sunny Vashisht). Not hosted yet, so `LEGAL_URLS` is still unset |
+| Support URL / email | not yet | Support contact is listed in `docs/STORE_LISTING.md` and on the `site/` pages. Support URL is pending hosting of `site/`. Play developer name and address, and the copyright holder, remain pending confirmation |
 
 ## P0 (blocks)
 
@@ -36,7 +36,7 @@ Statuses below are based on the real repo state, not on intended product.
 | 1 | No crashes/ANRs (cold start, all screens, background/resume, rotation, offline) | not yet | Library, player, settings, and paywall compile and export, but there is no device or emulator QA pass, and no release binary |
 | 2 | No placeholders (lorem, TODO, Test, default Expo icon/splash, example.com, dummy prices) in app or listing | not yet | Default Expo/React artwork and the Big Buck Bunny sample stream are gone. Icons are an original play-button mark. Remaining gaps: the display name is still a working title; Terms/Privacy URLs are unset (not pointed at example.com); store products are not live so the paywall shows "unavailable" rather than real prices; Settings export/folder actions are cap-gates only, the real encoder and vault are not built |
 | 3 | Paywall: store-loaded prices, sandbox buy, restore, unlock persists, failed/cancel handled, terms+privacy links, auto-renew disclosure | not yet | Code is in (`expo-iap`, paywall screen, on-device entitlement, restore, cancel/failure handling, auto-renew disclosure, capped extras gated). Prices are store-loaded when the store returns them, otherwise a clear unavailable state. Terms/Privacy links only render when `LEGAL_URLS` is set. Not yet: live console products, a dev-client/store binary, or a sandbox purchase test |
-| 4 | Privacy policy URL live, accurate, linked in app + listing; Play Data safety / Apple privacy labels match SDKs | not yet | Draft labels exist in `docs/STORE_LISTING.md`. No live policy URL. Links in the app stay hidden until the config is set |
+| 4 | Privacy policy URL live, accurate, linked in app + listing; Play Data safety / Apple privacy labels match SDKs | not yet | Policy text and store contact fields are drafted (`site/privacy.html`, `docs/STORE_LISTING.md`). The policy is not hosted at a live URL yet, so the in-app links stay hidden |
 | 5 | Minimal permissions with usage strings; no crash on deny | not yet | Video-only usage strings are in `app.json`; the home screen handles deny. Not device-tested, including limited-access and iOS deny paths |
 | 6 | Both platforms build and run from stated commit | not yet | `npx tsc --noEmit` and `npx expo export --platform android` / `ios` succeed. No native EAS/Xcode/Gradle installable build has been produced |
 | 7 | Content rights: no unlicensed video/audio/art/text; no pirated content / DRM claims | done | No bundled sample video or media. Default Expo/React artwork removed. Original icon SVG + rasters in `app/assets`. Store copy and the app do not claim DRM removal or circumvention. Internal notes only discuss competitor lock-in formats |
@@ -67,7 +67,7 @@ Statuses below are based on the real repo state, not on intended product.
 ## Open blockers before a QA hand-off
 
 1. Confirm the name and bundle ID.
-2. Publish a real privacy policy and terms, set `LEGAL_URLS` in `app/src/constants/legal.ts`, and add support contact outside this repo.
+2. Host the `site/` privacy and terms pages at a live URL, then set `LEGAL_URLS` in `app/src/constants/legal.ts`. Confirm the copyright holder and the Google Play developer name and address before store submit.
 3. Create the three store products and an EAS project on the krosz account; produce Android and iOS builds from a stated commit.
 4. Sandbox-purchase the paywall (buy, cancel, failure, restore, persistence).
 5. Capture store screenshots from those builds; file the age rating; drop or prove any unverified playback claims.
