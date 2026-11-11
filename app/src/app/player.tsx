@@ -15,12 +15,21 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors } from '@/constants/colors';
+import * as Brightness from 'expo-brightness';
+
+import { DarkColors as Colors } from '@/constants/colors';
 import {
   formatTimecode,
   getResumePosition,
+  recordRecentPlayback,
   saveResumePosition,
 } from '@/lib/resume-position';
+import {
+  importSubtitleFile,
+  loadSubtitleSelection,
+  saveSubtitleOffset,
+} from '@/lib/subtitle-prefs';
+import { cueAtTime, type SubtitleCue } from '@/lib/subtitles';
 
 type GestureHint = {
   label: string;
@@ -67,11 +76,18 @@ export default function PlayerScreen() {
   const [resumeNotice, setResumeNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
+  const [cues, setCues] = useState<SubtitleCue[]>([]);
+  const [subtitleName, setSubtitleName] = useState<string | null>(null);
+  const [subtitleOffset, setSubtitleOffset] = useState(0);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadedUri = useRef<string | null>(null);
   const assetIdRef = useRef(assetId);
   assetIdRef.current = assetId;
+  const brightnessRef = useRef(1);
+  const volumeRef = useRef(1);
+  const startBrightnessRef = useRef(1);
+  const startVolumeRef = useRef(1);
 
   const currentTime = timeUpdate.currentTime ?? 0;
 
@@ -132,24 +148,72 @@ export default function PlayerScreen() {
     [persistPosition, player, showHint]
   );
 
+  const clampUnit = (value: number) => Math.min(1, Math.max(0, value));
+
+  const markVerticalStart = useCallback(() => {
+    startBrightnessRef.current = brightnessRef.current;
+    startVolumeRef.current = volumeRef.current;
+  }, []);
+
   const onVerticalGesture = useCallback(
-    (side: 'left' | 'right', deltaY: number) => {
-      // Stub: brightness (left) and volume (right) need native modules in a later build.
-      const direction = deltaY < 0 ? 'up' : 'down';
+    (side: 'left' | 'right', translationY: number) => {
       if (side === 'left') {
+        const next = clampUnit(startBrightnessRef.current - translationY / 280);
+        brightnessRef.current = next;
+        void Brightness.setBrightnessAsync(next);
         showHint({
-          label: `Brightness ${direction}`,
-          detail: 'Gesture stub — will drive system brightness',
+          label: `${Math.round(next * 100)}%`,
+          detail: 'Brightness',
         });
       } else {
+        const next = clampUnit(startVolumeRef.current - translationY / 280);
+        volumeRef.current = next;
+        player.volume = next;
         showHint({
-          label: `Volume ${direction}`,
-          detail: 'Gesture stub — will drive playback volume',
+          label: `${Math.round(next * 100)}%`,
+          detail: 'Playback volume',
         });
       }
     },
-    [showHint]
+    [player, showHint]
   );
+
+  const changeOffset = useCallback(
+    (delta: number) => {
+      const id = assetIdRef.current;
+      setSubtitleOffset((current) => {
+        const next = Math.round((current + delta) * 10) / 10;
+        if (id) {
+          void saveSubtitleOffset(id, next);
+        }
+        return next;
+      });
+    },
+    []
+  );
+
+  const onImportSubtitles = useCallback(async () => {
+    const id = assetIdRef.current;
+    if (!id) {
+      setError('Play a library video before importing subtitles.');
+      return;
+    }
+    try {
+      const loaded = await importSubtitleFile(id);
+      if (!loaded) {
+        return;
+      }
+      setCues(loaded.cues);
+      setSubtitleName(loaded.selection.name);
+      setSubtitleOffset(loaded.selection.offset);
+      showHint({
+        label: 'Subtitles',
+        detail: `${loaded.selection.name} · ${loaded.cues.length} cues`,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not import subtitles.');
+    }
+  }, [showHint]);
 
   const togglePlayback = useCallback(() => {
     if (player.playing) {
@@ -159,6 +223,18 @@ export default function PlayerScreen() {
       void player.play();
     }
   }, [persistPosition, player]);
+
+  useEffect(() => {
+    void Brightness.getBrightnessAsync()
+      .then((value) => {
+        if (Number.isFinite(value)) {
+          brightnessRef.current = value;
+        }
+      })
+      .catch(() => {
+        // Window brightness stays at the last known value.
+      });
+  }, []);
 
   useEffect(() => {
     if (!uri) {
@@ -192,6 +268,16 @@ export default function PlayerScreen() {
           player.currentTime = resumeAt;
           setResumeNotice(`Resumed at ${formatTimecode(resumeAt)}`);
           setTimeout(() => setResumeNotice(null), 2200);
+        }
+        volumeRef.current = player.volume ?? 1;
+        if (assetId) {
+          void recordRecentPlayback({ id: assetId, title });
+          const loadedSubs = await loadSubtitleSelection(assetId);
+          if (!cancelled && loadedSubs) {
+            setCues(loadedSubs.cues);
+            setSubtitleName(loadedSubs.selection.name);
+            setSubtitleOffset(loadedSubs.selection.offset);
+          }
         }
         player.play();
       } catch (err) {
@@ -274,7 +360,10 @@ export default function PlayerScreen() {
     const vertical = Gesture.Pan()
       .activeOffsetY([-16, 16])
       .failOffsetX([-24, 24])
-      .onEnd((event) => {
+      .onBegin(() => {
+        runOnJS(markVerticalStart)();
+      })
+      .onUpdate((event) => {
         const side = event.x < windowWidth / 2 ? 'left' : 'right';
         runOnJS(onVerticalGesture)(side, event.translationY);
       });
@@ -285,6 +374,7 @@ export default function PlayerScreen() {
       vertical
     );
   }, [
+    markVerticalStart,
     onVerticalGesture,
     seekToRatio,
     skipBy,
@@ -333,6 +423,15 @@ export default function PlayerScreen() {
         </View>
       ) : null}
 
+      {(() => {
+        const cue = cues.length ? cueAtTime(cues, currentTime, subtitleOffset) : null;
+        return cue ? (
+          <View style={[styles.subtitleBox, { bottom: controlsVisible ? 88 + insets.bottom : 28 + insets.bottom }]} pointerEvents="none">
+            <Text style={styles.subtitleText}>{cue.text}</Text>
+          </View>
+        ) : null;
+      })()}
+
       {controlsVisible ? (
         <View style={styles.controls} pointerEvents="box-none">
           <View
@@ -344,24 +443,36 @@ export default function PlayerScreen() {
             <Text style={styles.videoTitle} numberOfLines={1}>
               {title}
             </Text>
-            <View style={styles.backSpacer} />
+            <Pressable onPress={() => void onImportSubtitles()} hitSlop={12} style={styles.subBtn}>
+              <Text style={styles.subBtnLabel}>Subs</Text>
+            </Pressable>
           </View>
 
-          <View
-            style={[
-              styles.bottomBar,
-              { paddingBottom: Math.max(insets.bottom, 16) },
-            ]}
-          >
-            <Pressable style={styles.playBtn} onPress={togglePlayback}>
-              <Text style={styles.playLabel}>{isPlaying ? 'Pause' : 'Play'}</Text>
-            </Pressable>
-            <Text style={styles.time}>{formatTimecode(currentTime)}</Text>
-            <View style={styles.track}>
-              <View style={[styles.trackFill, { flex: progress }]} />
-              <View style={{ flex: Math.max(1 - progress, 0.0001) }} />
+          <View style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
+            <View style={styles.bottomBar}>
+              <Pressable style={styles.playBtn} onPress={togglePlayback}>
+                <Text style={styles.playLabel}>{isPlaying ? 'Pause' : 'Play'}</Text>
+              </Pressable>
+              <Text style={styles.time}>{formatTimecode(currentTime)}</Text>
+              <View style={styles.track}>
+                <View style={[styles.trackFill, { flex: progress }]} />
+                <View style={{ flex: Math.max(1 - progress, 0.0001) }} />
+              </View>
+              <Text style={styles.time}>{formatTimecode(duration)}</Text>
             </View>
-            <Text style={styles.time}>{formatTimecode(duration)}</Text>
+            {cues.length ? (
+              <View style={styles.subRow}>
+                <Text style={styles.subMeta} numberOfLines={1}>
+                  {subtitleName} · offset {subtitleOffset >= 0 ? '+' : ''}{subtitleOffset.toFixed(1)}s
+                </Text>
+                <Pressable onPress={() => changeOffset(-0.1)} style={styles.offsetBtn}>
+                  <Text style={styles.offsetLabel}>−0.1</Text>
+                </Pressable>
+                <Pressable onPress={() => changeOffset(0.1)} style={styles.offsetBtn}>
+                  <Text style={styles.offsetLabel}>+0.1</Text>
+                </Pressable>
+              </View>
+            ) : null}
           </View>
         </View>
       ) : null}
@@ -503,5 +614,54 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 24,
     alignSelf: 'center',
+  },
+  subBtn: {
+    minWidth: 64,
+    alignItems: 'flex-end',
+  },
+  subBtnLabel: {
+    color: Colors.accent,
+    fontWeight: '800',
+    fontSize: 14,
+  },
+  subRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  subMeta: {
+    flex: 1,
+    color: Colors.textMuted,
+    fontSize: 11,
+  },
+  offsetBtn: {
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  offsetLabel: {
+    color: Colors.text,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  subtitleBox: {
+    position: 'absolute',
+    left: 24,
+    right: 24,
+    alignItems: 'center',
+  },
+  subtitleText: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '700',
+    lineHeight: 24,
+    textShadowColor: 'rgba(0,0,0,0.85)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
 });

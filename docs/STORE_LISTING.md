@@ -45,13 +45,13 @@ PLAYS THE FORMATS YOU ACTUALLY HAVE
 MKV, MP4, AVI, WebM, FLV, TS, MOV, 3GP and more. Built to play 4K smoothly on capable devices and to handle audio tracks other players drop, including EAC3 and other Dolby formats. Resume exactly where you left off. Playlists keep going, including over Bluetooth and after a call.
 
 GESTURES YOU ALREADY KNOW
-Swipe to seek, adjust volume or brightness, and double-tap to skip — gestures you already know. Playback speed from 0.25x to 4x, screen lock, picture-in-picture, background play, video-to-MP3, and subtitle files you add yourself, with sync saved per video.
+Swipe to seek, adjust volume or brightness, and double-tap to skip — gestures you already know. Playback speed from 0.25x to 4x, screen lock, picture-in-picture, background play, video-to-M4A, and subtitle files you add yourself, with sync saved per video.
 
 BUILT FOR PRIVACY
 Playsz asks for access to your videos so it can play them. It does not ask for location, camera, or a list of running apps. Picture-in-picture is requested only if you turn it on. There is no account to create, no cloud, and no analytics service. Your playback position and preferences stay on the device. You can delete in-app data from Settings. The private folder is built so hidden files cannot silently disappear, with a recovery path and a local encrypted export you control.
 
 SIMPLE, HONEST PRICING
-The player is free. Optional Playsz Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-MP3 exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
+The player is free. Optional Playsz Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-M4A exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
 
 WHAT PLAYSZ IS NOT
 Playsz does not include a YouTube or social-video downloader. It does not bundle a game hall, a content feed, or sample videos. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA). Playsz does not claim to remove or bypass DRM.
@@ -68,7 +68,7 @@ Character count: 2778 (limit 4,000).
 ### Keyword and ASO notes (Play)
 
 - Primary promise: "ad free video player", "video player without ads", "offline video player", "MKV player", "4K video player".
-- Secondary: "EAC3 player", "Dolby audio player", "MP4 to MP3", "floating video player", "background play", "private folder video", "subtitle player Hindi".
+- Secondary: "EAC3 player", "Dolby audio player", "MP4 to M4A", "floating video player", "background play", "private folder video", "subtitle player Hindi".
 - Regional listings (not stuffed into the English title): Hindi, Bahasa, and Arabic equivalents of "video player without ads" / "offline video player".
 - Lead with uninterrupted playback, no ads, and standard files. The official name is "Playsz - All In One Player". Do not lead with AI photo-to-video, and do not use PLAYit's exact phrase "All in One Video Player" as a standalone title.
 - Short promo video: a single take of a video being paused, resumed, and skipped, with no ad. That contrast is the listing's job.
@@ -126,7 +126,7 @@ Proposed Data safety entries:
 | Support email | samayhuf@gmail.com | Approved |
 | Privacy policy contact | samayhuf@gmail.com | Approved |
 | Grievance officer | Samay Vashsht (email only; no phone number is published) | Approved |
-| Privacy policy URL | The `site/privacy.html` page, once hosted at a live public URL | Pending hosting |
+| Privacy policy URL | Planned GitHub Pages URL: `https://krosz.github.io/openplay/privacy.html` (will 404 until the `site/` pages are hosted) | Pending hosting |
 | Apple seller (for reference; not the public-page publisher) | Sunny Vashisht (Individual) | Approved |
 | Google Play developer name | — | Pending confirmation; do not invent or file a name yet |
 | Google Play developer address | — | Pending confirmation; do not invent or file an address yet |
@@ -178,13 +178,13 @@ PLAYS THE FORMATS YOU ACTUALLY HAVE
 MKV, MP4, AVI, WebM, FLV, TS, MOV, 3GP and more. Built to play 4K smoothly on capable devices and to handle audio tracks other players drop, including EAC3 and other Dolby formats. Resume exactly where you left off. Playlists keep going, including over Bluetooth and after a call.
 
 GESTURES YOU ALREADY KNOW
-Swipe to seek, adjust volume or brightness, and double-tap to skip — gestures you already know. Playback speed from 0.25x to 4x, screen lock, picture-in-picture, background play, video-to-MP3, and subtitle files you add yourself, with sync saved per video.
+Swipe to seek, adjust volume or brightness, and double-tap to skip — gestures you already know. Playback speed from 0.25x to 4x, screen lock, picture-in-picture, background play, video-to-M4A, and subtitle files you add yourself, with sync saved per video.
 
 BUILT FOR PRIVACY
 Playsz asks for access to your videos so it can play them. It does not ask for location, camera, or a list of running apps. Picture-in-picture is requested only if you turn it on. There is no account to create, no cloud, and no analytics service. Your playback position and preferences stay on the device. You can delete in-app data from Settings. The private folder is built so hidden files cannot silently disappear, with a recovery path and a local encrypted export you control.
 
 SIMPLE, HONEST PRICING
-The player is free. Optional Playsz Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-MP3 exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
+The player is free. Optional Playsz Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-M4A exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
 
 WHAT PLAYSZ IS NOT
 Playsz does not include a YouTube or social-video downloader. It does not bundle a game hall, a content feed, or sample videos. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA). Playsz does not claim to remove or bypass DRM.
@@ -237,7 +237,7 @@ Notes for App Review (not shown on the nutrition label):
 | Apple seller | Sunny Vashisht (Individual) | Approved |
 | Apple team ID | PGLT2QZX88 | Approved |
 | Support email (Privacy / Support contact) | samayhuf@gmail.com | Approved |
-| Privacy policy URL / support URL | The `site/privacy.html` and `site/index.html` (or terms) pages, once hosted at a live public URL | Pending hosting |
+| Privacy policy URL / support URL | Planned GitHub Pages URLs: `https://krosz.github.io/openplay/privacy.html` and `https://krosz.github.io/openplay/terms.html` (will 404 until hosted) | Pending hosting |
 | Copyright | © 2026 Samay Vashsht | Approved |
 | Legal-page postal address | Postal address: pending | Pending confirmation; clearly marked placeholder on `site/` pages. Blocker before publishing those pages; do not invent an address |
 | Grievance officer | Samay Vashsht (email only; no phone number is published) | Approved |

@@ -30,10 +30,10 @@ There is no ad-removal row: there are no ads.
 | Online subtitle APIs (OpenSubtitles or similar) | Not offered | Not offered |
 | Background audio play | Yes | Yes |
 | Picture-in-picture / popup player | Yes | Yes |
-| Video-to-MP3 and other standard-format exports | Capped (3 successful exports per day) | Unlimited |
+| Video-to-M4A (on-device AAC remux) | Capped (3 successful exports per day; failures are not counted) | Unlimited |
 | Play PLAYit/VidMate files where supported; convert own files to MP4/MKV | Yes | Yes |
-| Private folder with recovery key (local) | Capped (10 items) | Unlimited |
-| Local encrypted export/import of the private folder | No | Yes |
+| Private folder in app-private storage (list, remove, restore to the library) | Capped (10 real items) | Unlimited |
+| Local encrypted export/import of the private folder (AES-256-GCM, password, on-device) | No | Yes |
 | Cloud backup | Not offered | Not offered |
 | On-device AI subtitles and translation (v2, whisper.cpp or similar OSS) | No | Yes, when shipped |
 | SMB and DLNA/UPnP streaming (v2, open-source implementation only) | No | Yes, when shipped |

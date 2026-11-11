@@ -7,6 +7,7 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -14,91 +15,118 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Asset,
-  AssetField,
-  MediaType,
-  Query,
   requestPermissionsAsync,
-  type AssetMetadata,
 } from 'expo-media-library';
 
-import { Colors } from '@/constants/colors';
-import { formatTimecode } from '@/lib/resume-position';
+import type { ThemeColors } from '@/constants/colors';
+import {
+  loadFolders,
+  loadVideoPage,
+  PAGE_SIZE,
+  type FolderSummary,
+  type LibraryItem,
+} from '@/lib/library';
+import {
+  formatTimecode,
+  listRecentPlayback,
+  type RecentItem,
+} from '@/lib/resume-position';
 import { useIapContext } from '@/providers/iap-provider';
-
-type LibraryItem = {
-  id: string;
-  title: string;
-  duration: number | null;
-  width: number | null;
-  height: number | null;
-};
+import { useColorSchemeName, useColors, useThemedStyles } from '@/theme';
 
 type PermissionState = 'loading' | 'denied' | 'granted' | 'unsupported';
-
-async function loadVideos(): Promise<LibraryItem[]> {
-  const assets = await new Query()
-    .eq(AssetField.MEDIA_TYPE, MediaType.VIDEO)
-    .orderBy({ key: AssetField.MODIFICATION_TIME, ascending: false })
-    .limit(200)
-    .exeForMetadata();
-
-  return assets.map((asset: AssetMetadata) => ({
-    id: asset.id,
-    title: asset.filename?.trim() || 'Untitled video',
-    duration: asset.duration,
-    width: asset.width,
-    height: asset.height,
-  }));
-}
+type Tab = 'library' | 'folders' | 'recents';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { isPro } = useIapContext();
+  const scheme = useColorSchemeName();
+  const colors = useColors();
+  const styles = useThemedStyles(createStyles);
   const [permission, setPermission] = useState<PermissionState>(
     Platform.OS === 'web' ? 'unsupported' : 'loading'
   );
+  const [tab, setTab] = useState<Tab>('library');
   const [videos, setVideos] = useState<LibraryItem[]>([]);
+  const [folders, setFolders] = useState<FolderSummary[]>([]);
+  const [recents, setRecents] = useState<RecentItem[]>([]);
+  const [albumId, setAlbumId] = useState<string | null>(null);
+  const [albumTitle, setAlbumTitle] = useState<string | null>(null);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(Platform.OS !== 'web');
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshLibrary = useCallback(async (isPull = false) => {
+  const requestAccess = useCallback(async (): Promise<boolean> => {
     if (Platform.OS === 'web') {
       setPermission('unsupported');
-      setLoading(false);
-      return;
+      return false;
     }
-    try {
-      if (isPull) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-      setError(null);
-      const { granted, accessPrivileges } = await requestPermissionsAsync(false, [
-        'video',
-      ]);
-      if (!granted && accessPrivileges !== 'limited') {
-        setPermission('denied');
-        setVideos([]);
+    const { granted, accessPrivileges } = await requestPermissionsAsync(false, [
+      'video',
+    ]);
+    if (!granted && accessPrivileges !== 'limited') {
+      setPermission('denied');
+      setVideos([]);
+      return false;
+    }
+    setPermission('granted');
+    return true;
+  }, []);
+
+  const loadPage = useCallback(
+    async (nextOffset: number, replace: boolean, nextAlbumId: string | null) => {
+      const page = await loadVideoPage({
+        offset: nextOffset,
+        albumId: nextAlbumId,
+      });
+      setVideos((current) => (replace ? page : [...current, ...page]));
+      setOffset(nextOffset + page.length);
+      setHasMore(page.length === PAGE_SIZE);
+    },
+    []
+  );
+
+  const refreshLibrary = useCallback(
+    async (isPull = false) => {
+      if (Platform.OS === 'web') {
+        setPermission('unsupported');
+        setLoading(false);
         return;
       }
-      setPermission('granted');
-      setVideos(await loadVideos());
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not load videos.');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+      try {
+        if (isPull) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
+        setError(null);
+        if (!(await requestAccess())) {
+          return;
+        }
+        await Promise.all([
+          loadPage(0, true, albumId),
+          loadFolders().then(setFolders).catch(() => setFolders([])),
+          listRecentPlayback().then(setRecents).catch(() => setRecents([])),
+        ]);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Could not load videos.');
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [albumId, loadPage, requestAccess]
+  );
 
   useEffect(() => {
     void refreshLibrary();
   }, [refreshLibrary]);
 
   const openVideo = useCallback(
-    async (item: LibraryItem) => {
+    async (item: { id: string; title: string }) => {
       const info = await new Asset(item.id).getInfo();
       const uri = info.uri;
       const title = info.filename || item.title;
@@ -110,10 +138,41 @@ export default function HomeScreen() {
     [router]
   );
 
+  const shownVideos = query.trim()
+    ? videos.filter((item) =>
+        item.title.toLowerCase().includes(query.trim().toLowerCase())
+      )
+    : videos;
+  const shownFolders = query.trim()
+    ? folders.filter((item) =>
+        item.title.toLowerCase().includes(query.trim().toLowerCase())
+      )
+    : folders;
+  const shownRecents = query.trim()
+    ? recents.filter((item) =>
+        item.title.toLowerCase().includes(query.trim().toLowerCase())
+      )
+    : recents;
+
+  const openFolder = (folder: FolderSummary) => {
+    setAlbumId(folder.id);
+    setAlbumTitle(folder.title);
+    setTab('library');
+    setQuery('');
+    setLoading(true);
+    void loadPage(0, true, folder.id).finally(() => setLoading(false));
+  };
+
+  const clearFolder = () => {
+    setAlbumId(null);
+    setAlbumTitle(null);
+    setLoading(true);
+    void loadPage(0, true, null).finally(() => setLoading(false));
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <StatusBar style="light" />
+      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <View style={styles.header}>
         <View style={styles.headerRow}>
           <Text style={styles.title}>Playsz</Text>
@@ -129,6 +188,45 @@ export default function HomeScreen() {
         <Text style={styles.subtitle}>
           No ads. Your files stay standard and yours.
         </Text>
+        {permission === 'granted' ? (
+          <>
+            <View style={styles.tabs}>
+              {([
+                ['library', 'Library'],
+                ['folders', 'Folders'],
+                ['recents', 'Recents'],
+              ] as const).map(([id, label]) => (
+                <Pressable
+                  key={id}
+                  style={[styles.tab, tab === id && styles.tabActive]}
+                  onPress={() => setTab(id)}
+                >
+                  <Text style={[styles.tabLabel, tab === id && styles.tabLabelActive]}>
+                    {label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder={
+                tab === 'folders'
+                  ? 'Search folders'
+                  : tab === 'recents'
+                    ? 'Search recents'
+                    : 'Search videos'
+              }
+              placeholderTextColor={colors.textMuted}
+              style={styles.search}
+            />
+            {albumTitle && tab === 'library' ? (
+              <Pressable onPress={clearFolder}>
+                <Text style={styles.folderChip}>Folder: {albumTitle}  ·  Show all</Text>
+              </Pressable>
+            ) : null}
+          </>
+        ) : null}
       </View>
 
       {permission === 'denied' ? (
@@ -156,23 +254,104 @@ export default function HomeScreen() {
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      {loading && permission !== 'unsupported' ? (
+      {loading && permission !== 'unsupported' && videos.length === 0 && tab !== 'recents' ? (
         <View style={styles.centered}>
-          <ActivityIndicator color={Colors.accent} size="large" />
+          <ActivityIndicator color={colors.accent} size="large" />
           <Text style={styles.muted}>Scanning videos on this device…</Text>
         </View>
-      ) : permission === 'granted' ? (
+      ) : permission === 'granted' && tab === 'folders' ? (
         <FlatList
-          data={videos}
+          data={shownFolders}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={
-            videos.length === 0 ? styles.emptyList : styles.list
-          }
+          contentContainerStyle={shownFolders.length === 0 ? styles.emptyList : styles.list}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={() => void refreshLibrary(true)}
-              tintColor={Colors.accent}
+              tintColor={colors.accent}
+            />
+          }
+          ListEmptyComponent={
+            <View style={styles.message}>
+              <Text style={styles.messageTitle}>No folders found</Text>
+              <Text style={styles.messageBody}>
+                Folders come from albums on this device. Pull to refresh after
+                videos are available.
+              </Text>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <Pressable
+              style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+              onPress={() => openFolder(item)}
+            >
+              <View style={styles.thumb}>
+                <Text style={styles.thumbLabel}>📁</Text>
+              </View>
+              <Text style={styles.rowTitle} numberOfLines={2}>
+                {item.title}
+              </Text>
+            </Pressable>
+          )}
+        />
+      ) : permission === 'granted' && tab === 'recents' ? (
+        <FlatList
+          data={shownRecents}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={shownRecents.length === 0 ? styles.emptyList : styles.list}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => void refreshLibrary(true)}
+              tintColor={colors.accent}
+            />
+          }
+          ListEmptyComponent={
+            <View style={styles.message}>
+              <Text style={styles.messageTitle}>No recent videos</Text>
+              <Text style={styles.messageBody}>
+                Videos you play are listed here from this device's resume
+                history.
+              </Text>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <Pressable
+              style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+              onPress={() => void openVideo(item)}
+            >
+              <View style={styles.thumb}>
+                <Text style={styles.thumbLabel}>▶</Text>
+              </View>
+              <View style={styles.rowBody}>
+                <Text style={styles.rowTitle} numberOfLines={2}>
+                  {item.title}
+                </Text>
+                <Text style={styles.rowMeta}>
+                  Played {new Date(item.playedAt).toLocaleString()}
+                </Text>
+              </View>
+            </Pressable>
+          )}
+        />
+      ) : permission === 'granted' ? (
+        <FlatList
+          data={shownVideos}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={
+            shownVideos.length === 0 ? styles.emptyList : styles.list
+          }
+          onEndReached={() => {
+            if (!loading && hasMore && !query.trim()) {
+              void loadPage(offset, false, albumId);
+            }
+          }}
+          onEndReachedThreshold={0.4}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => void refreshLibrary(true)}
+              tintColor={colors.accent}
             />
           }
           ListEmptyComponent={
@@ -183,6 +362,23 @@ export default function HomeScreen() {
                 refresh. Playsz does not bundle sample videos.
               </Text>
             </View>
+          }
+          ListFooterComponent={
+            hasMore && !query.trim() ? (
+              <Pressable
+                style={styles.loadMore}
+                onPress={() => void loadPage(offset, false, albumId)}
+              >
+                <Text style={styles.loadMoreLabel}>
+                  {loading ? 'Loading…' : 'Load more'}
+                </Text>
+              </Pressable>
+            ) : query.trim() && hasMore ? (
+              <Text style={styles.muted}>
+                Search is filtering the videos already loaded. Load more from
+                the library to widen the results.
+              </Text>
+            ) : undefined
           }
           renderItem={({ item }) => (
             <Pressable
@@ -217,156 +413,189 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 16,
-    gap: 6,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  headerBtn: {
-    borderColor: Colors.border,
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  headerBtnLabel: {
-    color: Colors.text,
-    fontWeight: '700',
-    fontSize: 12,
-  },
-  headerBtnAccent: {
-    backgroundColor: Colors.accent,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  headerBtnAccentLabel: {
-    color: Colors.accentDim,
-    fontWeight: '800',
-    fontSize: 12,
-  },
-  title: {
-    color: Colors.text,
-    fontSize: 32,
-    fontWeight: '800',
-    letterSpacing: -0.6,
-  },
-  subtitle: {
-    color: Colors.textMuted,
-    fontSize: 15,
-    lineHeight: 22,
-    maxWidth: 360,
-  },
-  list: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-    gap: 8,
-  },
-  emptyList: {
-    flexGrow: 1,
-    paddingHorizontal: 16,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: Colors.surface,
-    borderRadius: 14,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  rowPressed: {
-    opacity: 0.85,
-    backgroundColor: Colors.surfaceElevated,
-  },
-  thumb: {
-    width: 56,
-    height: 56,
-    borderRadius: 10,
-    backgroundColor: Colors.accentDim,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  thumbLabel: {
-    color: Colors.accent,
-    fontSize: 18,
-  },
-  rowBody: {
-    flex: 1,
-    gap: 4,
-  },
-  rowTitle: {
-    color: Colors.text,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  rowMeta: {
-    color: Colors.textMuted,
-    fontSize: 13,
-  },
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  muted: {
-    color: Colors.textMuted,
-    fontSize: 14,
-  },
-  message: {
-    margin: 16,
-    padding: 20,
-    borderRadius: 16,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    gap: 10,
-  },
-  messageTitle: {
-    color: Colors.text,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  messageBody: {
-    color: Colors.textMuted,
-    fontSize: 14,
-    lineHeight: 21,
-  },
-  cta: {
-    alignSelf: 'flex-start',
-    marginTop: 6,
-    backgroundColor: Colors.accent,
-    borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  ctaLabel: {
-    color: Colors.accentDim,
-    fontWeight: '800',
-    fontSize: 14,
-  },
-  error: {
-    color: Colors.danger,
-    paddingHorizontal: 20,
-    marginBottom: 8,
-  },
-});
+const createStyles = (c: ThemeColors) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: c.background },
+    header: {
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      paddingBottom: 16,
+      gap: 6,
+    },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 12,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    headerBtn: {
+      borderColor: c.border,
+      borderWidth: 1,
+      borderRadius: 999,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+    },
+    headerBtnLabel: {
+      color: c.text,
+      fontWeight: '700',
+      fontSize: 12,
+    },
+    headerBtnAccent: {
+      backgroundColor: c.accent,
+      borderRadius: 999,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+    },
+    headerBtnAccentLabel: {
+      color: c.accentDim,
+      fontWeight: '800',
+      fontSize: 12,
+    },
+    title: {
+      color: c.text,
+      fontSize: 32,
+      fontWeight: '800',
+      letterSpacing: -0.6,
+    },
+    subtitle: {
+      color: c.textMuted,
+      fontSize: 15,
+      lineHeight: 22,
+      maxWidth: 360,
+    },
+    tabs: { flexDirection: 'row', gap: 8, marginTop: 8 },
+    tab: {
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+    },
+    tabActive: { backgroundColor: c.surfaceElevated, borderColor: c.accent },
+    tabLabel: { color: c.textMuted, fontWeight: '700', fontSize: 12 },
+    tabLabelActive: { color: c.text },
+    search: {
+      marginTop: 8,
+      borderWidth: 1,
+      borderColor: c.border,
+      backgroundColor: c.inputBackground,
+      color: c.text,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+    },
+    folderChip: { color: c.accent, fontWeight: '700', fontSize: 13, marginTop: 4 },
+    list: {
+      paddingHorizontal: 16,
+      paddingBottom: 32,
+      gap: 8,
+    },
+    emptyList: {
+      flexGrow: 1,
+      paddingHorizontal: 16,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      backgroundColor: c.surface,
+      borderRadius: 14,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    rowPressed: {
+      opacity: 0.85,
+      backgroundColor: c.surfaceElevated,
+    },
+    thumb: {
+      width: 56,
+      height: 56,
+      borderRadius: 10,
+      backgroundColor: c.accentDim,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    thumbLabel: {
+      color: c.accent,
+      fontSize: 18,
+    },
+    rowBody: {
+      flex: 1,
+      gap: 4,
+    },
+    rowTitle: {
+      color: c.text,
+      fontSize: 16,
+      fontWeight: '600',
+      flex: 1,
+    },
+    rowMeta: {
+      color: c.textMuted,
+      fontSize: 13,
+    },
+    centered: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+    },
+    muted: {
+      color: c.textMuted,
+      fontSize: 14,
+      textAlign: 'center',
+      padding: 16,
+    },
+    message: {
+      margin: 16,
+      padding: 20,
+      borderRadius: 16,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      gap: 10,
+    },
+    messageTitle: {
+      color: c.text,
+      fontSize: 18,
+      fontWeight: '700',
+    },
+    messageBody: {
+      color: c.textMuted,
+      fontSize: 14,
+      lineHeight: 21,
+    },
+    cta: {
+      alignSelf: 'flex-start',
+      marginTop: 6,
+      backgroundColor: c.accent,
+      borderRadius: 999,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+    },
+    ctaLabel: {
+      color: c.accentDim,
+      fontWeight: '800',
+      fontSize: 14,
+    },
+    loadMore: {
+      alignSelf: 'center',
+      marginVertical: 12,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 999,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+    },
+    loadMoreLabel: { color: c.text, fontWeight: '700' },
+    error: {
+      color: c.danger,
+      paddingHorizontal: 20,
+      marginBottom: 8,
+    },
+  });

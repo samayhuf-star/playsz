@@ -35,16 +35,16 @@ The stores' own billing and the operating systems themselves are not "third-part
 - Playback of common formats, with a path to FFmpeg/libVLC so 4K and EAC3/Dolby audio work on real devices
 - No ads anywhere
 - Resume position, playlists, Bluetooth-safe continuation
-- MX Player / VLC-style gestures (seek, volume/brightness stubs in this scaffold, double-tap skip, speed later)
+- Gestures: swipe to seek, double-tap skip, left-edge brightness (expo-brightness window brightness), right-edge playback volume (`player.volume`; system volume would need a third-party SDK, which is not used)
 - Background audio and picture-in-picture / popup player
 - Local and embedded subtitles with manual import and per-file sync
-- Video-to-MP3 and other exports in standard formats only (capped on the free tier)
+- Video-to-M4A export (on-device AAC remux via a local Expo module; capped on the free tier; only successful exports count)
 - Play PLAYit/VidMate files where legally and technically possible; no proprietary lock-in of our own
 - Private folder with a recovery key and a Pro local encrypted export/import
 - Minimal permissions and on-device data deletion
 - Optional Pro via Play Billing and StoreKit
 
-The current scaffold implements the library screen, the player screen (expo-video), gesture stubs, and on-device resume via AsyncStorage. The production playback engine, IAP, private folder, and exports are still to be built.
+The current app implements the library screen (folders, recents, search, paging past 200), the player (expo-video, working brightness and playback-volume gestures, SRT/ASS import), on-device resume, Settings, a paywall wired to expo-iap, real video-to-M4A export (AAC remux), a real private folder in app-private storage, and local AES-GCM encrypted export/import. The production playback engine (FFmpeg/libVLC) is still to be built.
 
 ### v2
 
@@ -66,7 +66,7 @@ The current scaffold implements the library screen, the player screen (expo-vide
 - expo-media-library for the on-device video list
 - AsyncStorage for resume positions
 - react-native-gesture-handler for player gestures
-- Planned, not in the scaffold yet: Media3/ExoPlayer + FFmpeg and/or libVLC for production playback; expo-iap or react-native-iap for store billing; whisper.cpp for v2 on-device subtitles
+- Planned, not in this build: Media3/ExoPlayer + FFmpeg and/or libVLC for production playback; whisper.cpp for v2 on-device subtitles
 
 ## Identifiers
 
@@ -110,7 +110,7 @@ The EAS project is **@krosz/openplay** on the krosz Expo account: https://expo.d
 
 - **development** — dev client, internal distribution
 - **preview** — internal distribution; Android `apk`
-- **production** — Android `app-bundle` (AAB)
+- **production** — Android `app-bundle` (AAB). The production profile already builds an AAB, not a fat APK.
 
 The Android upload keystore is generated and stored on EAS (not in this repo).
 
@@ -135,9 +135,9 @@ Production submits use `eas submit` only after the listings, hosted legal pages,
 
 Public legal pages live in `site/` (`index.html`, `privacy.html`, `terms.html`) and are accepted as final. The operator/publisher, copyright holder, and grievance officer named on those pages is Samay Vashsht (`© 2026 Samay Vashsht`). Contact on those pages is email only; no phone number is published. The postal address is still pending, so the pages carry a clearly marked `Postal address: pending` placeholder. That address must be confirmed and filled in before the site is published.
 
-Terms and Privacy links in the app are read from `app/src/constants/legal.ts` (`LEGAL_URLS.terms` and `LEGAL_URLS.privacy`). Both strings stay **unset** until those pages are hosted at a real public URL. Do not fill them with a placeholder host. The paywall and Settings show Terms and Privacy only after the hosted URLs are set.
+Terms and Privacy links in the app are read from `app/src/constants/legal.ts`. They are set to the planned GitHub Pages URLs (`https://krosz.github.io/openplay/privacy.html` and `https://krosz.github.io/openplay/terms.html`) with `PENDING_HOSTING = true`. The paywall and Settings show the links now. Those URLs will **404 until GitHub Pages is published** from the `site/` folder. Flip `PENDING_HOSTING` to false once the pages are actually live.
 
-**QA and store submit require those two URLs to be live** and to match the `site/` pages. There is no sign-up, so there is no account-deletion flow.
+**QA and store submit still require those two URLs to be live** and to match the `site/` pages. There is no sign-up, so there is no account-deletion flow.
 
 The copyright line `© 2026 Samay Vashsht` appears on the public `site/` pages, in the store listings, and on the in-app Settings/About screen. The Apple seller (Sunny Vashisht, Individual, team PGLT2QZX88) is documented for App Store Connect and internal iOS build notes only; it is not the publisher name on the public pages.
 
@@ -158,7 +158,7 @@ Outputs, all wired in `app/app.json`:
 
 ## Paywall setup
 
-The app integrates **expo-iap** (MIT) against Google Play Billing and Apple StoreKit. There is no RevenueCat and no backend. Entitlements are saved on the device. The paywall screen loads prices from the store; if the store returns none, it shows a clear unavailable state and will not pretend a local price is a store price. Buy, restore, cancel, and failure are handled. Auto-renewal is disclosed on the paywall. Capped extras (3 free exports per day, 10 free private-folder items, Pro-only encrypted export) are gated from Settings and open the paywall when a cap is hit.
+The app integrates **expo-iap** (MIT) against Google Play Billing and Apple StoreKit. There is no RevenueCat and no backend. Entitlements are saved on the device. The paywall screen loads prices from the store; if the store returns none, it shows a clear unavailable state and will not pretend a local price is a store price. Buy, restore, cancel, and failure are handled. Auto-renewal is disclosed on the paywall. Capped extras (3 successful M4A exports per day, 10 real private-folder items, Pro-only encrypted export) are gated from Settings and open the paywall when a cap is hit. Failed or cancelled exports are not counted. Stubs are not shipped behind the paywall.
 
 Final USD prices (not proposals):
 
@@ -176,14 +176,14 @@ Free is the full player with caps on extras (exports and private-folder size). P
 
 ## Current status and TODOs
 
-**Status:** Expo SDK 58 app in `app/` with a library, player (gesture stubs, resume), Settings (including About/copyright), and a paywall wired to expo-iap and on-device entitlements. Original icons and splash are generated from a first-party SVG. Docs, including the QA map, are in place. Git is local only. The EAS project is @krosz/openplay. No store submit. This is **not** a QA PASS. See [docs/QA_STATUS.md](docs/QA_STATUS.md).
+**Status:** Expo SDK 58 app in `app/` with a library (folders, recents, search, paging), player (working brightness/volume gestures, SRT/ASS subtitles, resume), Settings (About/copyright, real extras), and a paywall wired to expo-iap and on-device entitlements. Original icons and splash are generated from a first-party SVG. Docs, including the QA map, are in place. Git is local only. The EAS project is @krosz/openplay. No store submit. This is **not** a QA PASS. See [docs/QA_STATUS.md](docs/QA_STATUS.md).
 
 **TODOs**
 
 - The app name (Playsz - All In One Player) and package/bundle id (`com.allinone.videoplayer`) are confirmed.
-- Host the `site/` legal pages, then set the live URLs in `app/src/constants/legal.ts` before QA (no placeholder hosts).
+- Publish the `site/` legal pages to the planned GitHub Pages URLs (they 404 until hosted), then set `PENDING_HOSTING` to false in `app/src/constants/legal.ts`. Confirm the postal address before publishing those pages.
 - Replace or extend expo-video with an open-source engine that covers 4K and EAC3/Dolby on mid-range devices; verify lock-in-format playback before advertising it.
-- Finish the real export encoder, private-folder vault, local encrypted export/import, and Settings > Delete my data (caps are already gated).
+- Finish Settings > Delete my data. Audio export, the private folder, and encrypted export/import already ship (M4A remux and AES-GCM archive via the local `playsz-native` module).
 - Create the three store products and sandbox-test buy, cancel, failure, and restore on a dev-client or store binary.
 - Add the yearly trial reminder once store trials are configured.
 - Build on-device AI subtitles (v2) and SMB/DLNA (v2) with open-source code only.

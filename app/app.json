@@ -67,7 +67,10 @@
         }
       ],
       "expo-iap",
-      "./plugins/with-launcher-label.js"
+      "./plugins/with-launcher-label.js",
+      "expo-sharing",
+      "expo-document-picker",
+      "./plugins/with-remove-system-alert-window.js"
     ],
     "experiments": {
       "typedRoutes": true,

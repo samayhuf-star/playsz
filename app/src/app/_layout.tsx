@@ -1,37 +1,28 @@
-import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
+import { Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 
-import { Colors } from '@/constants/colors';
 import { IapProvider } from '@/providers/iap-provider';
-
-const navTheme = {
-  ...DarkTheme,
-  colors: {
-    ...DarkTheme.colors,
-    background: Colors.background,
-    card: Colors.background,
-    primary: Colors.accent,
-    text: Colors.text,
-    border: Colors.border,
-    notification: Colors.accent,
-  },
-};
+import { useColorSchemeName, useColors, useNavTheme } from '@/theme';
 
 export default function RootLayout() {
+  const colors = useColors();
+  const navTheme = useNavTheme();
+  const scheme = useColorSchemeName();
+
   return (
-    <GestureHandlerRootView style={styles.root}>
+    <GestureHandlerRootView style={[styles.root, { backgroundColor: colors.background }]}>
       <ThemeProvider value={navTheme}>
         <IapProvider>
-        <StatusBar style="light" />
+        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
         <Stack
           screenOptions={{
             headerShadowVisible: false,
-            headerTintColor: Colors.text,
-            headerStyle: { backgroundColor: Colors.background },
+            headerTintColor: colors.text,
+            headerStyle: { backgroundColor: colors.background },
             headerTitleStyle: { fontWeight: '700' },
-            contentStyle: { backgroundColor: Colors.background },
+            contentStyle: { backgroundColor: colors.background },
             animation: 'fade',
           }}
         >
@@ -57,6 +48,10 @@ export default function RootLayout() {
             name="settings"
             options={{ headerShown: false, title: 'Settings' }}
           />
+          <Stack.Screen
+            name="private-folder"
+            options={{ headerShown: false, title: 'Private folder' }}
+          />
         </Stack>
         </IapProvider>
       </ThemeProvider>
@@ -67,6 +62,5 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
 });

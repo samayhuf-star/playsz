@@ -70,3 +70,41 @@ export function formatTimecode(seconds: number): string {
   }
   return `${m}:${String(s).padStart(2, '0')}`;
 }
+
+
+const RECENTS_KEY = 'playsz:recents';
+const MAX_RECENTS = 50;
+
+export type RecentItem = {
+  id: string;
+  title: string;
+  playedAt: number;
+};
+
+export async function recordRecentPlayback(item: {
+  id: string;
+  title: string;
+}): Promise<void> {
+  if (!item.id) {
+    return;
+  }
+  const existing = await listRecentPlayback();
+  const next: RecentItem[] = [
+    { id: item.id, title: item.title || 'Video', playedAt: Date.now() },
+    ...existing.filter((entry) => entry.id !== item.id),
+  ].slice(0, MAX_RECENTS);
+  await AsyncStorage.setItem(RECENTS_KEY, JSON.stringify(next));
+}
+
+export async function listRecentPlayback(): Promise<RecentItem[]> {
+  const raw = await AsyncStorage.getItem(RECENTS_KEY);
+  if (!raw) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(raw) as RecentItem[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
