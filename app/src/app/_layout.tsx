@@ -37,7 +37,7 @@ export default function RootLayout() {
         >
           <Stack.Screen
             name="index"
-            options={{ headerShown: false, title: 'OpenPlay' }}
+            options={{ headerShown: false, title: 'Playsz' }}
           />
           <Stack.Screen
             name="player"
@@ -51,7 +51,7 @@ export default function RootLayout() {
           />
           <Stack.Screen
             name="paywall"
-            options={{ headerShown: false, title: 'OpenPlay Pro', presentation: 'modal' }}
+            options={{ headerShown: false, title: 'Playsz Pro', presentation: 'modal' }}
           />
           <Stack.Screen
             name="settings"

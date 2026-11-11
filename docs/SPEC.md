@@ -1,6 +1,6 @@
-# OpenPlay — Product Spec
+# Playsz — Product Spec
 
-**Working title:** OpenPlay (pending Samay's approval). Android and iOS identifiers (proposal): `com.allinone.videoplayer`. Offline video player built to beat PLAYit (`com.playit.videoplayer`), launching on **Android and iOS together**.
+**App name (final):** Playsz - All In One Player. Android application id and iOS bundle identifier (final): `com.allinone.videoplayer`. Offline video player built to beat PLAYit (`com.playit.videoplayer`), launching on **Android and iOS together**.
 
 **Research basis:** PLAYit teardown (Play listing, official site, security scans, press) and 772 one- and two-star reviews from India, US, Indonesia, UAE, and Philippines storefronts (11 Nov 2026). About 40% of classified negative reviews are about ads; 18% historically about file lock-in; core playback (4K, EAC3/Dolby, Bluetooth, playlists, resume) still fails in 2026 reviews.
 
@@ -87,4 +87,4 @@ Free is a complete local player: all playback, gestures, resume, background play
 - **On-device entitlements without a backend** can be tampered with on jailbroken/rooted devices. Accept that risk rather than adding a server. Use store APIs (StoreKit 2 / Play Billing) and obfuscate only lightly; do not add a paid DRM service.
 - **On-device AI** (whisper.cpp) will be large and slow on low-end phones; that is why it is v2 and must stay optional/downloadable as an on-device model pack the user chooses, not a cloud call.
 - **Store listing claims** must match the binary. Do not submit 4K/EAC3/PLAYit-file/AI-subtitle copy until those paths are tested.
-- **Trademark / naming:** "OpenPlay" is a working title only; clear it before store submit. Do not use "All in One Video Player" as the title (PLAYit already owns that phrase).
+- **Trademark / naming:** The official name is "Playsz - All In One Player" (final). Still clear trademark and store uniqueness before submit. Do not use PLAYit's exact phrase "All in One Video Player" as a standalone title.

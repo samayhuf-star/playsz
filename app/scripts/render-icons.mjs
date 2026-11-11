@@ -1,5 +1,5 @@
 /**
- * Render the original OpenPlay play-button mark into store-required raster sizes.
+ * Render the original Playsz play-button mark into store-required raster sizes.
  * Source: assets/source/icon-mark.svg (first-party; no third-party art).
  *
  * Usage (from app/): node scripts/render-icons.mjs
@@ -96,4 +96,4 @@ await writePng(fullBleedSvg(FG, BG), join(outDir, 'favicon.png'), {
   alpha: false,
 });
 
-console.log('Rendered original OpenPlay icons.');
+console.log('Rendered original Playsz icons.');

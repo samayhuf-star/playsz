@@ -5,8 +5,8 @@ import {
   FREE_PRIVATE_FOLDER_ITEMS,
 } from '@/constants/products';
 
-const EXPORT_KEY = 'openplay:caps:exports';
-const FOLDER_KEY = 'openplay:caps:private-folder-count';
+const EXPORT_KEY = 'playsz:caps:exports';
+const FOLDER_KEY = 'playsz:caps:private-folder-count';
 
 type ExportLog = { day: string; count: number };
 

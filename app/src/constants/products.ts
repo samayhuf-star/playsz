@@ -1,8 +1,8 @@
 /** Store product ids from docs/PAYWALL_PLAN.md. Must match Play Console and App Store Connect. */
 export const PRODUCT_IDS = {
-  monthly: 'openplay_pro_monthly',
-  yearly: 'openplay_pro_yearly',
-  lifetime: 'openplay_pro_lifetime',
+  monthly: 'playsz_pro_monthly',
+  yearly: 'playsz_pro_yearly',
+  lifetime: 'playsz_pro_lifetime',
 } as const;
 
 export type ProductId = (typeof PRODUCT_IDS)[keyof typeof PRODUCT_IDS];

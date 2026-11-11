@@ -1,6 +1,6 @@
-# Store listings draft — OpenPlay
+# Store listings draft — Playsz
 
-**Working title: OpenPlay.** This name is pending Samay's approval and must be cleared (trademark + store uniqueness) before submit. Identifiers (proposal): `com.allinone.videoplayer` on Android (application id) and iOS (bundle identifier). Category: Video Players & Editors / Photo & Video. Content rating target: PEGI 3 / Everyone / 4+ (no game hall, no user-generated feed). Default language: English (US), with HI, ID, AR listings after copy approval.
+**App name (final): Playsz - All In One Player** (26 characters). Android application id and iOS bundle identifier (final): `com.allinone.videoplayer`. Still clear trademark and store uniqueness before submit. Category: Video Players & Editors / Photo & Video. Content rating target: PEGI 3 / Everyone / 4+ (no game hall, no user-generated feed). Default language: English (US), with HI, ID, AR listings after copy approval.
 
 Android and iOS **launch together**. This file holds the Play Store draft and the App Store draft.
 
@@ -14,13 +14,13 @@ The app has **no ads**, **no third-party APIs**, and **no backend**. Do not ment
 
 ## Google Play Store
 
-### Title (30/30 characters)
+### Title (26/30 characters)
 
 ```
-OpenPlay: Ad-Free Video Player
+Playsz - All In One Player
 ```
 
-Character count: 30 (limit 30). If the name changes, keep the "Ad-Free Video Player" promise and stay at or under 30 characters. Do not use "All in One Video Player" in the title.
+Character count: 26 (limit 30). This is the final name. Do not use PLAYit's exact phrase "All in One Video Player" as a standalone title.
 
 ### Short description (71/80 characters)
 
@@ -30,16 +30,16 @@ No ads, ever. Standard files, 4K-ready player, one-time or monthly Pro.
 
 Character count: 71 (limit 80).
 
-### Full description (2774/4,000 characters)
+### Full description (2778/4,000 characters)
 
 ```
-OpenPlay is the offline video player that never interrupts your video — and never shows an ad.
+Playsz is the offline video player that never interrupts your video — and never shows an ad.
 
 NO ADS, ANYWHERE
-Pause, resume, skip to the next file, play offline, or listen in the background. There is no ad on the player, no "take a break" screen, and no banner in your library. OpenPlay makes money only from an optional Pro upgrade, never from advertising.
+Pause, resume, skip to the next file, play offline, or listen in the background. There is no ad on the player, no "take a break" screen, and no banner in your library. Playsz makes money only from an optional Pro upgrade, never from advertising.
 
 YOUR FILES STAY YOURS
-Every file you save or export is a standard format such as MP4, MKV, or MP3, so it plays in other apps. No lock-in and no hidden containers. OpenPlay can also open files other apps lock in, where the format allows, and can help you convert your own files to a standard format.
+Every file you save or export is a standard format such as MP4, MKV, or MP3, so it plays in other apps. No lock-in and no hidden containers. Playsz can also open files other apps lock in, where the format allows, and can help you convert your own files to a standard format.
 
 PLAYS THE FORMATS YOU ACTUALLY HAVE
 MKV, MP4, AVI, WebM, FLV, TS, MOV, 3GP and more. Built to play 4K smoothly on capable devices and to handle audio tracks other players drop, including EAC3 and other Dolby formats. Resume exactly where you left off. Playlists keep going, including over Bluetooth and after a call.
@@ -48,27 +48,29 @@ GESTURES YOU ALREADY KNOW
 Swipe to seek, adjust volume or brightness, and double-tap to skip — gestures you already know. Playback speed from 0.25x to 4x, screen lock, picture-in-picture, background play, video-to-MP3, and subtitle files you add yourself, with sync saved per video.
 
 BUILT FOR PRIVACY
-OpenPlay asks for access to your videos so it can play them. It does not ask for location, camera, or a list of running apps. Picture-in-picture is requested only if you turn it on. There is no account to create, no cloud, and no analytics service. Your playback position and preferences stay on the device. You can delete in-app data from Settings. The private folder is built so hidden files cannot silently disappear, with a recovery path and a local encrypted export you control.
+Playsz asks for access to your videos so it can play them. It does not ask for location, camera, or a list of running apps. Picture-in-picture is requested only if you turn it on. There is no account to create, no cloud, and no analytics service. Your playback position and preferences stay on the device. You can delete in-app data from Settings. The private folder is built so hidden files cannot silently disappear, with a recovery path and a local encrypted export you control.
 
 SIMPLE, HONEST PRICING
-The player is free. Optional OpenPlay Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-MP3 exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
+The player is free. Optional Playsz Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-MP3 exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
 
-WHAT OPENPLAY IS NOT
-OpenPlay does not include a YouTube or social-video downloader. It does not bundle a game hall, a content feed, or sample videos. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA). OpenPlay does not claim to remove or bypass DRM.
+WHAT PLAYSZ IS NOT
+Playsz does not include a YouTube or social-video downloader. It does not bundle a game hall, a content feed, or sample videos. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA). Playsz does not claim to remove or bypass DRM.
 
-OpenPlay launches on Android and iOS together.
+Playsz launches on Android and iOS together.
 
 If something breaks, rate honestly and tell us in a review — we read and reply to critical reviews.
+
+© 2026 Samay Vashsht
 ```
 
-Character count: 2774 (limit 4,000).
+Character count: 2778 (limit 4,000).
 
 ### Keyword and ASO notes (Play)
 
 - Primary promise: "ad free video player", "video player without ads", "offline video player", "MKV player", "4K video player".
 - Secondary: "EAC3 player", "Dolby audio player", "MP4 to MP3", "floating video player", "background play", "private folder video", "subtitle player Hindi".
 - Regional listings (not stuffed into the English title): Hindi, Bahasa, and Arabic equivalents of "video player without ads" / "offline video player".
-- Lead with uninterrupted playback, no ads, and standard files. Do not lead with AI photo-to-video or the generic phrase "all in one video player."
+- Lead with uninterrupted playback, no ads, and standard files. The official name is "Playsz - All In One Player". Do not lead with AI photo-to-video, and do not use PLAYit's exact phrase "All in One Video Player" as a standalone title.
 - Short promo video: a single take of a video being paused, resumed, and skipped, with no ad. That contrast is the listing's job.
 - Update cadence after launch: every 2–4 weeks, with real changelog notes (not only "bug fixes").
 - Review prompt: ask after a completed playback, never intercept the player, never ask for 5 stars specifically.
@@ -90,7 +92,7 @@ Use dark-UI screenshots on mid-range Android and current iPhone frames. Show a r
 
 Complete against the final binary. Values below assume MVP as specified: no ad SDK, no analytics/crash SaaS, no backend, no cloud, purchases only via Google Play Billing, entitlements stored on-device.
 
-**Does the app collect or share user data?** No. OpenPlay does not collect user data. Purchases are processed by Google Play, not by our servers (there are none). Playback position, preferences, and entitlement flags stay on the device. Local logs are not uploaded.
+**Does the app collect or share user data?** No. Playsz does not collect user data. Purchases are processed by Google Play, not by our servers (there are none). Playback position, preferences, and entitlement flags stay on the device. Local logs are not uploaded.
 
 Proposed Data safety entries:
 
@@ -124,10 +126,10 @@ Proposed Data safety entries:
 | Support email | samayhuf@gmail.com | Approved |
 | Privacy policy contact | samayhuf@gmail.com | Approved |
 | Privacy policy URL | The `site/privacy.html` page, once hosted at a live public URL | Pending hosting |
-| Apple seller / publisher (for reference) | Sunny Vashisht (Individual) | Approved |
+| Apple seller (for reference; not the public-page publisher) | Sunny Vashisht (Individual) | Approved |
 | Google Play developer name | — | Pending confirmation; do not invent or file a name yet |
 | Google Play developer address | — | Pending confirmation; do not invent or file an address yet |
-| Copyright holder | — | Pending confirmation with Samay; do not put a copyright name in the app UI or on the public pages yet |
+| Copyright holder | © 2026 Samay Vashsht | Approved |
 
 Do not paste a Play developer name or address into the console until those pending fields are confirmed.
 
@@ -135,13 +137,13 @@ Do not paste a Play developer name or address into the console until those pendi
 
 ## Apple App Store
 
-### Name (30/30 characters)
+### Name (26/30 characters)
 
 ```
-OpenPlay: Ad-Free Video Player
+Playsz - All In One Player
 ```
 
-Character count: 30 (limit 30).
+Character count: 26 (limit 30).
 
 ### Subtitle (27/30 characters)
 
@@ -159,16 +161,16 @@ The offline video player with no ads at all. Pause, resume, and skip in peace. S
 
 Character count: 161 (limit 170). Promotional text can be updated without a new binary.
 
-### Description (2774/4,000 characters)
+### Description (2778/4,000 characters)
 
 ```
-OpenPlay is the offline video player that never interrupts your video — and never shows an ad.
+Playsz is the offline video player that never interrupts your video — and never shows an ad.
 
 NO ADS, ANYWHERE
-Pause, resume, skip to the next file, play offline, or listen in the background. There is no ad on the player, no "take a break" screen, and no banner in your library. OpenPlay makes money only from an optional Pro upgrade, never from advertising.
+Pause, resume, skip to the next file, play offline, or listen in the background. There is no ad on the player, no "take a break" screen, and no banner in your library. Playsz makes money only from an optional Pro upgrade, never from advertising.
 
 YOUR FILES STAY YOURS
-Every file you save or export is a standard format such as MP4, MKV, or MP3, so it plays in other apps. No lock-in and no hidden containers. OpenPlay can also open files other apps lock in, where the format allows, and can help you convert your own files to a standard format.
+Every file you save or export is a standard format such as MP4, MKV, or MP3, so it plays in other apps. No lock-in and no hidden containers. Playsz can also open files other apps lock in, where the format allows, and can help you convert your own files to a standard format.
 
 PLAYS THE FORMATS YOU ACTUALLY HAVE
 MKV, MP4, AVI, WebM, FLV, TS, MOV, 3GP and more. Built to play 4K smoothly on capable devices and to handle audio tracks other players drop, including EAC3 and other Dolby formats. Resume exactly where you left off. Playlists keep going, including over Bluetooth and after a call.
@@ -177,28 +179,30 @@ GESTURES YOU ALREADY KNOW
 Swipe to seek, adjust volume or brightness, and double-tap to skip — gestures you already know. Playback speed from 0.25x to 4x, screen lock, picture-in-picture, background play, video-to-MP3, and subtitle files you add yourself, with sync saved per video.
 
 BUILT FOR PRIVACY
-OpenPlay asks for access to your videos so it can play them. It does not ask for location, camera, or a list of running apps. Picture-in-picture is requested only if you turn it on. There is no account to create, no cloud, and no analytics service. Your playback position and preferences stay on the device. You can delete in-app data from Settings. The private folder is built so hidden files cannot silently disappear, with a recovery path and a local encrypted export you control.
+Playsz asks for access to your videos so it can play them. It does not ask for location, camera, or a list of running apps. Picture-in-picture is requested only if you turn it on. There is no account to create, no cloud, and no analytics service. Your playback position and preferences stay on the device. You can delete in-app data from Settings. The private folder is built so hidden files cannot silently disappear, with a recovery path and a local encrypted export you control.
 
 SIMPLE, HONEST PRICING
-The player is free. Optional OpenPlay Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-MP3 exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
+The player is free. Optional Playsz Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-MP3 exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
 
-WHAT OPENPLAY IS NOT
-OpenPlay does not include a YouTube or social-video downloader. It does not bundle a game hall, a content feed, or sample videos. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA). OpenPlay does not claim to remove or bypass DRM.
+WHAT PLAYSZ IS NOT
+Playsz does not include a YouTube or social-video downloader. It does not bundle a game hall, a content feed, or sample videos. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA). Playsz does not claim to remove or bypass DRM.
 
-OpenPlay launches on Android and iOS together.
+Playsz launches on Android and iOS together.
 
 If something breaks, rate honestly and tell us in a review — we read and reply to critical reviews.
+
+© 2026 Samay Vashsht
 ```
 
-Character count: 2774 (limit 4,000). Same story as Play, including the line that OpenPlay launches on Android and iOS together.
+Character count: 2778 (limit 4,000). Same story as Play, including the line that Playsz launches on Android and iOS together.
 
-### Keywords (79/100 characters)
+### Keywords (86/100 characters)
 
 ```
-offline,mkv,mp4,avi,webm,4k,eac3,dolby,subtitle,background,pip,folder,music,ios
+offline,adfree,mkv,mp4,avi,webm,4k,eac3,dolby,subtitle,background,pip,folder,music,ios
 ```
 
-Character count: 79 (limit 100). Comma-separated, no spaces after commas. Words already in the name or subtitle (OpenPlay, ad-free, video, player, never, interrupts) are omitted so the 100-character budget is not wasted.
+Character count: 86 (limit 100). Comma-separated, no spaces after commas. Words already in the name or subtitle (Playsz, all, in, one, player, never, interrupts, your, video) are omitted so the 100-character budget is not wasted. "adfree" is included because it is no longer in the name.
 
 ### App Store screenshot captions
 
@@ -206,7 +210,7 @@ Use the same eight captions as Play, framed on current iPhones (6.7" and 6.1") a
 
 ### Privacy Nutrition Label (draft)
 
-Apple's labels should match the binary. For this product, the intended answer is that OpenPlay does **not collect data**.
+Apple's labels should match the binary. For this product, the intended answer is that Playsz does **not collect data**.
 
 **Data Used to Track You:** None. There is no advertising SDK and no tracking.
 
@@ -228,11 +232,11 @@ Notes for App Review (not shown on the nutrition label):
 
 | Field | Value | Status |
 | --- | --- | --- |
-| Seller / publisher | Sunny Vashisht (Individual) | Approved |
+| Apple seller | Sunny Vashisht (Individual) | Approved |
 | Apple team ID | PGLT2QZX88 | Approved |
 | Support email (Privacy / Support contact) | samayhuf@gmail.com | Approved |
 | Privacy policy URL / support URL | The `site/privacy.html` and `site/index.html` (or terms) pages, once hosted at a live public URL | Pending hosting |
-| Copyright holder | — | Pending confirmation with Samay; leave out of the app UI for now |
+| Copyright | © 2026 Samay Vashsht | Approved |
 
 The support and privacy contact email belongs in these store fields and on the public `site/` pages only — not in the README or in app source.
 
@@ -248,5 +252,5 @@ This section is for the team only. Competitor names and research context live he
 - Verify lock-in-format playback on device before using screenshot 7 or the corresponding description sentence.
 - Data safety previously contrasted our deletion flow with PLAYit's form, which says data cannot be deleted. Keep that comparison out of the Play form itself.
 
-- Copyright holder name is still being confirmed with Samay. Keep it out of the app UI and off the public legal pages until it is confirmed. Publisher on those pages is Sunny Vashisht (that is not a substitute for the copyright line).
+- Copyright holder is Samay Vashsht. Store listings, the Settings/About screen, and the public `site/` pages use "© 2026 Samay Vashsht". The operator/publisher named on the public legal pages is Samay Vashsht. The Apple seller remains Sunny Vashisht (Individual), team ID PGLT2QZX88; that seller name is documented here and in the App Store Connect fields, not as the publisher on the public pages.
 - Google Play developer name and address are not verified; leave them pending and do not invent values.

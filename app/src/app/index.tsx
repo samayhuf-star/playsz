@@ -116,7 +116,7 @@ export default function HomeScreen() {
       <StatusBar style="light" />
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <Text style={styles.title}>OpenPlay</Text>
+          <Text style={styles.title}>Playsz</Text>
           <View style={styles.headerActions}>
             <Pressable style={styles.headerBtn} onPress={() => router.push('/settings')}>
               <Text style={styles.headerBtnLabel}>Settings</Text>
@@ -135,7 +135,7 @@ export default function HomeScreen() {
         <View style={styles.message}>
           <Text style={styles.messageTitle}>Allow access to your videos</Text>
           <Text style={styles.messageBody}>
-            OpenPlay only asks for video access so it can play files already on
+            Playsz only asks for video access so it can play files already on
             this device. No location, no camera, no contacts.
           </Text>
           <Pressable style={styles.cta} onPress={() => void refreshLibrary()}>
@@ -180,7 +180,7 @@ export default function HomeScreen() {
               <Text style={styles.messageTitle}>No videos on this device</Text>
               <Text style={styles.messageBody}>
                 Copy a standard MP4 or MKV onto the phone, then pull to
-                refresh. OpenPlay does not bundle sample videos.
+                refresh. Playsz does not bundle sample videos.
               </Text>
             </View>
           }

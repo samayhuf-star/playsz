@@ -1,8 +1,8 @@
-# OpenPlay
+# Playsz
 
-**Working title: OpenPlay.** This name is waiting for Samay's approval and must be cleared (trademark and store uniqueness) before any store submit.
+**App name (final): Playsz - All In One Player.** Still clear trademark and store uniqueness before any store submit.
 
-OpenPlay is an offline video player for **Android and iOS**, launching on both platforms together. It is built to beat PLAYit by never interrupting playback, never showing ads, saving only standard file formats (no lock-in), and asking for as few permissions as possible.
+Playsz is an offline video player for **Android and iOS**, launching on both platforms together. It is built to beat PLAYit by never interrupting playback, never showing ads, saving only standard file formats (no lock-in), and asking for as few permissions as possible.
 
 Product docs:
 
@@ -11,7 +11,7 @@ Product docs:
 - [docs/PAYWALL_PLAN.md](docs/PAYWALL_PLAN.md) — free vs Pro, prices, trials, store billing
 - [docs/QA_STATUS.md](docs/QA_STATUS.md) — QA checklist mapped to the real repo (not a PASS yet)
 
-Identifiers (proposal): `com.allinone.videoplayer` as the Android application id and the iOS bundle identifier.
+Android application id and iOS bundle identifier (final): `com.allinone.videoplayer`.
 
 ## No third-party APIs
 
@@ -70,12 +70,12 @@ The current scaffold implements the library screen, the player screen (expo-vide
 
 ## Identifiers
 
-| Platform | Identifier (proposal) |
+| Platform | Identifier (final) |
 | --- | --- |
 | Android application id | `com.allinone.videoplayer` |
 | iOS bundle identifier | `com.allinone.videoplayer` |
 
-Both are set in `app/app.json`. The display name is the working title OpenPlay, pending approval.
+Both are set in `app/app.json`. The Expo display name (`expo.name`) is the final app name, Playsz - All In One Player. The short launcher label is Playsz.
 
 ## Install and run locally
 
@@ -133,13 +133,13 @@ Production submits use `eas submit` only after the listings, hosted legal pages,
 
 ## Legal URLs (required before QA)
 
-Public legal pages live in `site/` (`index.html`, `privacy.html`, `terms.html`). The publisher name on those pages is Sunny Vashisht.
+Public legal pages live in `site/` (`index.html`, `privacy.html`, `terms.html`). The operator/publisher and copyright holder named on those pages is Samay Vashsht (`© 2026 Samay Vashsht`).
 
 Terms and Privacy links in the app are read from `app/src/constants/legal.ts` (`LEGAL_URLS.terms` and `LEGAL_URLS.privacy`). Both strings stay **unset** until those pages are hosted at a real public URL. Do not fill them with a placeholder host. The paywall and Settings show Terms and Privacy only after the hosted URLs are set.
 
 **QA and store submit require those two URLs to be live** and to match the `site/` pages. There is no sign-up, so there is no account-deletion flow.
 
-The copyright holder name is still pending confirmation and is not shown in the app UI.
+The copyright line `© 2026 Samay Vashsht` appears on the public `site/` pages, in the store listings, and on the in-app Settings/About screen. The Apple seller (Sunny Vashisht, Individual, team PGLT2QZX88) is documented for App Store Connect and internal iOS build notes only; it is not the publisher name on the public pages.
 
 ## Icons and splash
 
@@ -162,11 +162,11 @@ The app integrates **expo-iap** (MIT) against Google Play Billing and Apple Stor
 
 Final USD prices (not proposals):
 
-| Product id (proposal) | Type | Price |
+| Product id (final) | Type | Price |
 | --- | --- | --- |
-| `openplay_pro_monthly` | Auto-renewing subscription | $2.99 / month |
-| `openplay_pro_yearly` | Auto-renewing subscription | $9.99 / year |
-| `openplay_pro_lifetime` | One-time unlock | $29.99 |
+| `playsz_pro_monthly` | Auto-renewing subscription | $2.99 / month |
+| `playsz_pro_yearly` | Auto-renewing subscription | $9.99 / year |
+| `playsz_pro_lifetime` | One-time unlock | $29.99 |
 
 Suggested regional equivalents (INR, IDR, PHP, AED, SAR) are in [docs/PAYWALL_PLAN.md](docs/PAYWALL_PLAN.md) and are suggestions only.
 
@@ -176,19 +176,19 @@ Free is the full player with caps on extras (exports and private-folder size). P
 
 ## Current status and TODOs
 
-**Status:** Expo SDK 58 app in `app/` with a library, player (gesture stubs, resume), Settings, and a paywall wired to expo-iap and on-device entitlements. Original icons and splash are generated from a first-party SVG. Docs, including the QA map, are in place. Git is local only. No EAS project and no store submit. This is **not** a QA PASS. See [docs/QA_STATUS.md](docs/QA_STATUS.md).
+**Status:** Expo SDK 58 app in `app/` with a library, player (gesture stubs, resume), Settings (including About/copyright), and a paywall wired to expo-iap and on-device entitlements. Original icons and splash are generated from a first-party SVG. Docs, including the QA map, are in place. Git is local only. The EAS project is @krosz/openplay. No store submit. This is **not** a QA PASS. See [docs/QA_STATUS.md](docs/QA_STATUS.md).
 
 **TODOs**
 
-- Approve or replace the working title OpenPlay and confirm `com.allinone.videoplayer`.
+- The app name (Playsz - All In One Player) and package/bundle id (`com.allinone.videoplayer`) are confirmed.
 - Host the `site/` legal pages, then set the live URLs in `app/src/constants/legal.ts` before QA (no placeholder hosts).
 - Replace or extend expo-video with an open-source engine that covers 4K and EAC3/Dolby on mid-range devices; verify lock-in-format playback before advertising it.
 - Finish the real export encoder, private-folder vault, local encrypted export/import, and Settings > Delete my data (caps are already gated).
 - Create the three store products and sandbox-test buy, cancel, failure, and restore on a dev-client or store binary.
 - Add the yearly trial reminder once store trials are configured.
 - Build on-device AI subtitles (v2) and SMB/DLNA (v2) with open-source code only.
-- Capture store screenshots from a real build. Confirm the copyright holder and the Google Play developer name and address before store submit.
-- Create the EAS project on the krosz Expo account and add `eas.json` with development, preview, and production profiles when it is time to build. Nothing ships to a store without a Testing E2E Bot PASS.
+- Capture store screenshots from a real build. Copyright holder is Samay Vashsht. Confirm the Google Play developer name and address before store submit.
+- The EAS project @krosz/openplay and `app/eas.json` profiles already exist. Nothing ships to a store without a Testing E2E Bot PASS.
 
 ## Dependencies and licenses
 

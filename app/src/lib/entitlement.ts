@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { PRODUCT_IDS, type ProductId } from '@/constants/products';
 
-const KEY = 'openplay:entitlement:pro';
+const KEY = 'playsz:entitlement:pro';
 
 export type Entitlement = {
   isPro: boolean;

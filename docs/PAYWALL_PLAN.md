@@ -1,6 +1,6 @@
-# Paywall plan — OpenPlay
+# Paywall plan — Playsz
 
-**Working title: OpenPlay** (pending Samay's approval). Android and iOS identifiers (proposal): `com.allinone.videoplayer`.
+**App name (final):** Playsz - All In One Player. Android application id and iOS bundle identifier (final): `com.allinone.videoplayer`.
 
 **USD prices are final:** $2.99 a month, $9.99 a year, $29.99 lifetime. Regional prices below are **suggestions only** for store pricing templates; they have not been tested.
 
@@ -30,9 +30,9 @@ There is no ad-removal row: there are no ads.
 | Online subtitle APIs (OpenSubtitles or similar) | Not offered | Not offered |
 | Background audio play | Yes | Yes |
 | Picture-in-picture / popup player | Yes | Yes |
-| Video-to-MP3 and other standard-format exports | Capped (proposal: 3 successful exports per day) | Unlimited |
+| Video-to-MP3 and other standard-format exports | Capped (3 successful exports per day) | Unlimited |
 | Play PLAYit/VidMate files where supported; convert own files to MP4/MKV | Yes | Yes |
-| Private folder with recovery key (local) | Capped (proposal: 10 items) | Unlimited |
+| Private folder with recovery key (local) | Capped (10 items) | Unlimited |
 | Local encrypted export/import of the private folder | No | Yes |
 | Cloud backup | Not offered | Not offered |
 | On-device AI subtitles and translation (v2, whisper.cpp or similar OSS) | No | Yes, when shipped |
@@ -46,11 +46,11 @@ If a v2 row has not shipped, it must not appear on the live paywall. The paywall
 
 USD is final. Other currencies are suggestions to seed Play / App Store pricing templates and must be reviewed before submit.
 
-| SKU (proposal) | USD (final) | India INR (suggestion) | Indonesia IDR (suggestion) | Philippines PHP (suggestion) | UAE AED (suggestion) | Saudi SAR (suggestion) |
+| SKU (final) | USD (final) | India INR (suggestion) | Indonesia IDR (suggestion) | Philippines PHP (suggestion) | UAE AED (suggestion) | Saudi SAR (suggestion) |
 | --- | --- | --- | --- | --- | --- | --- |
-| `openplay_pro_monthly` | **$2.99** / month | ₹299 / month | Rp49,000 / month | ₱179 / month | AED 10.99 / month | SAR 10.99 / month |
-| `openplay_pro_yearly` | **$9.99** / year | ₹999 / year | Rp165,000 / year | ₱579 / year | AED 36.99 / year | SAR 37.99 / year |
-| `openplay_pro_lifetime` | **$29.99** once | ₹2,499 once | Rp499,000 once | ₱1,749 once | AED 109.99 once | SAR 112.99 once |
+| `playsz_pro_monthly` | **$2.99** / month | ₹299 / month | Rp49,000 / month | ₱179 / month | AED 10.99 / month | SAR 10.99 / month |
+| `playsz_pro_yearly` | **$9.99** / year | ₹999 / year | Rp165,000 / year | ₱579 / year | AED 36.99 / year | SAR 37.99 / year |
+| `playsz_pro_lifetime` | **$29.99** once | ₹2,499 once | Rp499,000 once | ₱1,749 once | AED 109.99 once | SAR 112.99 once |
 
 Lifetime pays for itself versus yearly after three years at the USD list prices. Monthly matches a familiar competitor price; yearly is the habitual plan; lifetime is the "best value" plan.
 
@@ -106,8 +106,8 @@ Why this, and not RevenueCat or a backend:
 
 Implementation notes:
 
-- Product ids: `openplay_pro_monthly`, `openplay_pro_yearly`, `openplay_pro_lifetime`.
+- Product ids (final): `playsz_pro_monthly`, `playsz_pro_yearly`, `playsz_pro_lifetime`.
 - iOS: StoreKit 2, a subscription group for monthly/yearly, and a non-consumable (or equivalent) for lifetime. Follow Apple's offer codes and tax settings in App Store Connect — no third-party commerce tool.
 - Android: Play Billing one-time product for lifetime and auto-renewing subscriptions for monthly/yearly, in a single base plan group as Play requires.
-- Do not build or submit with placeholder SKUs that are not created in the consoles. Do not create an EAS project or paid store listing until the paywall copy, privacy policy, and trial reminder are real.
-- The scaffold does not include an IAP library yet; add expo-iap or react-native-iap when the paywall screen is implemented.
+- Do not build or submit with placeholder SKUs that are not created in the consoles. The EAS project already exists (@krosz/openplay); do not start a paid store listing until the hosted privacy policy and trial reminder are real.
+- expo-iap is integrated in the scaffold. Create the three product ids in Play Console and App Store Connect before a sandbox purchase test.

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "OpenPlay",
+    "name": "Playsz - All In One Player",
     "slug": "openplay",
     "version": "1.0.0",
     "orientation": "default",
@@ -12,11 +12,13 @@
       "bundleIdentifier": "com.allinone.videoplayer",
       "supportsTablet": true,
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "OpenPlay needs access to your video library so you can play videos stored on this device.",
-        "NSPhotoLibraryAddUsageDescription": "OpenPlay can save exported videos to your library when you choose to export a file.",
+        "NSPhotoLibraryUsageDescription": "Playsz needs access to your video library so you can play videos stored on this device.",
+        "NSPhotoLibraryAddUsageDescription": "Playsz can save exported videos to your library when you choose to export a file.",
         "UIBackgroundModes": [
           "audio"
-        ]
+        ],
+        "CFBundleDisplayName": "Playsz",
+        "CFBundleName": "Playsz"
       },
       "appleTeamId": "PGLT2QZX88"
     },
@@ -56,15 +58,16 @@
       [
         "expo-media-library",
         {
-          "photosPermission": "OpenPlay needs access to your video library so you can play videos stored on this device.",
-          "savePhotosPermission": "OpenPlay can save exported videos to your library when you choose to export a file.",
+          "photosPermission": "Playsz needs access to your video library so you can play videos stored on this device.",
+          "savePhotosPermission": "Playsz can save exported videos to your library when you choose to export a file.",
           "granularPermissions": [
             "video"
           ],
           "isAccessMediaLocationEnabled": false
         }
       ],
-      "expo-iap"
+      "expo-iap",
+      "./plugins/with-launcher-label.js"
     ],
     "experiments": {
       "typedRoutes": true,

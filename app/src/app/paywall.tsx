@@ -30,7 +30,7 @@ export default function PaywallScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <Text style={styles.close}>Close</Text>
         </Pressable>
-        <Text style={styles.topTitle}>OpenPlay Pro</Text>
+        <Text style={styles.topTitle}>Playsz Pro</Text>
         <View style={styles.closeSpacer} />
       </View>
 

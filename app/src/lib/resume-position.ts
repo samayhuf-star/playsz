@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const PREFIX = 'openplay:resume:';
+const PREFIX = 'playsz:resume:';
 
 /** Skip resume if we are this close to the start (seconds). */
 const START_THRESHOLD_SEC = 5;
