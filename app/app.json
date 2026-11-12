@@ -20,7 +20,8 @@
         "CFBundleDisplayName": "Playsz",
         "CFBundleName": "Playsz"
       },
-      "appleTeamId": "PGLT2QZX88"
+      "appleTeamId": "PGLT2QZX88",
+      "buildNumber": "3"
     },
     "android": {
       "package": "com.allinone.videoplayer",
