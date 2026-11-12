@@ -1,0 +1,35 @@
+appId: com.samayvashsht.playsz
+name: Library ready after cold launch
+---
+- launchApp:
+    appId: com.samayvashsht.playsz
+    stopApp: true
+    clearState: false
+# iOS Photos permission sheet — should already be granted, but do not fail if it appears.
+- tapOn:
+    text: "Allow Full Access"
+    optional: true
+- tapOn:
+    text: "Allow Access to All Photos"
+    optional: true
+- tapOn:
+    text: "Allow"
+    optional: true
+- tapOn:
+    text: "OK"
+    optional: true
+- tapOn:
+    id: "library-grant-access"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "library-title"
+    timeout: 25000
+- extendedWaitUntil:
+    notVisible:
+      id: "library-scanning"
+    timeout: 25000
+- extendedWaitUntil:
+    visible:
+      id: "library-list"
+    timeout: 15000

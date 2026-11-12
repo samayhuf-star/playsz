@@ -39,3 +39,11 @@ app/.kotlin/
 *.key
 *.mobileprovision
 *.pem
+
+# Local / CI simulator QA outputs (generated on the runner, not committed)
+/artifacts/
+/derivedData/
+/tmp-playsz-qa/
+
+__pycache__/
+*.pyc

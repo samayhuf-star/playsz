@@ -1,0 +1,33 @@
+appId: com.samayvashsht.playsz
+name: Open and play a seeded library video
+---
+# Expects env VIDEO_ID (testID, e.g. library-video-playsz-qa-short)
+# and optional VIDEO_TITLE (filename visible in the row).
+- tapOn:
+    id: ${VIDEO_ID}
+- extendedWaitUntil:
+    visible:
+      id: "player-screen"
+    timeout: 20000
+# Autoplay is on; controls stay visible for ~2.8s. Tap the stage once if they hid.
+- tapOn:
+    id: "player-stage"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "player-play-pause"
+    timeout: 8000
+# Controls on screen is enough to satisfy "position advances or the controls show".
+# Duration / current time are also evidence the player loaded a real file.
+- assertVisible:
+    id: "player-current-time"
+- assertVisible:
+    id: "player-duration"
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    id: "player-back"
+- extendedWaitUntil:
+    visible:
+      id: "library-title"
+    timeout: 10000

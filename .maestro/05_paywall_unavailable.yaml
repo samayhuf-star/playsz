@@ -1,0 +1,5 @@
+appId: com.samayvashsht.playsz
+name: Detect that StoreKit products were not loaded
+---
+- assertVisible:
+    id: "paywall-prices-unavailable"

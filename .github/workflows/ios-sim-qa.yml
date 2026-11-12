@@ -1,0 +1,254 @@
+# Playsz iOS simulator QA. Standard macos-latest runners only (public repo = $0).
+# Never use -large / -xlarge / paid runner labels.
+#
+# Triggers:
+#   - workflow_dispatch (input: ref, defaults to the branch you dispatch from)
+#   - push to release/playsz
+# Dispatch with:
+#   gh workflow run ios-sim-qa.yml --ref playsz/sim-qa
+name: iOS simulator QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to check out and test (branch, tag, or SHA). Leave empty to use the branch this workflow was dispatched from.
+        required: false
+        type: string
+        default: ""
+  push:
+    branches:
+      - release/playsz
+
+concurrency:
+  group: ios-sim-qa-${{ github.workflow }}-${{ github.event.inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+# No secrets are read or written. Checkout is enough.
+permissions:
+  contents: read
+
+jobs:
+  ios-sim-qa:
+    name: iOS simulator QA
+    runs-on: macos-latest
+    timeout-minutes: 30
+    env:
+      BUNDLE_ID: com.samayvashsht.playsz
+      QA_MEDIA_DIR: ${{ github.workspace }}/artifacts/media
+      QA_ARTIFACTS: ${{ github.workspace }}/artifacts
+      # Do not start Metro; the Release build embeds the JS bundle.
+      CI: "1"
+      RCT_NO_LAUNCH_PACKAGER: "1"
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref != '' && github.event.inputs.ref || github.sha }}
+
+      - name: Record commit and environment
+        run: |
+          mkdir -p "$QA_ARTIFACTS"
+          echo "QA_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "QA_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          git log -1 --oneline
+          xcodebuild -version
+          sw_vers
+          echo "Runner: $RUNNER_OS $RUNNER_ARCH (label macos-latest)"
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Set up Java 17 (Maestro)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache app/node_modules
+        id: cache-nm
+        uses: actions/cache@v4
+        with:
+          path: app/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('app/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install JS dependencies
+        if: steps.cache-nm.outputs.cache-hit != 'true'
+        working-directory: app
+        run: npm ci
+
+      - name: Install ffmpeg
+        run: |
+          if command -v ffmpeg >/dev/null 2>&1; then
+            ffmpeg -version | head -2
+            exit 0
+          fi
+          brew install ffmpeg
+          ffmpeg -version | head -2
+
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.maestro/bin:$PATH"
+          maestro --version
+
+      - name: Generate test media
+        run: ./scripts/ios-sim-qa/generate-media.sh "$QA_MEDIA_DIR"
+
+      - name: Expo prebuild (iOS, clean)
+        working-directory: app
+        env:
+          EXPO_NO_GIT_STATUS: "1"
+        run: npx expo prebuild -p ios --clean --no-install --non-interactive
+
+      - name: Attach StoreKit configuration to the Xcode scheme
+        run: ./scripts/ios-sim-qa/attach-storekit-scheme.sh
+
+      - name: Cache CocoaPods
+        id: cache-pods
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/ios/Pods
+            ~/Library/Caches/CocoaPods
+          key: ${{ runner.os }}-pods-${{ hashFiles('app/ios/Podfile', 'app/package-lock.json', 'app/app.json') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      - name: Install CocoaPods
+        working-directory: app/ios
+        run: pod install --deployment || pod install
+
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: derivedData
+          key: ${{ runner.os }}-dd-${{ hashFiles('app/ios/Podfile.lock', 'app/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-dd-
+
+      - name: Pick and boot an iPhone 15/16 simulator
+        run: |
+          LINE="$(./scripts/ios-sim-qa/pick-simulator.sh)"
+          UDID="$(echo "$LINE" | cut -f1)"
+          NAME="$(echo "$LINE" | cut -f2)"
+          RUNTIME="$(echo "$LINE" | cut -f3)"
+          echo "Picked $NAME ($UDID) $RUNTIME"
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
+          echo "QA_SIMULATOR=$NAME $RUNTIME" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          # Graphics surface for recordVideo + Maestro
+          open -a Simulator || true
+          sleep 3
+          xcrun simctl list devices booted
+
+      - name: Build Release simulator .app (JS bundle embedded)
+        working-directory: app
+        run: |
+          set -euo pipefail
+          WS="$(ls -d ios/*.xcworkspace | head -1)"
+          if [[ -z "$WS" ]]; then
+            echo "No ios/*.xcworkspace after prebuild" >&2
+            exit 1
+          fi
+          echo "Workspace: $WS"
+          xcodebuild -workspace "$WS" -list -json | tee "$QA_ARTIFACTS/xcode-list.json"
+          SCHEME="$(python3 "$GITHUB_WORKSPACE/scripts/ios-sim-qa/pick-scheme.py" "$QA_ARTIFACTS/xcode-list.json")"
+          echo "Scheme: $SCHEME"
+          echo "XCODE_SCHEME=$SCHEME" >> "$GITHUB_ENV"
+          echo "XCODE_WORKSPACE=app/$WS" >> "$GITHUB_ENV"
+          xcodebuild \
+            -workspace "$WS" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination "platform=iOS Simulator,id=$SIM_UDID" \
+            -derivedDataPath "$GITHUB_WORKSPACE/derivedData" \
+            -jobs "$(sysctl -n hw.ncpu)" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=- \
+            ONLY_ACTIVE_ARCH=YES \
+            build \
+            | tee "$QA_ARTIFACTS/xcodebuild.log"
+          # Locate the built .app
+          APP="$(find "$GITHUB_WORKSPACE/derivedData/Build/Products" -path '*iphonesimulator/*.app' -maxdepth 3 | head -1)"
+          if [[ -z "$APP" ]]; then
+            echo "No .app found under derivedData/Build/Products" >&2
+            exit 1
+          fi
+          echo "Built $APP"
+          echo "SIM_APP=$APP" >> "$GITHUB_ENV"
+          ls -ld "$APP"
+
+      - name: Install app, grant Photos, seed media
+        run: |
+          set -euo pipefail
+          xcrun simctl install booted "$SIM_APP"
+          ./scripts/ios-sim-qa/seed-media.sh
+          echo "Installed $BUNDLE_ID from $SIM_APP"
+
+      - name: Start screen recording
+        run: |
+          # SIGINT stops a simctl recordVideo session cleanly.
+          xcrun simctl io booted recordVideo --codec=h264 --force "$QA_ARTIFACTS/session.mp4" \
+            > "$QA_ARTIFACTS/record.log" 2>&1 &
+          echo $! > "$QA_ARTIFACTS/record.pid"
+          sleep 2
+          echo "Recording pid $(cat "$QA_ARTIFACTS/record.pid")"
+
+      - name: Run Maestro QA flows
+        id: qa
+        run: |
+          export QA_COMMIT QA_SIMULATOR QA_STARTED_AT
+          python3 ./scripts/ios-sim-qa/run-qa.py
+
+      - name: Stop screen recording
+        if: always()
+        run: |
+          if [[ -f "$QA_ARTIFACTS/record.pid" ]]; then
+            PID="$(cat "$QA_ARTIFACTS/record.pid")"
+            kill -INT "$PID" 2>/dev/null || true
+            # Wait up to 20s for the file to flush
+            for _ in $(seq 1 20); do
+              if ! kill -0 "$PID" 2>/dev/null; then
+                break
+              fi
+              sleep 1
+            done
+            kill -KILL "$PID" 2>/dev/null || true
+            wait "$PID" 2>/dev/null || true
+          fi
+          ls -lh "$QA_ARTIFACTS/session.mp4" 2>/dev/null || echo "No session.mp4"
+
+      - name: Upload QA artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-sim-qa
+          if-no-files-found: warn
+          path: |
+            artifacts/session.mp4
+            artifacts/results.json
+            artifacts/summary.md
+            artifacts/seed-manifest.json
+            artifacts/media/manifest.json
+            artifacts/maestro/**
+            artifacts/record.log
+
+      - name: Upload xcodebuild log (failure only)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-sim-qa-xcodebuild-log
+          if-no-files-found: warn
+          path: artifacts/xcodebuild.log

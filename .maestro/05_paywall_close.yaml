@@ -1,0 +1,9 @@
+appId: com.samayvashsht.playsz
+name: Close the paywall
+---
+- tapOn:
+    id: "paywall-close"
+    optional: true
+- tapOn:
+    text: "Close"
+    optional: true

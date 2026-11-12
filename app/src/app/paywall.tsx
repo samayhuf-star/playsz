@@ -27,13 +27,13 @@ export default function PaywallScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right', 'bottom']} testID="paywall-screen">
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <View style={styles.topBar}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
+        <Pressable testID="paywall-close" onPress={() => router.back()} hitSlop={12}>
           <Text style={styles.close}>Close</Text>
         </Pressable>
-        <Text style={styles.topTitle}>Playsz Pro</Text>
+        <Text style={styles.topTitle} testID="paywall-title">Playsz Pro</Text>
         <View style={styles.closeSpacer} />
       </View>
 
@@ -46,7 +46,7 @@ export default function PaywallScreen() {
         </Text>
 
         {iap.isPro ? (
-          <View style={styles.unlocked}>
+          <View style={styles.unlocked} testID="paywall-unlocked">
             <Text style={styles.unlockedTitle}>Pro is active on this device</Text>
             <Text style={styles.unlockedBody}>
               {iap.entitlement.productId
@@ -57,7 +57,7 @@ export default function PaywallScreen() {
         ) : null}
 
         {!iap.anyPriceLoaded ? (
-          <View style={styles.unavailable}>
+          <View style={styles.unavailable} testID="paywall-prices-unavailable">
             <Text style={styles.unavailableTitle}>Prices unavailable</Text>
             <Text style={styles.unavailableBody}>
               The store did not return any products. Plans will show here once
@@ -77,6 +77,7 @@ export default function PaywallScreen() {
             return (
               <Pressable
                 key={id}
+                testID={`paywall-plan-${id}`}
                 onPress={() => iap.setSelectedId(id)}
                 style={[styles.plan, selected && styles.planSelected]}
               >
@@ -86,7 +87,7 @@ export default function PaywallScreen() {
                     <Text style={styles.badge}>{copy.badge}</Text>
                   ) : null}
                 </View>
-                <Text style={styles.planPrice}>
+                <Text style={styles.planPrice} testID={`paywall-price-${id}`}>
                   {available && price ? price : 'Unavailable from the store'}
                 </Text>
                 <Text style={styles.planPeriod}>{copy.period}</Text>
@@ -95,9 +96,10 @@ export default function PaywallScreen() {
           })}
         </View>
 
-        {iap.message ? <Text style={styles.message}>{iap.message}</Text> : null}
+        {iap.message ? <Text style={styles.message} testID="paywall-message">{iap.message}</Text> : null}
 
         <Pressable
+          testID="paywall-buy"
           style={[
             styles.cta,
             (iap.busy || iap.isPro || !iap.productAvailable(iap.selectedId)) &&
@@ -118,6 +120,7 @@ export default function PaywallScreen() {
         </Pressable>
 
         <Pressable
+          testID="paywall-restore"
           style={styles.secondary}
           disabled={iap.busy}
           onPress={() => void iap.restore()}

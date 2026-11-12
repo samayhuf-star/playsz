@@ -199,7 +199,20 @@ eas build -p android --profile production
 
 Production submits use `eas submit` only after the listings, hosted legal pages, and billing products are real.
 
+## iOS simulator QA (GitHub Actions)
+
+`.github/workflows/ios-sim-qa.yml` builds a Release iPhone simulator `.app`, seeds test videos, and drives the core flow with [Maestro](https://maestro.dev/) on a standard `macos-latest` runner. It does **not** use large or xlarge runners, and it does not need repo secrets.
+
+Triggers: `workflow_dispatch` (optional `ref` input) and pushes to `release/playsz`. It does **not** run on pushes to other branches.
+
+```bash
+gh workflow run ios-sim-qa.yml --ref playsz/sim-qa
+```
+
+The job records a per-step PASS/FAIL/SKIP summary (cold launch timing, play each seeded video, seek, SRT subtitles, paywall prices, a test purchase) and uploads a screen recording, Maestro logs, and `results.json`. StoreKit prices come from `app/ios-storekit/Playsz.storekit`, which is attached to the generated Xcode scheme after prebuild. A StoreKit Configuration file may not take effect when the app is launched with `simctl` and driven by Maestro; that step is recorded as SKIP rather than a fake pass. A real App Store sandbox purchase on a device is still required before App Review.
+
 ## Legal URLs (required before QA)
+
 
 Public legal pages live in `site/` (`index.html`, `privacy.html`, `terms.html`) and are accepted as final. The operator/publisher, copyright holder, and grievance officer named on those pages is Samay Vashsht (`© 2026 Samay Vashsht`). Contact on those pages is email only; no phone number is published. The postal address is still pending, so the pages carry a clearly marked `Postal address: pending` placeholder. That address must be confirmed and filled in before the site is published.
 

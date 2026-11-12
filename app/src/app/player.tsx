@@ -652,10 +652,10 @@ export default function PlayerScreen() {
   const showSpinner = (preparing || status === 'loading') && !error;
 
   return (
-    <View style={styles.root}>
+    <View style={styles.root} testID="player-screen">
       <StatusBar style="light" hidden />
       <GestureDetector gesture={composedGesture}>
-        <View style={styles.stage} collapsable={false}>
+        <View style={styles.stage} collapsable={false} testID="player-stage">
           {/* VideoView gets explicit full-stage geometry plus contentFit, so it never
               collapses to 0x0 inside the gesture wrapper. */}
           <VideoView
@@ -679,8 +679,8 @@ export default function PlayerScreen() {
       ) : null}
 
       {hint ? (
-        <View style={styles.hint} pointerEvents="none">
-          <Text style={styles.hintLabel}>{hint.label}</Text>
+        <View style={styles.hint} pointerEvents="none" testID="player-hint">
+          <Text style={styles.hintLabel} testID="player-hint-label">{hint.label}</Text>
           <Text style={styles.hintDetail}>{hint.detail}</Text>
         </View>
       ) : null}
@@ -695,7 +695,7 @@ export default function PlayerScreen() {
       ) : null}
 
       {error ? (
-        <View style={styles.errorBox}>
+        <View style={styles.errorBox} testID="player-error">
           <Text style={styles.errorText}>{error}</Text>
           <Pressable onPress={() => router.back()} style={styles.errorBtn}>
             <Text style={styles.errorBtnLabel}>Back to library</Text>
@@ -712,6 +712,7 @@ export default function PlayerScreen() {
           pointerEvents="none"
         >
           <Text
+            testID="player-subtitle-text"
             style={[
               styles.subtitleText,
               {
@@ -740,13 +741,13 @@ export default function PlayerScreen() {
       ) : controlsVisible ? (
         <View style={styles.controls} pointerEvents="box-none">
           <View style={[styles.topBar, { paddingTop: Math.max(insets.top, 12) }]}>
-            <Pressable onPress={() => router.back()} hitSlop={12}>
+            <Pressable testID="player-back" onPress={() => router.back()} hitSlop={12}>
               <Text style={styles.back}>‹ Back</Text>
             </Pressable>
-            <Text style={styles.videoTitle} numberOfLines={1}>
+            <Text style={styles.videoTitle} numberOfLines={1} testID="player-title">
               {title}
             </Text>
-            <Pressable onPress={lockScreen} hitSlop={12} style={styles.topBtn}>
+            <Pressable testID="player-lock" onPress={lockScreen} hitSlop={12} style={styles.topBtn}>
               <Text style={styles.subBtnLabel}>Lock</Text>
             </Pressable>
           </View>
@@ -775,7 +776,7 @@ export default function PlayerScreen() {
               <View style={styles.panel}>
                 <View style={styles.panelHeader}>
                   <Text style={styles.panelTitle}>Subtitles</Text>
-                  <Pressable onPress={() => void onImportSubtitles()} style={styles.chip}>
+                  <Pressable testID="player-load-srt" onPress={() => void onImportSubtitles()} style={styles.chip}>
                     <Text style={styles.chipLabel}>{cues.length ? 'Replace .srt' : 'Load .srt'}</Text>
                   </Pressable>
                 </View>
@@ -841,11 +842,11 @@ export default function PlayerScreen() {
             ) : null}
 
             <View style={styles.bottomBar}>
-              <Pressable style={styles.playBtn} onPress={togglePlayback}>
+              <Pressable style={styles.playBtn} testID="player-play-pause" onPress={togglePlayback}>
                 <Text style={styles.playLabel}>{isPlaying ? 'Pause' : 'Play'}</Text>
               </Pressable>
-              <Text style={styles.time}>{formatDuration(currentTime)}</Text>
-              <View style={styles.track}>
+              <Text style={styles.time} testID="player-current-time">{formatDuration(currentTime)}</Text>
+              <View style={styles.track} testID="player-seek-bar">
                 <View style={[styles.trackFill, { width: `${progress * 100}%` }]} />
                 {abStartFrac != null ? (
                   <View style={[styles.abMark, { left: `${abStartFrac * 100}%` }]} />
@@ -854,11 +855,12 @@ export default function PlayerScreen() {
                   <View style={[styles.abMark, { left: `${abEndFrac * 100}%` }]} />
                 ) : null}
               </View>
-              <Text style={styles.time}>{formatDuration(duration)}</Text>
+              <Text style={styles.time} testID="player-duration">{formatDuration(duration)}</Text>
             </View>
 
             <View style={styles.actionRow}>
               <Pressable
+                testID="player-speed"
                 style={[styles.chip, panel === 'speed' && styles.chipActive]}
                 onPress={() => setPanel((p) => (p === 'speed' ? null : 'speed'))}
               >
@@ -866,15 +868,16 @@ export default function PlayerScreen() {
                   {rateLabel(rate)}
                 </Text>
               </Pressable>
-              <Pressable style={[styles.chip, loop && styles.chipActive]} onPress={toggleLoop}>
+              <Pressable testID="player-loop" style={[styles.chip, loop && styles.chipActive]} onPress={toggleLoop}>
                 <Text style={[styles.chipLabel, loop && styles.chipLabelActive]}>Loop</Text>
               </Pressable>
-              <Pressable style={[styles.chip, abA != null && styles.chipActive]} onPress={cycleAb}>
+              <Pressable testID="player-ab" style={[styles.chip, abA != null && styles.chipActive]} onPress={cycleAb}>
                 <Text style={[styles.chipLabel, abA != null && styles.chipLabelActive]}>
                   {abA == null ? 'A-B' : abB == null ? 'Set B' : 'A-B ✕'}
                 </Text>
               </Pressable>
               <Pressable
+                testID="player-subs"
                 style={[styles.chip, (panel === 'subtitles' || cues.length > 0) && styles.chipActive]}
                 onPress={() => setPanel((p) => (p === 'subtitles' ? null : 'subtitles'))}
               >
@@ -888,7 +891,7 @@ export default function PlayerScreen() {
                 </Text>
               </Pressable>
               {!isPrivate && Platform.OS !== 'web' ? (
-                <Pressable style={styles.chip} onPress={startPip}>
+                <Pressable style={styles.chip} testID="player-pip" onPress={startPip}>
                   <Text style={styles.chipLabel}>PiP</Text>
                 </Pressable>
               ) : null}

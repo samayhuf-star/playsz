@@ -1,0 +1,29 @@
+appId: com.samayvashsht.playsz
+name: Attempt a StoreKit test purchase of the yearly plan
+---
+- tapOn:
+    id: "paywall-plan-playsz_pro_yearly"
+- tapOn:
+    id: "paywall-buy"
+- waitForAnimationToEnd:
+    timeout: 3000
+# StoreKit Testing confirmation sheet (wording varies by Xcode / iOS).
+- tapOn:
+    text: "Subscribe"
+    optional: true
+- tapOn:
+    text: "Purchase"
+    optional: true
+- tapOn:
+    text: "Buy"
+    optional: true
+- tapOn:
+    text: "Confirm"
+    optional: true
+- tapOn:
+    text: "OK"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "paywall-unlocked"
+    timeout: 15000

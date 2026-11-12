@@ -40,6 +40,15 @@ import { getKnownSizes, measureSizes } from '@/lib/thumbnails';
 import { useIapContext } from '@/providers/iap-provider';
 import { useColorSchemeName, useColors, useThemedStyles } from '@/theme';
 
+/** Stable testID slug for Maestro; does not affect visible titles or behaviour. */
+function qaVideoId(title: string): string {
+  const slug = title
+    .replace(/\.[^.]+$/, '')
+    .replace(/[^A-Za-z0-9._-]+/g, '-')
+    .toLowerCase();
+  return `library-video-${slug || 'untitled'}`;
+}
+
 type PermissionState = 'loading' | 'denied' | 'granted' | 'unsupported';
 type Tab = 'library' | 'folders' | 'recents';
 
@@ -272,16 +281,16 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']} testID="library-screen">
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <Text style={styles.title}>Playsz</Text>
+          <Text style={styles.title} testID="library-title">Playsz</Text>
           <View style={styles.headerActions}>
-            <Pressable style={styles.headerBtn} onPress={() => router.push('/settings')}>
+            <Pressable style={styles.headerBtn} testID="library-settings-button" onPress={() => router.push('/settings')}>
               <Text style={styles.headerBtnLabel}>Settings</Text>
             </Pressable>
-            <Pressable style={styles.headerBtnAccent} onPress={() => router.push('/paywall')}>
+            <Pressable style={styles.headerBtnAccent} testID="library-paywall-button" onPress={() => router.push('/paywall')}>
               <Text style={styles.headerBtnAccentLabel}>{isPro ? 'Pro' : 'Unlock Pro'}</Text>
             </Pressable>
           </View>
@@ -299,6 +308,7 @@ export default function HomeScreen() {
               ] as const).map(([id, label]) => (
                 <Pressable
                   key={id}
+                  testID={`library-tab-${id}`}
                   style={[styles.tab, tab === id && styles.tabActive]}
                   onPress={() => setTab(id)}
                 >
@@ -309,6 +319,7 @@ export default function HomeScreen() {
               ))}
             </View>
             <TextInput
+              testID="library-search"
               value={query}
               onChangeText={setQuery}
               placeholder={
@@ -329,6 +340,7 @@ export default function HomeScreen() {
                   return (
                     <Pressable
                       key={field}
+                      testID={`library-sort-${field}`}
                       style={[styles.sortChip, active && styles.tabActive]}
                       onPress={() => chooseSort(field)}
                       accessibilityLabel={`Sort by ${SORT_LABELS[field]}`}
@@ -353,13 +365,13 @@ export default function HomeScreen() {
       </View>
 
       {permission === 'denied' ? (
-        <View style={styles.message}>
+        <View style={styles.message} testID="library-permission-denied">
           <Text style={styles.messageTitle}>Allow access to your videos</Text>
           <Text style={styles.messageBody}>
             Playsz only asks for video access so it can play files already on
             this device. No location, no camera, no contacts.
           </Text>
-          <Pressable style={styles.cta} onPress={() => void refreshLibrary()}>
+          <Pressable style={styles.cta} testID="library-grant-access" onPress={() => void refreshLibrary()}>
             <Text style={styles.ctaLabel}>Grant video access</Text>
           </Pressable>
         </View>
@@ -378,7 +390,7 @@ export default function HomeScreen() {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       {loading && permission !== 'unsupported' && videos.length === 0 && tab !== 'recents' ? (
-        <View style={styles.centered}>
+        <View style={styles.centered} testID="library-scanning">
           <ActivityIndicator color={colors.accent} size="large" />
           <Text style={styles.muted}>Scanning videos on this device…</Text>
         </View>
@@ -440,6 +452,8 @@ export default function HomeScreen() {
           }
           renderItem={({ item }) => (
             <Pressable
+              testID={qaVideoId(item.title)}
+              accessibilityLabel={item.title}
               style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
               onPress={() => openVideo(item)}
             >
@@ -457,6 +471,7 @@ export default function HomeScreen() {
         />
       ) : permission === 'granted' ? (
         <FlatList
+          testID="library-list"
           data={shownVideos}
           keyExtractor={(item) => item.id}
           contentContainerStyle={
@@ -476,7 +491,7 @@ export default function HomeScreen() {
             />
           }
           ListEmptyComponent={
-            <View style={styles.message}>
+            <View style={styles.message} testID="library-empty">
               <Text style={styles.messageTitle}>No videos on this device</Text>
               <Text style={styles.messageBody}>
                 Copy a standard MP4 or MKV onto the phone, then pull to
@@ -503,6 +518,8 @@ export default function HomeScreen() {
           }
           renderItem={({ item }) => (
             <Pressable
+              testID={qaVideoId(item.title)}
+              accessibilityLabel={item.title}
               style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
               onPress={() => openVideo(item)}
             >
