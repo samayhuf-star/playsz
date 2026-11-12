@@ -1,6 +1,6 @@
 # Playsz — Product Spec
 
-**App name (final):** Playsz - All In One Player. Android application id and iOS bundle identifier (final): `com.allinone.videoplayer`. Offline video player built to beat PLAYit (`com.playit.videoplayer`), launching on **Android and iOS together**.
+**App name (final):** Playsz - All In One Player. Android application id `com.allinone.videoplayer`; iOS bundle identifier `com.samayvashsht.playsz` (com.allinone.videoplayer was taken on Apple) (final). Offline video player built to beat PLAYit (`com.playit.videoplayer`), launching on **Android and iOS together**.
 
 **Research basis:** PLAYit teardown (Play listing, official site, security scans, press) and 772 one- and two-star reviews from India, US, Indonesia, UAE, and Philippines storefronts (11 Nov 2026). About 40% of classified negative reviews are about ads; 18% historically about file lock-in; core playback (4K, EAC3/Dolby, Bluetooth, playlists, resume) still fails in 2026 reviews.
 

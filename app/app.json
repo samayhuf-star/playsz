@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/icon.png",
-      "bundleIdentifier": "com.allinone.videoplayer",
+      "bundleIdentifier": "com.samayvashsht.playsz",
       "supportsTablet": false,
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Playsz needs access to your video library so you can play videos stored on this device.",

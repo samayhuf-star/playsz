@@ -1,6 +1,6 @@
 # Paywall plan — Playsz
 
-**App name (final):** Playsz - All In One Player. Android application id and iOS bundle identifier (final): `com.allinone.videoplayer`.
+**App name (final):** Playsz - All In One Player. Android application id `com.allinone.videoplayer`; iOS bundle identifier `com.samayvashsht.playsz` (com.allinone.videoplayer was taken on Apple) (final).
 
 **USD prices are final:** $2.99 a month, $9.99 a year, $29.99 lifetime. Regional prices below are **suggestions only** for store pricing templates; they have not been tested.
 

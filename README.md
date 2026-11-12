@@ -11,7 +11,7 @@ Product docs:
 - [docs/PAYWALL_PLAN.md](docs/PAYWALL_PLAN.md) — free vs Pro, prices, trials, store billing
 - [docs/QA_STATUS.md](docs/QA_STATUS.md) — QA checklist mapped to the real repo (not a PASS yet)
 
-Android application id and iOS bundle identifier (final): `com.allinone.videoplayer`.
+Android application id `com.allinone.videoplayer`; iOS bundle identifier `com.samayvashsht.playsz` (com.allinone.videoplayer was taken on Apple) (final).
 
 ## No third-party APIs
 
@@ -73,7 +73,7 @@ The current app implements the library screen (folders, recents, search, paging 
 | Platform | Identifier (final) |
 | --- | --- |
 | Android application id | `com.allinone.videoplayer` |
-| iOS bundle identifier | `com.allinone.videoplayer` |
+| iOS bundle identifier | `com.samayvashsht.playsz` |
 
 Both are set in `app/app.json`. The Expo display name (`expo.name`) is the final app name, Playsz - All In One Player. The short launcher label is Playsz.
 
@@ -180,7 +180,7 @@ Free is the full player with caps on extras (exports and private-folder size). P
 
 **TODOs**
 
-- The app name (Playsz - All In One Player) and package/bundle id (`com.allinone.videoplayer`) are confirmed.
+- The app name (Playsz - All In One Player) and Android package `com.allinone.videoplayer` and iOS bundle id `com.samayvashsht.playsz` are confirmed.
 - Publish the `site/` legal pages to the planned GitHub Pages URLs (they 404 until hosted), then set `PENDING_HOSTING` to false in `app/src/constants/legal.ts`. Confirm the postal address before publishing those pages.
 - Replace or extend expo-video with an open-source engine that covers 4K and EAC3/Dolby on mid-range devices; verify lock-in-format playback before advertising it.
 - Finish Settings > Delete my data. Audio export, the private folder, and encrypted export/import already ship (M4A remux and AES-GCM archive via the local `playsz-native` module).

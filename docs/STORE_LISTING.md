@@ -1,6 +1,6 @@
 # Store listings draft — Playsz
 
-**App name (final): Playsz - All In One Player** (26 characters). Android application id and iOS bundle identifier (final): `com.allinone.videoplayer`. Still clear trademark and store uniqueness before submit. Category: Video Players & Editors / Photo & Video. Content rating target: PEGI 3 / Everyone / 4+ (no game hall, no user-generated feed). Default language: English (US), with HI, ID, AR listings after copy approval.
+**App name (final): Playsz - All In One Player** (26 characters). Android application id `com.allinone.videoplayer`; iOS bundle identifier `com.samayvashsht.playsz` (com.allinone.videoplayer was taken on Apple) (final). Still clear trademark and store uniqueness before submit. Category: Video Players & Editors / Photo & Video. Content rating target: PEGI 3 / Everyone / 4+ (no game hall, no user-generated feed). Default language: English (US), with HI, ID, AR listings after copy approval.
 
 Android and iOS **launch together**. This file holds the Play Store draft and the App Store draft.
 

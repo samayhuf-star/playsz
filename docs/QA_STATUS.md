@@ -4,7 +4,7 @@ Checklist: `/home/box/shared/app-monitor/qa-checklist.md` (set 2026-11-12).
 
 **Gate:** nothing goes to a store without a **PASS** from Testing E2E Bot. PASS = all P0 + P1 pass. P2 is reported, not blocking.
 
-**Repo:** local only, `/workspace/allinone-video-player`, branch `main`. App name (final): Playsz - All In One Player. Android application id and iOS bundle identifier (final): `com.allinone.videoplayer`.
+**Repo:** local only, `/workspace/allinone-video-player`, branch `main`. App name (final): Playsz - All In One Player. Android application id `com.allinone.videoplayer`; iOS bundle identifier `com.samayvashsht.playsz` (com.allinone.videoplayer was taken on Apple) (final).
 
 **This is not a PASS.** No Android APK/AAB, no TestFlight or EAS build, no sandbox testers, and no live privacy or support URL have been handed to QA.
 
@@ -21,7 +21,7 @@ Statuses below are based on the real repo state, not on intended product.
 | Item | Status | What's needed |
 | --- | --- | --- |
 | Repo URL + branch/commit | not yet | Local git only; no remote to give QA |
-| Bundle ID / package name | done | `com.allinone.videoplayer` in `app/app.json` (final) |
+| Bundle ID / package name | done | Android `com.allinone.videoplayer`, iOS `com.samayvashsht.playsz` in `app/app.json` (final) |
 | Android APK or AAB + internal testing link | not yet | EAS project is @krosz/openplay. A pre-rename preview APK from commit `23ecd78` exists (`9ff549bf-45e3-4072-b767-e0932ddcc775`). No post-rename EAS rebuild has been approved. The production profile builds an AAB |
 | iOS TestFlight or EAS simulator build | not yet | Same; iOS-on-device stays pending without TestFlight or device evidence |
 | Test accounts + sandbox purchase testers | not yet | Store products are not created in the consoles |
@@ -66,7 +66,7 @@ Statuses below are based on the real repo state, not on intended product.
 
 ## Open blockers before a QA hand-off
 
-1. Name and bundle ID are confirmed (Playsz - All In One Player; `com.allinone.videoplayer`).
+1. Name and bundle ID are confirmed (Playsz - All In One Player; Android `com.allinone.videoplayer`, iOS `com.samayvashsht.playsz`).
 2. Replace the `Postal address: pending` placeholder on the `site/` privacy, terms, and home pages with a confirmed address (blocker before publishing; do not invent one). Then host those pages at the planned GitHub Pages URLs (`https://samayhuf-star.github.io/app-legal/playsz/…`) and set `PENDING_HOSTING` to false. The in-app links will 404 until that hosting is done. Copyright holder and grievance officer is Samay Vashsht (email only, no phone). Confirm the Google Play developer name and address before store submit.
 3. Create the three store products (`playsz_pro_monthly`, `playsz_pro_yearly`, `playsz_pro_lifetime`). The EAS project @krosz/openplay already exists; produce Android and iOS builds from a stated (post-rename) commit for QA.
 4. Sandbox-purchase the paywall (buy, cancel, failure, restore, persistence).
