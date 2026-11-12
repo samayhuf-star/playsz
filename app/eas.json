@@ -12,11 +12,28 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "simulator": false
       }
     },
     "production": {
       "android": {
         "buildType": "app-bundle"
+      },
+      "ios": {
+        "distribution": "store",
+        "autoIncrement": true
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleTeamId": "PGLT2QZX88",
+        "ascApiKeyPath": "/home/box/shared/app-monitor/secrets/asc-api-key.p8",
+        "ascApiKeyId": "PENDING",
+        "ascApiKeyIssuerId": "PENDING"
       }
     }
   }
