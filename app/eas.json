@@ -30,11 +30,7 @@
   "submit": {
     "production": {
       "ios": {
-        "appleTeamId": "PGLT2QZX88",
-        "ascApiKeyPath": "/home/box/shared/app-monitor/secrets/asc-api-key.p8"
-      },
-      "android": {
-        "serviceAccountKeyPath": "/home/box/shared/app-monitor/secrets/play-service-account.json"
+        "appleTeamId": "PGLT2QZX88"
       }
     }
   }
