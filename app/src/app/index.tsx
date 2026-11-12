@@ -19,6 +19,7 @@ import type { ThemeColors } from '@/constants/colors';
 import { VideoThumb } from '@/components/video-thumb';
 import { formatBytes, resumeFraction, sortItems, type SortField, type SortOrder } from '@/lib/format';
 import {
+  consumeLibraryChanged,
   DEFAULT_SORT,
   isNativeSort,
   loadFolders,
@@ -151,6 +152,15 @@ export default function HomeScreen() {
     // Reload only once the saved sort is known, and whenever it changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshLibrary, sort?.field, sort?.ascending]);
+
+  // Originals deleted elsewhere (private-folder move): reload the list on return.
+  useFocusEffect(
+    useCallback(() => {
+      if (consumeLibraryChanged()) {
+        void refreshLibrary();
+      }
+    }, [refreshLibrary])
+  );
 
   // Resume bars: re-read saved positions whenever the library comes back into focus.
   const videoIds = useMemo(() => videos.map((v) => v.id), [videos]);

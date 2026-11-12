@@ -113,3 +113,17 @@ export async function loadSortOrder(): Promise<SortOrder> {
 export async function saveSortOrder(order: SortOrder): Promise<void> {
   await AsyncStorage.setItem(SORT_KEY, JSON.stringify(order));
 }
+
+// ---- "Library changed" flag so the library screen refreshes when it regains focus ----
+
+let libraryChanged = false;
+
+export function markLibraryChanged(): void {
+  libraryChanged = true;
+}
+
+export function consumeLibraryChanged(): boolean {
+  const changed = libraryChanged;
+  libraryChanged = false;
+  return changed;
+}

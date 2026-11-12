@@ -113,7 +113,14 @@ export async function addPrivateItem(params: {
   filename: string;
   sourceAssetId?: string;
   isPro: boolean;
-}): Promise<{ allowed: boolean; count: number; cap: number; item?: PrivateItem }> {
+}): Promise<{
+  allowed: boolean;
+  count: number;
+  cap: number;
+  item?: PrivateItem;
+  /** True only when the sandbox copy exists and is larger than 0 bytes. */
+  verified?: boolean;
+}> {
   const gate = await canAddPrivateItem(params.isPro);
   if (!gate.allowed) {
     return gate;
@@ -145,6 +152,7 @@ export async function addPrivateItem(params: {
     count: items.length,
     cap: FREE_PRIVATE_FOLDER_ITEMS,
     item,
+    verified: typeof info.size === 'number' && info.size > 0,
   };
 }
 
@@ -222,4 +230,37 @@ export async function registerImportedPrivateFiles(
     cap: FREE_PRIVATE_FOLDER_ITEMS,
     added: additions.length,
   };
+}
+
+export type DeleteOriginalsResult =
+  | { status: 'deleted'; count: number }
+  | { status: 'cancelled' | 'failed'; message: string };
+
+/**
+ * Delete the Photos / gallery originals of videos that were copied into the private folder.
+ * ONE batched call, so the OS shows a single confirmation:
+ * - iOS: PHAssetChangeRequest.deleteAssets -> one system "Allow Playsz to delete N videos?" sheet.
+ * - Android 11+: MediaStore.createDeleteRequest -> one system confirmation (no extra permission).
+ *   Android 10 and lower use the WRITE_EXTERNAL_STORAGE grant (declared, maxSdkVersion 32).
+ * (SDK 58's `Asset.delete(assets)` is the `next` API's replacement for `deleteAssetsAsync`.)
+ * Cancelling or an error never touches the private copies.
+ */
+export async function deleteOriginalsFromLibrary(assetIds: string[]): Promise<DeleteOriginalsResult> {
+  const ids = Array.from(new Set(assetIds.filter(Boolean)));
+  if (ids.length === 0) {
+    return { status: 'deleted', count: 0 };
+  }
+  try {
+    await Asset.delete(ids.map((id) => new Asset(id)));
+    return { status: 'deleted', count: ids.length };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    const cancelled = /cancel|denied|grant|3072/i.test(message);
+    return {
+      status: cancelled ? 'cancelled' : 'failed',
+      message: cancelled
+        ? 'Deletion cancelled. The originals and the private copies are both kept.'
+        : `Could not delete the originals (${message}). The private copies are safe.`,
+    };
+  }
 }
