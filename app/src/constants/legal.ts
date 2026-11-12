@@ -7,11 +7,11 @@
  * is hosted. This is not a dummy host like example.com — it is the
  * planned public location of the accepted privacy and terms pages.
  */
-export const PENDING_HOSTING = true;
+export const PENDING_HOSTING = false;
 
 export const LEGAL_URLS = {
-  terms: 'https://krosz.github.io/openplay/terms.html',
-  privacy: 'https://krosz.github.io/openplay/privacy.html',
+  terms: 'https://samayhuf-star.github.io/app-legal/playsz/terms.html',
+  privacy: 'https://samayhuf-star.github.io/app-legal/playsz/privacy.html',
 } as const;
 
 export function hasLegalUrl(kind: keyof typeof LEGAL_URLS): boolean {

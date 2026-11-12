@@ -126,7 +126,7 @@ Proposed Data safety entries:
 | Support email | samayhuf@gmail.com | Approved |
 | Privacy policy contact | samayhuf@gmail.com | Approved |
 | Grievance officer | Samay Vashsht (email only; no phone number is published) | Approved |
-| Privacy policy URL | Planned GitHub Pages URL: `https://krosz.github.io/openplay/privacy.html` (will 404 until the `site/` pages are hosted) | Pending hosting |
+| Privacy policy URL | Planned GitHub Pages URL: `https://samayhuf-star.github.io/app-legal/playsz/privacy.html` (will 404 until the `site/` pages are hosted) | Pending hosting |
 | Apple seller (for reference; not the public-page publisher) | Sunny Vashisht (Individual) | Approved |
 | Google Play developer name | — | Pending confirmation; do not invent or file a name yet |
 | Google Play developer address | — | Pending confirmation; do not invent or file an address yet |
@@ -237,7 +237,7 @@ Notes for App Review (not shown on the nutrition label):
 | Apple seller | Sunny Vashisht (Individual) | Approved |
 | Apple team ID | PGLT2QZX88 | Approved |
 | Support email (Privacy / Support contact) | samayhuf@gmail.com | Approved |
-| Privacy policy URL / support URL | Planned GitHub Pages URLs: `https://krosz.github.io/openplay/privacy.html` and `https://krosz.github.io/openplay/terms.html` (will 404 until hosted) | Pending hosting |
+| Privacy policy URL / support URL | Planned GitHub Pages URLs: `https://samayhuf-star.github.io/app-legal/playsz/privacy.html` and `https://samayhuf-star.github.io/app-legal/playsz/terms.html` (will 404 until hosted) | Pending hosting |
 | Copyright | © 2026 Samay Vashsht | Approved |
 | Legal-page postal address | Postal address: pending | Pending confirmation; clearly marked placeholder on `site/` pages. Blocker before publishing those pages; do not invent an address |
 | Grievance officer | Samay Vashsht (email only; no phone number is published) | Approved |

@@ -135,7 +135,7 @@ Production submits use `eas submit` only after the listings, hosted legal pages,
 
 Public legal pages live in `site/` (`index.html`, `privacy.html`, `terms.html`) and are accepted as final. The operator/publisher, copyright holder, and grievance officer named on those pages is Samay Vashsht (`© 2026 Samay Vashsht`). Contact on those pages is email only; no phone number is published. The postal address is still pending, so the pages carry a clearly marked `Postal address: pending` placeholder. That address must be confirmed and filled in before the site is published.
 
-Terms and Privacy links in the app are read from `app/src/constants/legal.ts`. They are set to the planned GitHub Pages URLs (`https://krosz.github.io/openplay/privacy.html` and `https://krosz.github.io/openplay/terms.html`) with `PENDING_HOSTING = true`. The paywall and Settings show the links now. Those URLs will **404 until GitHub Pages is published** from the `site/` folder. Flip `PENDING_HOSTING` to false once the pages are actually live.
+Terms and Privacy links in the app are read from `app/src/constants/legal.ts`. They are set to the planned GitHub Pages URLs (`https://samayhuf-star.github.io/app-legal/playsz/privacy.html` and `https://samayhuf-star.github.io/app-legal/playsz/terms.html`) with `PENDING_HOSTING = true`. The paywall and Settings show the links now. Those URLs will **404 until GitHub Pages is published** from the `site/` folder. Flip `PENDING_HOSTING` to false once the pages are actually live.
 
 **QA and store submit still require those two URLs to be live** and to match the `site/` pages. There is no sign-up, so there is no account-deletion flow.
 

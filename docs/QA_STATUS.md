@@ -26,7 +26,7 @@ Statuses below are based on the real repo state, not on intended product.
 | iOS TestFlight or EAS simulator build | not yet | Same; iOS-on-device stays pending without TestFlight or device evidence |
 | Test accounts + sandbox purchase testers | not yet | Store products are not created in the consoles |
 | Store listing drafts | done | `docs/STORE_LISTING.md` (Play + App Store). User-facing fields no longer name competitors |
-| Privacy policy URL | not yet | Privacy and terms text is accepted as final. In-app links use the planned GitHub Pages URLs (`https://krosz.github.io/openplay/privacy.html` and `.../terms.html`) with `PENDING_HOSTING = true`. Those URLs will 404 until the `site/` pages are hosted. Postal address is a marked placeholder (`Postal address: pending`) and is a blocker before publishing |
+| Privacy policy URL | not yet | Privacy and terms text is accepted as final. In-app links use the planned GitHub Pages URLs (`https://samayhuf-star.github.io/app-legal/playsz/privacy.html` and `.../terms.html`) with `PENDING_HOSTING = true`. Those URLs will 404 until the `site/` pages are hosted. Postal address is a marked placeholder (`Postal address: pending`) and is a blocker before publishing |
 | Support URL / email | not yet | Support and grievance contact is listed in `docs/STORE_LISTING.md` and on the `site/` pages (email only, no phone). The planned support/legal URLs will 404 until `site/` is hosted. Copyright holder is Samay Vashsht. The legal-page postal address, and the Google Play developer name and address, remain pending confirmation and must be filled before publishing |
 
 ## P0 (blocks)
@@ -67,7 +67,7 @@ Statuses below are based on the real repo state, not on intended product.
 ## Open blockers before a QA hand-off
 
 1. Name and bundle ID are confirmed (Playsz - All In One Player; `com.allinone.videoplayer`).
-2. Replace the `Postal address: pending` placeholder on the `site/` privacy, terms, and home pages with a confirmed address (blocker before publishing; do not invent one). Then host those pages at the planned GitHub Pages URLs (`https://krosz.github.io/openplay/…`) and set `PENDING_HOSTING` to false. The in-app links will 404 until that hosting is done. Copyright holder and grievance officer is Samay Vashsht (email only, no phone). Confirm the Google Play developer name and address before store submit.
+2. Replace the `Postal address: pending` placeholder on the `site/` privacy, terms, and home pages with a confirmed address (blocker before publishing; do not invent one). Then host those pages at the planned GitHub Pages URLs (`https://samayhuf-star.github.io/app-legal/playsz/…`) and set `PENDING_HOSTING` to false. The in-app links will 404 until that hosting is done. Copyright holder and grievance officer is Samay Vashsht (email only, no phone). Confirm the Google Play developer name and address before store submit.
 3. Create the three store products (`playsz_pro_monthly`, `playsz_pro_yearly`, `playsz_pro_lifetime`). The EAS project @krosz/openplay already exists; produce Android and iOS builds from a stated (post-rename) commit for QA.
 4. Sandbox-purchase the paywall (buy, cancel, failure, restore, persistence).
 5. Capture store screenshots from those builds; file the age rating; drop or prove any unverified playback claims.
