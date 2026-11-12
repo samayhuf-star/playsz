@@ -8,6 +8,11 @@ import {
   formatBytes,
 } from '../src/lib/format.ts';
 
+import {
+  friendlyStoreMessage,
+  isStoreUserCancel,
+} from '../src/lib/store-errors.ts';
+
 assert.equal(formatDuration(0), '0:00');
 assert.equal(formatDuration(5), '0:05');
 assert.equal(formatDuration(65), '1:05');
@@ -49,3 +54,39 @@ assert.equal(titles(sortItems(items, { field: 'duration', ascending: true })), '
 assert.equal(titles(sortItems(items, { field: 'size', ascending: false })), 'c2.mp4,a.mp4,c10.mp4,b.mp4');
 
 console.log('format checks passed');
+
+
+const envelope = (payload) => `OPENIAP_ERROR_JSON:${JSON.stringify(payload)}`;
+
+assert.equal(isStoreUserCancel({ code: 'user-cancelled' }), true);
+assert.equal(isStoreUserCancel({ code: 'E_USER_CANCELLED', message: 'cancelled' }), true);
+assert.equal(
+  isStoreUserCancel({ message: envelope({ code: 'user-cancelled', message: 'User cancelled.' }) }),
+  true
+);
+assert.equal(isStoreUserCancel(envelope({ code: 'user-cancelled' })), true);
+assert.equal(isStoreUserCancel({ code: 'network-error', message: 'offline' }), false);
+assert.equal(isStoreUserCancel(null), false);
+
+assert.equal(friendlyStoreMessage({ code: 'user-cancelled' }, 'Purchase failed. Please try again.'), '');
+assert.equal(
+  friendlyStoreMessage(
+    { message: envelope({ code: 'user-cancelled', message: 'User cancelled the purchase.' }) },
+    'Restore failed. Please try again.'
+  ),
+  ''
+);
+assert.equal(
+  friendlyStoreMessage({ message: envelope({ code: 'network-error', message: 'boom' }) }, 'Could not load prices from the store. Please try again.'),
+  'Could not load prices from the store. Please try again.'
+);
+assert.equal(
+  friendlyStoreMessage({ message: envelope({ code: 'unknown', message: '{"debug":true}' }) }, 'Purchase failed. Please try again.'),
+  'Purchase failed. Please try again.'
+);
+assert.equal(
+  friendlyStoreMessage({ message: 'The store is not available on this device yet.' }, 'fallback'),
+  'fallback'
+);
+
+console.log('store error checks passed');

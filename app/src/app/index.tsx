@@ -392,7 +392,7 @@ export default function HomeScreen() {
       {loading && permission !== 'unsupported' && videos.length === 0 && tab !== 'recents' ? (
         <View style={styles.centered} testID="library-scanning">
           <ActivityIndicator color={colors.accent} size="large" />
-          <Text style={styles.muted}>Scanning videos on this device…</Text>
+          <Text style={styles.muted}>Scanning videos on this device</Text>
         </View>
       ) : permission === 'granted' && tab === 'folders' ? (
         <FlatList
@@ -506,7 +506,7 @@ export default function HomeScreen() {
                 onPress={() => void loadPage(offset, false, albumId)}
               >
                 <Text style={styles.loadMoreLabel}>
-                  {loading ? 'Loading…' : 'Load more'}
+                  {loading ? 'Loading' : 'Load more'}
                 </Text>
               </Pressable>
             ) : query.trim() && hasMore ? (

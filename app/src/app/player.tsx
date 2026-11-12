@@ -441,7 +441,7 @@ export default function PlayerScreen() {
           uri = privateItemUri(item);
         } else if (assetId) {
           if (await isAssetInCloud(assetId)) {
-            setResumeNotice('Downloading from iCloud…');
+            setResumeNotice('Downloading from iCloud');
           }
           // Root cause of the blank player: the screen used to be handed a URI string
           // resolved earlier on the library screen and never surfaced load errors.

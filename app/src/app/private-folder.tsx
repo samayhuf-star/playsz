@@ -99,7 +99,7 @@ export default function PrivateFolderScreen() {
             disabled={authBusy}
             onPress={() => void authenticate()}
           >
-            <Text style={styles.unlockLabel}>{authBusy ? 'Checking…' : 'Unlock'}</Text>
+            <Text style={styles.unlockLabel}>{authBusy ? 'Checking' : 'Unlock'}</Text>
           </Pressable>
         </View>
       </SafeAreaView>

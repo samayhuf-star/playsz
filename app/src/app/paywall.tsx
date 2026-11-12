@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
@@ -10,13 +11,26 @@ import { PLAN_COPY, PLAN_ORDER, type ProductId } from '@/constants/products';
 import { useIapContext } from '@/providers/iap-provider';
 import { useColorSchemeName, useThemedStyles } from '@/theme';
 
-const AUTO_RENEW = `Subscriptions automatically renew unless you cancel at least 24 hours before the end of the current period. Your store account will be charged for renewal within 24 hours prior to the end of the current period, at the price shown by the store at purchase. You can manage or cancel a subscription in your Google Play or Apple ID account settings. Lifetime is a one-time purchase and does not renew.`;
+const AUTO_RENEW_IOS = `Subscriptions automatically renew unless you cancel at least 24 hours before the end of the current period. Your Apple ID account will be charged for renewal within 24 hours prior to the end of the current period, at the price shown by the App Store at purchase. You can manage or cancel a subscription in your Apple ID account settings. Lifetime is a one-time purchase and does not renew.`;
+
+const AUTO_RENEW_ANDROID = `Subscriptions automatically renew unless you cancel at least 24 hours before the end of the current period. Your Google Play account will be charged for renewal within 24 hours prior to the end of the current period, at the price shown by Google Play at purchase. You can manage or cancel a subscription in your Google Play account settings. Lifetime is a one-time purchase and does not renew.`;
+
+const PRICES_UNAVAILABLE_IOS =
+  'The App Store did not return prices for these plans. Check your connection, then tap Retry. Nothing will be charged until a real store price is shown.';
+
+const PRICES_UNAVAILABLE_ANDROID =
+  'Google Play did not return prices for these plans. Check your connection, then tap Retry. Nothing will be charged until a real store price is shown.';
 
 export default function PaywallScreen() {
   const router = useRouter();
   const iap = useIapContext();
+  const { refreshProducts } = iap;
   const scheme = useColorSchemeName();
   const styles = useThemedStyles(createStyles);
+
+  useEffect(() => {
+    void refreshProducts();
+  }, [refreshProducts]);
 
   const openLegal = async (kind: 'terms' | 'privacy') => {
     const url = LEGAL_URLS[kind];
@@ -60,11 +74,16 @@ export default function PaywallScreen() {
           <View style={styles.unavailable} testID="paywall-prices-unavailable">
             <Text style={styles.unavailableTitle}>Prices unavailable</Text>
             <Text style={styles.unavailableBody}>
-              The store did not return any products. Plans will show here once
-              this device can reach Google Play or the App Store and the Pro
-              products exist in the store consoles. Nothing will be charged
-              until a real store price is shown.
+              {Platform.OS === 'ios' ? PRICES_UNAVAILABLE_IOS : PRICES_UNAVAILABLE_ANDROID}
             </Text>
+            <Pressable
+              testID="paywall-retry"
+              style={styles.retry}
+              disabled={iap.catalogBusy}
+              onPress={() => void iap.refreshProducts()}
+            >
+              <Text style={styles.retryLabel}>{iap.catalogBusy ? 'Loading prices' : 'Retry'}</Text>
+            </Pressable>
           </View>
         ) : null}
 
@@ -112,7 +131,7 @@ export default function PaywallScreen() {
             {iap.isPro
               ? 'Already unlocked'
               : iap.busy
-                ? 'Working…'
+                ? 'Working'
                 : iap.productAvailable(iap.selectedId)
                   ? `Continue with ${PLAN_COPY[iap.selectedId].title}`
                   : 'Selected plan unavailable'}
@@ -128,7 +147,7 @@ export default function PaywallScreen() {
           <Text style={styles.secondaryLabel}>Restore purchases</Text>
         </Pressable>
 
-        <Text style={styles.disclosure}>{AUTO_RENEW}</Text>
+        <Text style={styles.disclosure}>{Platform.OS === 'ios' ? AUTO_RENEW_IOS : AUTO_RENEW_ANDROID}</Text>
 
         {hasLegalUrl('terms') || hasLegalUrl('privacy') ? (
           <View style={styles.legalRow}>
@@ -198,6 +217,8 @@ const createStyles = (c: ThemeColors) =>
   },
   unavailableTitle: { color: c.text, fontWeight: '800' },
   unavailableBody: { color: c.textMuted, fontSize: 13, lineHeight: 20 },
+  retry: { alignSelf: 'flex-start', paddingVertical: 6, paddingRight: 8 },
+  retryLabel: { color: c.accent, fontWeight: '700', fontSize: 15 },
   plans: { gap: 10 },
   plan: {
     backgroundColor: c.surface,
