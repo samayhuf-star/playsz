@@ -51,7 +51,23 @@ type IapContextValue = {
   buy: (id?: ProductId) => Promise<void>;
   restore: () => Promise<void>;
   refreshProducts: () => Promise<void>;
+  debugLine: string;
 };
+
+function describeStoreError(err: unknown): string {
+  if (!err) return 'none';
+  const e = err as { code?: unknown; message?: unknown };
+  const code = e?.code != null ? String(e.code) : 'no-code';
+  const msg = e?.message != null ? String(e.message) : String(err);
+  return `${code} ${msg}`.slice(0, 160);
+}
+
+function describeFetch(label: string, items: OfferProduct[] | null | undefined, err: unknown): string {
+  if (err) return `${label}: error ${describeStoreError(err)}`;
+  const list = items ?? [];
+  const ids = list.map((item) => item?.id).filter(Boolean).join(',');
+  return `${label}: ${list.length}${ids ? ` [${ids}]` : ''}`;
+}
 
 const IapContext = createContext<IapContextValue | null>(null);
 
@@ -138,6 +154,8 @@ export function IapProvider({ children }: { children: ReactNode }) {
   const [catalog, setCatalog] = useState<OfferProduct[]>([]);
   const [restorePending, setRestorePending] = useState(false);
   const fetchingRef = useRef(false);
+  const [fetchDebug, setFetchDebug] = useState('not fetched yet');
+  const [lastStoreError, setLastStoreError] = useState<string>('none');
 
   const {
     connected,
@@ -185,6 +203,7 @@ export function IapProvider({ children }: { children: ReactNode }) {
       setMessage(friendlyStoreMessage(error, 'Purchase failed. Please try again.'));
     },
     onError: (error) => {
+      setLastStoreError(describeStoreError(error));
       if (isCancel(error)) {
         setMessage(null);
         return;
@@ -218,14 +237,32 @@ export function IapProvider({ children }: { children: ReactNode }) {
   }, [connected, getActiveSubscriptions, getAvailablePurchases]);
 
   const loadCatalogOnce = useCallback(async (): Promise<number> => {
-    const lifetime = (await queryStoreProducts({
-      skus: [PRODUCT_IDS.lifetime],
-      type: 'in-app',
-    })) as OfferProduct[] | null;
-    const subs = (await queryStoreProducts({
-      skus: [...SUBSCRIPTION_IDS],
-      type: 'subs',
-    })) as OfferProduct[] | null;
+    let lifetime: OfferProduct[] | null = null;
+    let subs: OfferProduct[] | null = null;
+    let lifetimeError: unknown;
+    let subsError: unknown;
+    try {
+      lifetime = (await queryStoreProducts({
+        skus: [PRODUCT_IDS.lifetime],
+        type: 'in-app',
+      })) as OfferProduct[] | null;
+    } catch (err) {
+      lifetimeError = err;
+    }
+    try {
+      subs = (await queryStoreProducts({
+        skus: [...SUBSCRIPTION_IDS],
+        type: 'subs',
+      })) as OfferProduct[] | null;
+    } catch (err) {
+      subsError = err;
+    }
+    setFetchDebug(
+      `${describeFetch('in-app', lifetime, lifetimeError)} | ${describeFetch('subs', subs, subsError)}`
+    );
+    if (lifetimeError && subsError) {
+      throw subsError;
+    }
     const merged = mergeCatalog(lifetime, subs);
     setCatalog(merged);
     return merged.filter((item) => ALL_PRODUCT_IDS.includes(item.id as ProductId)).length;
@@ -247,6 +284,7 @@ export function IapProvider({ children }: { children: ReactNode }) {
         try {
           ready = await reconnect();
         } catch (err) {
+          setLastStoreError(describeStoreError(err));
           if (isCancel(err)) {
             setMessage(null);
             return;
@@ -282,6 +320,7 @@ export function IapProvider({ children }: { children: ReactNode }) {
         }
       }
       if (lastError) {
+        setLastStoreError(describeStoreError(lastError));
         setMessage(
           friendlyStoreMessage(
             lastError,
@@ -412,6 +451,8 @@ export function IapProvider({ children }: { children: ReactNode }) {
     }
   }, [refreshOwnership, restorePurchases]);
 
+  const debugLine = `Store debug: ${Platform.OS} connected=${connected ? 'yes' : 'no'} | ${fetchDebug} | catalog ${catalog.length} | last error ${lastStoreError}`;
+
   const value = useMemo<IapContextValue>(
     () => ({
       isPro: entitlement.isPro,
@@ -430,9 +471,11 @@ export function IapProvider({ children }: { children: ReactNode }) {
       buy,
       restore,
       refreshProducts,
+      debugLine,
     }),
     [
       anyPriceLoaded,
+      debugLine,
       busy,
       buy,
       catalog,

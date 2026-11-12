@@ -173,6 +173,9 @@ export default function PaywallScreen() {
             and will 404 until the legal site is hosted.
           </Text>
         ) : null}
+        <Text style={styles.debug} testID="paywall-debug" selectable>
+          {iap.debugLine}
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -261,5 +264,6 @@ const createStyles = (c: ThemeColors) =>
   legalRow: { flexDirection: 'row', justifyContent: 'center', gap: 10, alignItems: 'center' },
   legalLink: { color: c.accent, fontWeight: '700', fontSize: 14 },
   legalDot: { color: c.textMuted },
+  debug: { color: '#8E8E93', fontSize: 10, lineHeight: 14 },
   legalMissing: { color: c.textMuted, fontSize: 12, lineHeight: 18 },
 });
