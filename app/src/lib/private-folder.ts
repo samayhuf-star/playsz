@@ -10,6 +10,7 @@ import {
 } from 'expo-file-system/legacy';
 
 import { FREE_PRIVATE_FOLDER_ITEMS } from '@/constants/products';
+import { deleteThumbnail } from '@/lib/thumbnails';
 
 export type PrivateItem = {
   id: string;
@@ -155,10 +156,22 @@ export async function removePrivateItem(id: string): Promise<{
   const match = items.find((item) => item.id === id);
   if (match) {
     await deleteAsync(`${FOLDER}${match.storedName}`, { idempotent: true });
+    await deleteThumbnail(privateCacheId(match), match.addedAt).catch(() => undefined);
   }
   const next = items.filter((item) => item.id !== id);
   await writeManifest(next);
   return { count: next.length, cap: FREE_PRIVATE_FOLDER_ITEMS };
+}
+
+/** Resume / subtitle / thumbnail key for a private item. */
+export function privateCacheId(item: Pick<PrivateItem, 'id'>): string {
+  return `private:${item.id}`;
+}
+
+export async function findPrivateItem(id: string): Promise<PrivateItem | null> {
+  const bare = id.startsWith('private:') ? id.slice('private:'.length) : id;
+  const items = await listPrivateItems();
+  return items.find((item) => item.id === bare) ?? null;
 }
 
 export function privateItemUri(item: PrivateItem): string {

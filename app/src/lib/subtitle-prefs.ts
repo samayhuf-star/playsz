@@ -105,3 +105,93 @@ export async function importSubtitleFile(
   await AsyncStorage.setItem(keyFor(assetId), JSON.stringify(selection));
   return { selection, cues };
 }
+
+// ---- Subtitle styling (global, saved) ----
+
+export type SubtitleSize = 'small' | 'medium' | 'large' | 'xlarge';
+export type SubtitleColor = 'white' | 'yellow' | 'green' | 'cyan';
+export type SubtitleBackground = 'shadow' | 'translucent' | 'solid';
+
+export type SubtitleStyle = {
+  size: SubtitleSize;
+  color: SubtitleColor;
+  background: SubtitleBackground;
+};
+
+export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
+  size: 'medium',
+  color: 'white',
+  background: 'shadow',
+};
+
+export const SUBTITLE_SIZES: Record<SubtitleSize, { label: string; fontSize: number }> = {
+  small: { label: 'S', fontSize: 14 },
+  medium: { label: 'M', fontSize: 18 },
+  large: { label: 'L', fontSize: 23 },
+  xlarge: { label: 'XL', fontSize: 29 },
+};
+
+export const SUBTITLE_COLORS: Record<SubtitleColor, { label: string; value: string }> = {
+  white: { label: 'White', value: '#FFFFFF' },
+  yellow: { label: 'Yellow', value: '#FFE45C' },
+  green: { label: 'Green', value: '#6EE7A0' },
+  cyan: { label: 'Cyan', value: '#7DE3FF' },
+};
+
+export const SUBTITLE_BACKGROUNDS: Record<
+  SubtitleBackground,
+  { label: string; value: string }
+> = {
+  shadow: { label: 'Shadow', value: 'transparent' },
+  translucent: { label: 'Box', value: 'rgba(0,0,0,0.55)' },
+  solid: { label: 'Solid', value: '#000000' },
+};
+
+const STYLE_KEY = 'playsz:subtitle-style';
+
+export async function loadSubtitleStyle(): Promise<SubtitleStyle> {
+  try {
+    const raw = await AsyncStorage.getItem(STYLE_KEY);
+    if (!raw) return DEFAULT_SUBTITLE_STYLE;
+    const parsed = JSON.parse(raw) as Partial<SubtitleStyle>;
+    return {
+      size: parsed.size && parsed.size in SUBTITLE_SIZES ? parsed.size : DEFAULT_SUBTITLE_STYLE.size,
+      color:
+        parsed.color && parsed.color in SUBTITLE_COLORS ? parsed.color : DEFAULT_SUBTITLE_STYLE.color,
+      background:
+        parsed.background && parsed.background in SUBTITLE_BACKGROUNDS
+          ? parsed.background
+          : DEFAULT_SUBTITLE_STYLE.background,
+    };
+  } catch {
+    return DEFAULT_SUBTITLE_STYLE;
+  }
+}
+
+export async function saveSubtitleStyle(style: SubtitleStyle): Promise<void> {
+  await AsyncStorage.setItem(STYLE_KEY, JSON.stringify(style));
+}
+
+// ---- Player preferences (saved) ----
+
+const PLAYER_KEY = 'playsz:player-prefs';
+export type PlayerPrefs = { rate: number; loop: boolean };
+export const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] as const;
+
+export async function loadPlayerPrefs(): Promise<PlayerPrefs> {
+  try {
+    const raw = await AsyncStorage.getItem(PLAYER_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Partial<PlayerPrefs>) : {};
+    const rate =
+      typeof parsed.rate === 'number' && (PLAYBACK_RATES as readonly number[]).includes(parsed.rate)
+        ? parsed.rate
+        : 1;
+    return { rate, loop: parsed.loop === true };
+  } catch {
+    return { rate: 1, loop: false };
+  }
+}
+
+export async function savePlayerPrefs(prefs: PlayerPrefs): Promise<void> {
+  await AsyncStorage.setItem(PLAYER_KEY, JSON.stringify(prefs));
+}
