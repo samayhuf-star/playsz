@@ -4,11 +4,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
 import { Platform } from 'react-native';
 import {
+  fetchProducts as queryStoreProducts,
   isUserCancelledError,
   useIAP,
   type Product,
@@ -28,6 +30,7 @@ import {
   saveEntitlement,
   type Entitlement,
 } from '@/lib/entitlement';
+import { friendlyStoreMessage, isStoreUserCancel } from '@/lib/store-errors';
 
 type OfferProduct = Product | ProductSubscription;
 
@@ -43,12 +46,17 @@ type IapContextValue = {
   productAvailable: (id: ProductId) => boolean;
   anyPriceLoaded: boolean;
   busy: boolean;
+  catalogBusy: boolean;
   message: string | null;
   buy: (id?: ProductId) => Promise<void>;
   restore: () => Promise<void>;
+  refreshProducts: () => Promise<void>;
 };
 
 const IapContext = createContext<IapContextValue | null>(null);
+
+const FETCH_ATTEMPTS = 3;
+const FETCH_RETRY_MS = 800;
 
 function offerTokenFor(product: OfferProduct): string | undefined {
   if ('subscriptionOffers' in product && Array.isArray(product.subscriptionOffers)) {
@@ -59,7 +67,10 @@ function offerTokenFor(product: OfferProduct): string | undefined {
   return undefined;
 }
 
-function collectKnownIds(purchases: Purchase[], extra?: { productId: string; isActive?: boolean; isSuspendedAndroid?: boolean | null }[]): ProductId | null {
+function collectKnownIds(
+  purchases: Purchase[],
+  extra?: { productId: string; isActive?: boolean; isSuspendedAndroid?: boolean | null }[]
+): ProductId | null {
   for (const purchase of purchases) {
     if (
       isKnownProductId(purchase.productId) &&
@@ -88,6 +99,32 @@ function collectKnownIds(purchases: Purchase[], extra?: { productId: string; isA
   return null;
 }
 
+function isCancel(error: unknown): boolean {
+  try {
+    if (isUserCancelledError(error)) return true;
+  } catch {
+    // Fall through to the envelope-aware helper.
+  }
+  return isStoreUserCancel(error);
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function mergeCatalog(
+  lifetime: OfferProduct[] | null | undefined,
+  subscriptions: OfferProduct[] | null | undefined
+): OfferProduct[] {
+  const merged = new Map<string, OfferProduct>();
+  for (const item of [...(lifetime ?? []), ...(subscriptions ?? [])]) {
+    if (item?.id) merged.set(item.id, item);
+  }
+  return [...merged.values()];
+}
+
 export function IapProvider({ children }: { children: ReactNode }) {
   const [entitlement, setEntitlement] = useState<Entitlement>({
     isPro: false,
@@ -96,9 +133,11 @@ export function IapProvider({ children }: { children: ReactNode }) {
   });
   const [selectedId, setSelectedId] = useState<ProductId>(PRODUCT_IDS.yearly);
   const [busy, setBusy] = useState(false);
+  const [catalogBusy, setCatalogBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [catalog, setCatalog] = useState<OfferProduct[]>([]);
   const [restorePending, setRestorePending] = useState(false);
+  const fetchingRef = useRef(false);
 
   const {
     connected,
@@ -106,12 +145,12 @@ export function IapProvider({ children }: { children: ReactNode }) {
     subscriptions,
     availablePurchases,
     activeSubscriptions,
-    fetchProducts,
     requestPurchase,
     finishTransaction,
     getAvailablePurchases,
     getActiveSubscriptions,
     restorePurchases,
+    reconnect,
   } = useIAP({
     onPurchaseSuccess: (purchase) => {
       void (async () => {
@@ -127,9 +166,10 @@ export function IapProvider({ children }: { children: ReactNode }) {
           }
         } catch (err) {
           setMessage(
-            err instanceof Error
-              ? err.message
-              : 'The purchase finished in the store but could not be saved on this device. Try Restore.'
+            friendlyStoreMessage(
+              err,
+              'The purchase finished in the store but could not be saved on this device. Try Restore.'
+            )
           );
         } finally {
           setBusy(false);
@@ -138,14 +178,20 @@ export function IapProvider({ children }: { children: ReactNode }) {
     },
     onPurchaseError: (error) => {
       setBusy(false);
-      if (isUserCancelledError(error)) {
-        setMessage('Purchase cancelled.');
+      if (isCancel(error)) {
+        setMessage(null);
         return;
       }
-      setMessage(error.message || 'Purchase failed. Please try again.');
+      setMessage(friendlyStoreMessage(error, 'Purchase failed. Please try again.'));
     },
     onError: (error) => {
-      setMessage(error.message || 'The store could not be reached.');
+      if (isCancel(error)) {
+        setMessage(null);
+        return;
+      }
+      setMessage(
+        friendlyStoreMessage(error, 'The store could not be reached. Please try again.')
+      );
     },
   });
 
@@ -161,40 +207,107 @@ export function IapProvider({ children }: { children: ReactNode }) {
       await getAvailablePurchases();
       await getActiveSubscriptions([...SUBSCRIPTION_IDS]);
     } catch (err) {
+      if (isCancel(err)) {
+        setMessage(null);
+        return;
+      }
       setMessage(
-        err instanceof Error ? err.message : 'Could not refresh purchases from the store.'
+        friendlyStoreMessage(err, 'Could not refresh purchases from the store. Please try again.')
       );
     }
   }, [connected, getActiveSubscriptions, getAvailablePurchases]);
 
+  const loadCatalogOnce = useCallback(async (): Promise<number> => {
+    const lifetime = (await queryStoreProducts({
+      skus: [PRODUCT_IDS.lifetime],
+      type: 'in-app',
+    })) as OfferProduct[] | null;
+    const subs = (await queryStoreProducts({
+      skus: [...SUBSCRIPTION_IDS],
+      type: 'subs',
+    })) as OfferProduct[] | null;
+    const merged = mergeCatalog(lifetime, subs);
+    setCatalog(merged);
+    return merged.filter((item) => ALL_PRODUCT_IDS.includes(item.id as ProductId)).length;
+  }, []);
+
+  const refreshProducts = useCallback(async () => {
+    if (Platform.OS === 'web') {
+      return;
+    }
+    if (fetchingRef.current) {
+      return;
+    }
+    fetchingRef.current = true;
+    setCatalogBusy(true);
+    setMessage(null);
+    try {
+      let ready = connected;
+      if (!ready) {
+        try {
+          ready = await reconnect();
+        } catch (err) {
+          if (isCancel(err)) {
+            setMessage(null);
+            return;
+          }
+          setMessage(
+            friendlyStoreMessage(err, 'The store is not available on this device yet.')
+          );
+          return;
+        }
+      }
+      if (!ready) {
+        setMessage('The store is not available on this device yet.');
+        return;
+      }
+      let loaded = 0;
+      let lastError: unknown;
+      for (let attempt = 0; attempt < FETCH_ATTEMPTS; attempt += 1) {
+        try {
+          loaded = await loadCatalogOnce();
+          lastError = undefined;
+          if (loaded >= ALL_PRODUCT_IDS.length) {
+            break;
+          }
+        } catch (err) {
+          lastError = err;
+          if (isCancel(err)) {
+            setMessage(null);
+            return;
+          }
+        }
+        if (attempt < FETCH_ATTEMPTS - 1) {
+          await wait(FETCH_RETRY_MS * (attempt + 1));
+        }
+      }
+      if (lastError) {
+        setMessage(
+          friendlyStoreMessage(
+            lastError,
+            'Could not load prices from the store. Please try again.'
+          )
+        );
+      }
+    } finally {
+      fetchingRef.current = false;
+      setCatalogBusy(false);
+    }
+  }, [connected, loadCatalogOnce, reconnect]);
+
+  // Load prices once the store connection is ready. Do not sync ownership at startup.
   useEffect(() => {
     if (!connected || Platform.OS === 'web') {
       return;
     }
-    void (async () => {
-      try {
-        await fetchProducts({ skus: [PRODUCT_IDS.lifetime], type: 'in-app' });
-        await fetchProducts({
-          skus: [...SUBSCRIPTION_IDS],
-          type: 'subs',
-        });
-        await refreshOwnership();
-      } catch (err) {
-        setMessage(
-          err instanceof Error
-            ? err.message
-            : 'Store products are unavailable on this device.'
-        );
-      }
-    })();
-  }, [connected, fetchProducts, refreshOwnership]);
+    void refreshProducts();
+  }, [connected, refreshProducts]);
 
   useEffect(() => {
-    const merged = new Map<string, OfferProduct>();
-    for (const item of [...products, ...subscriptions]) {
-      merged.set(item.id, item);
+    const merged = mergeCatalog(products, subscriptions);
+    if (merged.length > 0) {
+      setCatalog(merged);
     }
-    setCatalog([...merged.values()]);
   }, [products, subscriptions]);
 
   useEffect(() => {
@@ -270,11 +383,11 @@ export function IapProvider({ children }: { children: ReactNode }) {
         }
       } catch (err) {
         setBusy(false);
-        if (isUserCancelledError(err)) {
-          setMessage('Purchase cancelled.');
+        if (isCancel(err)) {
+          setMessage(null);
           return;
         }
-        setMessage(err instanceof Error ? err.message : 'Purchase failed.');
+        setMessage(friendlyStoreMessage(err, 'Purchase failed. Please try again.'));
       }
     },
     [catalog, connected, requestPurchase, selectedId]
@@ -289,7 +402,11 @@ export function IapProvider({ children }: { children: ReactNode }) {
       await refreshOwnership();
     } catch (err) {
       setRestorePending(false);
-      setMessage(err instanceof Error ? err.message : 'Restore failed.');
+      if (isCancel(err)) {
+        setMessage(null);
+      } else {
+        setMessage(friendlyStoreMessage(err, 'Restore failed. Please try again.'));
+      }
     } finally {
       setBusy(false);
     }
@@ -308,20 +425,24 @@ export function IapProvider({ children }: { children: ReactNode }) {
       productAvailable,
       anyPriceLoaded,
       busy,
+      catalogBusy,
       message,
       buy,
       restore,
+      refreshProducts,
     }),
     [
       anyPriceLoaded,
       busy,
       buy,
       catalog,
+      catalogBusy,
       connected,
       entitlement,
       message,
       priceLabel,
       productAvailable,
+      refreshProducts,
       restore,
       selectedId,
     ]

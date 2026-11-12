@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,11 +15,14 @@ import { PasswordModal } from '@/components/password-modal';
 import { VideoPickerModal } from '@/components/video-picker-modal';
 import { exportVideoAudio } from '@/lib/audio-export';
 import { canExport, getExportUsage, recordSuccessfulExport } from '@/lib/caps';
+import { markLibraryChanged } from '@/lib/library';
 import {
   addPrivateItem,
   canAddPrivateItem,
+  deleteOriginalsFromLibrary,
   getPrivateFolderCount,
 } from '@/lib/private-folder';
+import { unlockPrivateFolder } from '@/lib/private-lock';
 import {
   importEncryptedPrivateFolder,
   shareEncryptedPrivateFolder,
@@ -55,6 +58,43 @@ export default function SettingsScreen() {
   );
 
   const goPaywall = () => router.push('/paywall');
+
+  /** After verified copies, offer to remove the originals from Photos in ONE system request. */
+  const offerDeleteOriginals = (assetIds: string[], addedNote: string) => {
+    const ids = Array.from(new Set(assetIds.filter(Boolean)));
+    if (ids.length === 0) {
+      return;
+    }
+    const many = ids.length > 1;
+    Alert.alert(
+      many ? `Delete ${ids.length} originals from Photos?` : 'Delete the original from Photos?',
+      `${many ? 'The videos are' : 'The video is'} now in your private folder. Deleting removes the ` +
+        `original${many ? 's' : ''} from your photo library${
+          Platform.OS === 'ios' ? ' (iOS keeps them in Recently Deleted for 30 days)' : ''
+        }. The private ${many ? 'copies stay' : 'copy stays'} either way.`,
+      [
+        { text: 'Keep', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            void (async () => {
+              const result = await deleteOriginalsFromLibrary(ids);
+              if (result.status === 'deleted') {
+                markLibraryChanged();
+                setNote(
+                  `${addedNote} Deleted ${result.count} original${result.count === 1 ? '' : 's'} from the library.`
+                );
+              } else {
+                setNote(`${addedNote} ${result.message}`);
+              }
+            })();
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   const onExport = async () => {
     const result = await canExport(isPro);
@@ -92,7 +132,14 @@ export default function SettingsScreen() {
       setNote('Add at least one item to the private folder before exporting.');
       return;
     }
-    setVaultMode('export');
+    // Exporting the folder's contents needs the same Face ID / passcode unlock as opening it.
+    void unlockPrivateFolder().then((result) => {
+      if (result.ok) {
+        setVaultMode('export');
+      } else {
+        setNote(result.message);
+      }
+    });
   };
 
   const onEncryptedImport = () => {
@@ -144,7 +191,7 @@ export default function SettingsScreen() {
           </Pressable>
           <Text style={styles.cardBody}>
             Private folder: {isPro ? 'unlimited' : `${folder.count} of ${folder.cap} items`}.
-            Files are copied into app-private storage. The cap uses the real item count.
+            Files are copied into app-private storage and locked with Face ID or your passcode. The cap uses the real item count.
           </Text>
           <Pressable
             style={styles.secondary}
@@ -255,7 +302,11 @@ export default function SettingsScreen() {
                   goPaywall();
                   return;
                 }
-                setNote(`Added ${video.title} to the private folder (${result.count} of ${result.cap}).`);
+                const addedNote = `Added ${video.title} to the private folder (${result.count} of ${result.cap}).`;
+                setNote(addedNote);
+                if (result.verified && video.id) {
+                  offerDeleteOriginals([video.id], addedNote);
+                }
               }
             } catch (err) {
               setNote(

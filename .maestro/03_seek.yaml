@@ -1,0 +1,33 @@
+appId: com.samayvashsht.playsz
+name: Seek with double-tap +10s or a horizontal swipe
+---
+- tapOn:
+    id: "library-video-playsz-qa-short"
+- extendedWaitUntil:
+    visible:
+      id: "player-screen"
+    timeout: 20000
+- tapOn:
+    id: "player-stage"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "player-play-pause"
+    timeout: 8000
+# Wait a moment so we're not still at 0:00, then double-tap the right half.
+- waitForAnimationToEnd:
+    timeout: 1500
+- doubleTapOn:
+    point: "80%,38%"
+- extendedWaitUntil:
+    visible:
+      id: "player-hint"
+    timeout: 4000
+- assertVisible:
+    id: "player-hint-label"
+- tapOn:
+    id: "player-back"
+- extendedWaitUntil:
+    visible:
+      id: "library-title"
+    timeout: 10000

@@ -1,0 +1,26 @@
+# Fallback if double-tap does not produce a hint (gesture race on the simulator).
+appId: com.samayvashsht.playsz
+name: Seek with a horizontal swipe
+---
+- tapOn:
+    id: "library-video-playsz-qa-short"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "player-screen"
+    timeout: 20000
+- swipe:
+    start: "20%, 38%"
+    end: "85%, 38%"
+    duration: 400
+- extendedWaitUntil:
+    visible:
+      id: "player-hint"
+    timeout: 4000
+- tapOn:
+    id: "player-back"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "library-title"
+    timeout: 10000

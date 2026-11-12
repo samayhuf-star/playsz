@@ -1,0 +1,62 @@
+appId: com.samayvashsht.playsz
+name: Import SRT and show subtitle text
+---
+- tapOn:
+    id: "library-video-playsz-qa-subs"
+- extendedWaitUntil:
+    visible:
+      id: "player-screen"
+    timeout: 20000
+- tapOn:
+    id: "player-stage"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "player-subs"
+    timeout: 8000
+- tapOn:
+    id: "player-subs"
+- tapOn:
+    id: "player-load-srt"
+# System document picker. This is the flakiest step on a headless simulator.
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    text: "Browse"
+    optional: true
+- tapOn:
+    text: "On My iPhone"
+    optional: true
+- tapOn:
+    text: "On My iPad"
+    optional: true
+- tapOn:
+    text: "Recents"
+    optional: true
+- tapOn:
+    text: "Playsz"
+    optional: true
+- tapOn:
+    text: "qa-fixtures"
+    optional: true
+- tapOn:
+    text: "playsz-qa-subs.srt"
+    optional: true
+- tapOn:
+    text: "playsz-qa-subs"
+    optional: true
+- tapOn:
+    text: "Open"
+    optional: true
+# The cue covers the whole 10s clip.
+- extendedWaitUntil:
+    visible:
+      id: "player-subtitle-text"
+    timeout: 12000
+- assertVisible: "PLAYSZ QA SUBTITLE LINE"
+- tapOn:
+    id: "player-stage"
+    optional: true
+- tapOn:
+    id: "player-back"
+    optional: true

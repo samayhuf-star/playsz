@@ -9,10 +9,10 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { Asset } from 'expo-media-library';
 
 import type { ThemeColors } from '@/constants/colors';
-import { formatTimecode } from '@/lib/resume-position';
+import { formatDuration as formatTimecode } from '@/lib/format';
+import { resolveAssetUri } from '@/lib/media-source';
 import { loadVideoPage, PAGE_SIZE, type LibraryItem } from '@/lib/library';
 import { useColors, useThemedStyles } from '@/theme';
 
@@ -69,8 +69,8 @@ export function VideoPickerModal({ visible, title, onClose, onPick }: Props) {
 
   const pick = async (item: LibraryItem) => {
     try {
-      const info = await new Asset(item.id).getInfo();
-      onPick({ id: item.id, title: info.filename || item.title, uri: info.uri });
+      const uri = await resolveAssetUri(item.id);
+      onPick({ id: item.id, title: item.title, uri });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not open that video.');
     }

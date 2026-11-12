@@ -1,0 +1,3 @@
+# Shared Maestro config for Playsz iOS simulator QA.
+# Individual flows also set appId so they can be run one at a time.
+appId: com.samayvashsht.playsz

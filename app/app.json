@@ -20,7 +20,8 @@
         "CFBundleDisplayName": "Playsz",
         "CFBundleName": "Playsz"
       },
-      "appleTeamId": "PGLT2QZX88"
+      "appleTeamId": "PGLT2QZX88",
+      "buildNumber": "5"
     },
     "android": {
       "package": "com.allinone.videoplayer",
@@ -54,7 +55,19 @@
           "imageWidth": 76
         }
       ],
-      "expo-video",
+      [
+        "expo-video",
+        {
+          "supportsPictureInPicture": true,
+          "supportsBackgroundPlayback": true
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Playsz uses Face ID to lock and unlock your private folder."
+        }
+      ],
       [
         "expo-media-library",
         {

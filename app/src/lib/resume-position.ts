@@ -1,6 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { formatDuration } from '@/lib/format';
+
 const PREFIX = 'playsz:resume:';
+const DURATION_PREFIX = 'playsz:duration:';
 
 /** Skip resume if we are this close to the start (seconds). */
 const START_THRESHOLD_SEC = 5;
@@ -51,24 +54,54 @@ export async function saveResumePosition(
     return;
   }
   await AsyncStorage.setItem(keyFor(assetId), String(Math.floor(positionSec)));
+  if (durationSec != null && durationSec > 0) {
+    // Remembered so rows without media-library metadata (private folder) can draw a resume bar.
+    await AsyncStorage.setItem(`${DURATION_PREFIX}${assetId}`, String(Math.round(durationSec)));
+  }
 }
 
 export async function clearResumePosition(assetId: string): Promise<void> {
   await AsyncStorage.removeItem(keyFor(assetId));
 }
 
+/** @deprecated Use formatDuration from '@/lib/format'. Kept as an alias (seconds in). */
 export function formatTimecode(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) {
-    return '0:00';
+  return formatDuration(seconds);
+}
+
+/** Resume fraction (0..1) for ids whose duration was recorded during playback. */
+export async function getResumeFractions(ids: string[]): Promise<Record<string, number>> {
+  const positions = await getResumePositions(ids);
+  const withPos = Object.keys(positions);
+  if (withPos.length === 0) {
+    return {};
   }
-  const total = Math.floor(seconds);
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  if (h > 0) {
-    return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  const pairs = await AsyncStorage.multiGet(withPos.map((id) => `${DURATION_PREFIX}${id}`));
+  const out: Record<string, number> = {};
+  for (const [key, value] of pairs) {
+    const id = key.slice(DURATION_PREFIX.length);
+    const dur = Number(value);
+    if (value != null && dur > 0) {
+      out[id] = Math.min(1, positions[id] / dur);
+    }
   }
-  return `${m}:${String(s).padStart(2, '0')}`;
+  return out;
+}
+
+/** Saved resume positions (seconds) for many ids at once, for library progress bars. */
+export async function getResumePositions(ids: string[]): Promise<Record<string, number>> {
+  if (ids.length === 0) {
+    return {};
+  }
+  const pairs = await AsyncStorage.multiGet(ids.map(keyFor));
+  const out: Record<string, number> = {};
+  for (const [key, value] of pairs) {
+    const n = Number(value);
+    if (value != null && Number.isFinite(n) && n > 0) {
+      out[key.slice(PREFIX.length)] = n;
+    }
+  }
+  return out;
 }
 
 

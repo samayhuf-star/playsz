@@ -1,0 +1,24 @@
+appId: com.samayvashsht.playsz
+name: Open the paywall
+---
+- tapOn:
+    id: "library-title"
+    optional: true
+- tapOn:
+    id: "player-back"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "library-paywall-button"
+    timeout: 15000
+- tapOn:
+    id: "library-paywall-button"
+- extendedWaitUntil:
+    visible:
+      id: "paywall-screen"
+    timeout: 10000
+- assertVisible:
+    id: "paywall-title"
+# Give expo-iap a moment to finish fetchProducts (or fail).
+- waitForAnimationToEnd:
+    timeout: 5000

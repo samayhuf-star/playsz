@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -10,29 +10,44 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  Asset,
-  requestPermissionsAsync,
-} from 'expo-media-library';
+import { requestPermissionsAsync } from 'expo-media-library';
 
 import type { ThemeColors } from '@/constants/colors';
+import { VideoThumb } from '@/components/video-thumb';
+import { formatBytes, resumeFraction, sortItems, type SortField, type SortOrder } from '@/lib/format';
 import {
+  consumeLibraryChanged,
+  DEFAULT_SORT,
+  isNativeSort,
   loadFolders,
+  loadSortOrder,
   loadVideoPage,
   PAGE_SIZE,
+  saveSortOrder,
+  SORT_LABELS,
   type FolderSummary,
   type LibraryItem,
 } from '@/lib/library';
 import {
-  formatTimecode,
+  getResumePositions,
   listRecentPlayback,
   type RecentItem,
 } from '@/lib/resume-position';
+import { getKnownSizes, measureSizes } from '@/lib/thumbnails';
 import { useIapContext } from '@/providers/iap-provider';
 import { useColorSchemeName, useColors, useThemedStyles } from '@/theme';
+
+/** Stable testID slug for Maestro; does not affect visible titles or behaviour. */
+function qaVideoId(title: string): string {
+  const slug = title
+    .replace(/\.[^.]+$/, '')
+    .replace(/[^A-Za-z0-9._-]+/g, '-')
+    .toLowerCase();
+  return `library-video-${slug || 'untitled'}`;
+}
 
 type PermissionState = 'loading' | 'denied' | 'granted' | 'unsupported';
 type Tab = 'library' | 'folders' | 'recents';
@@ -58,6 +73,18 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(Platform.OS !== 'web');
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sort, setSort] = useState<SortOrder | null>(null);
+  const [resume, setResume] = useState<Record<string, number>>({});
+  const [sizes, setSizes] = useState<Record<string, number>>({});
+  const [measuring, setMeasuring] = useState(false);
+  const sortRef = useRef<SortOrder>(DEFAULT_SORT);
+  if (sort) {
+    sortRef.current = sort;
+  }
+
+  useEffect(() => {
+    void loadSortOrder().then(setSort);
+  }, []);
 
   const requestAccess = useCallback(async (): Promise<boolean> => {
     if (Platform.OS === 'web') {
@@ -78,13 +105,17 @@ export default function HomeScreen() {
 
   const loadPage = useCallback(
     async (nextOffset: number, replace: boolean, nextAlbumId: string | null) => {
+      const order = sortRef.current;
+      const all = !isNativeSort(order);
       const page = await loadVideoPage({
         offset: nextOffset,
         albumId: nextAlbumId,
+        order,
+        all,
       });
       setVideos((current) => (replace ? page : [...current, ...page]));
       setOffset(nextOffset + page.length);
-      setHasMore(page.length === PAGE_SIZE);
+      setHasMore(!all && page.length === PAGE_SIZE);
     },
     []
   );
@@ -109,7 +140,9 @@ export default function HomeScreen() {
         await Promise.all([
           loadPage(0, true, albumId),
           loadFolders().then(setFolders).catch(() => setFolders([])),
-          listRecentPlayback().then(setRecents).catch(() => setRecents([])),
+          listRecentPlayback()
+            // Private-folder titles never show in the library's Recents.
+            .then((list) => setRecents(list.filter((r) => !r.id.startsWith('private:')))).catch(() => setRecents([])),
         ]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Could not load videos.');
@@ -122,27 +155,104 @@ export default function HomeScreen() {
   );
 
   useEffect(() => {
-    void refreshLibrary();
-  }, [refreshLibrary]);
+    if (sort) {
+      void refreshLibrary();
+    }
+    // Reload only once the saved sort is known, and whenever it changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshLibrary, sort?.field, sort?.ascending]);
+
+  // Originals deleted elsewhere (private-folder move): reload the list on return.
+  useFocusEffect(
+    useCallback(() => {
+      if (consumeLibraryChanged()) {
+        void refreshLibrary();
+      }
+    }, [refreshLibrary])
+  );
+
+  // Resume bars: re-read saved positions whenever the library comes back into focus.
+  const videoIds = useMemo(() => videos.map((v) => v.id), [videos]);
+  useFocusEffect(
+    useCallback(() => {
+      void getResumePositions(videoIds).then(setResume).catch(() => undefined);
+    }, [videoIds])
+  );
+
+  // Size sort: use cached sizes, then measure the rest with limited concurrency.
+  useEffect(() => {
+    if (sort?.field !== 'size' || videos.length === 0) {
+      return;
+    }
+    let cancelled = false;
+    const pending: Record<string, number> = {};
+    let flush: ReturnType<typeof setTimeout> | null = null;
+    void (async () => {
+      const known = await getKnownSizes(videos);
+      if (cancelled) return;
+      setSizes((cur) => ({ ...cur, ...known }));
+      setMeasuring(true);
+      await measureSizes(
+        videos,
+        (id, size) => {
+          pending[id] = size;
+          if (!flush) {
+            flush = setTimeout(() => {
+              flush = null;
+              const batch = { ...pending };
+              setSizes((cur) => ({ ...cur, ...batch }));
+            }, 600);
+          }
+        },
+        () => cancelled
+      );
+      if (!cancelled) {
+        setSizes((cur) => ({ ...cur, ...pending }));
+        setMeasuring(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (flush) clearTimeout(flush);
+      setMeasuring(false);
+    };
+  }, [sort?.field, videos]);
+
+  const chooseSort = useCallback((field: SortField) => {
+    setSort((current) => {
+      const base = current ?? DEFAULT_SORT;
+      const next: SortOrder =
+        base.field === field
+          ? { field, ascending: !base.ascending }
+          : { field, ascending: field === 'name' };
+      void saveSortOrder(next);
+      return next;
+    });
+  }, []);
 
   const openVideo = useCallback(
-    async (item: { id: string; title: string }) => {
-      const info = await new Asset(item.id).getInfo();
-      const uri = info.uri;
-      const title = info.filename || item.title;
+    (item: { id: string; title: string }) => {
+      // The player resolves the playable URI itself (see src/lib/media-source.ts).
       router.push({
         pathname: '/player',
-        params: { id: item.id, uri, title },
+        params: { id: item.id, title: item.title },
       });
     },
     [router]
   );
 
-  const shownVideos = query.trim()
+  const filteredVideos = query.trim()
     ? videos.filter((item) =>
         item.title.toLowerCase().includes(query.trim().toLowerCase())
       )
     : videos;
+  const activeSort = sort ?? DEFAULT_SORT;
+  const shownVideos = isNativeSort(activeSort)
+    ? filteredVideos
+    : sortItems(
+        filteredVideos.map((item) => ({ ...item, size: sizes[item.id] ?? null })),
+        activeSort
+      );
   const shownFolders = query.trim()
     ? folders.filter((item) =>
         item.title.toLowerCase().includes(query.trim().toLowerCase())
@@ -171,16 +281,16 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']} testID="library-screen">
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <Text style={styles.title}>Playsz</Text>
+          <Text style={styles.title} testID="library-title">Playsz</Text>
           <View style={styles.headerActions}>
-            <Pressable style={styles.headerBtn} onPress={() => router.push('/settings')}>
+            <Pressable style={styles.headerBtn} testID="library-settings-button" onPress={() => router.push('/settings')}>
               <Text style={styles.headerBtnLabel}>Settings</Text>
             </Pressable>
-            <Pressable style={styles.headerBtnAccent} onPress={() => router.push('/paywall')}>
+            <Pressable style={styles.headerBtnAccent} testID="library-paywall-button" onPress={() => router.push('/paywall')}>
               <Text style={styles.headerBtnAccentLabel}>{isPro ? 'Pro' : 'Unlock Pro'}</Text>
             </Pressable>
           </View>
@@ -198,6 +308,7 @@ export default function HomeScreen() {
               ] as const).map(([id, label]) => (
                 <Pressable
                   key={id}
+                  testID={`library-tab-${id}`}
                   style={[styles.tab, tab === id && styles.tabActive]}
                   onPress={() => setTab(id)}
                 >
@@ -208,6 +319,7 @@ export default function HomeScreen() {
               ))}
             </View>
             <TextInput
+              testID="library-search"
               value={query}
               onChangeText={setQuery}
               placeholder={
@@ -220,6 +332,29 @@ export default function HomeScreen() {
               placeholderTextColor={colors.textMuted}
               style={styles.search}
             />
+            {tab === 'library' ? (
+              <View style={styles.sortRow}>
+                <Text style={styles.sortLabel}>Sort</Text>
+                {(Object.keys(SORT_LABELS) as SortField[]).map((field) => {
+                  const active = activeSort.field === field;
+                  return (
+                    <Pressable
+                      key={field}
+                      testID={`library-sort-${field}`}
+                      style={[styles.sortChip, active && styles.tabActive]}
+                      onPress={() => chooseSort(field)}
+                      accessibilityLabel={`Sort by ${SORT_LABELS[field]}`}
+                    >
+                      <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>
+                        {SORT_LABELS[field]}
+                        {active ? (activeSort.ascending ? ' ↑' : ' ↓') : ''}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+                {measuring ? <ActivityIndicator size="small" color={colors.accent} /> : null}
+              </View>
+            ) : null}
             {albumTitle && tab === 'library' ? (
               <Pressable onPress={clearFolder}>
                 <Text style={styles.folderChip}>Folder: {albumTitle}  ·  Show all</Text>
@@ -230,13 +365,13 @@ export default function HomeScreen() {
       </View>
 
       {permission === 'denied' ? (
-        <View style={styles.message}>
+        <View style={styles.message} testID="library-permission-denied">
           <Text style={styles.messageTitle}>Allow access to your videos</Text>
           <Text style={styles.messageBody}>
             Playsz only asks for video access so it can play files already on
             this device. No location, no camera, no contacts.
           </Text>
-          <Pressable style={styles.cta} onPress={() => void refreshLibrary()}>
+          <Pressable style={styles.cta} testID="library-grant-access" onPress={() => void refreshLibrary()}>
             <Text style={styles.ctaLabel}>Grant video access</Text>
           </Pressable>
         </View>
@@ -255,9 +390,9 @@ export default function HomeScreen() {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       {loading && permission !== 'unsupported' && videos.length === 0 && tab !== 'recents' ? (
-        <View style={styles.centered}>
+        <View style={styles.centered} testID="library-scanning">
           <ActivityIndicator color={colors.accent} size="large" />
-          <Text style={styles.muted}>Scanning videos on this device…</Text>
+          <Text style={styles.muted}>Scanning videos on this device</Text>
         </View>
       ) : permission === 'granted' && tab === 'folders' ? (
         <FlatList
@@ -317,12 +452,12 @@ export default function HomeScreen() {
           }
           renderItem={({ item }) => (
             <Pressable
+              testID={qaVideoId(item.title)}
+              accessibilityLabel={item.title}
               style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-              onPress={() => void openVideo(item)}
+              onPress={() => openVideo(item)}
             >
-              <View style={styles.thumb}>
-                <Text style={styles.thumbLabel}>▶</Text>
-              </View>
+              <VideoThumb request={{ cacheId: item.id, version: 0, assetId: item.id }} />
               <View style={styles.rowBody}>
                 <Text style={styles.rowTitle} numberOfLines={2}>
                   {item.title}
@@ -336,6 +471,7 @@ export default function HomeScreen() {
         />
       ) : permission === 'granted' ? (
         <FlatList
+          testID="library-list"
           data={shownVideos}
           keyExtractor={(item) => item.id}
           contentContainerStyle={
@@ -355,7 +491,7 @@ export default function HomeScreen() {
             />
           }
           ListEmptyComponent={
-            <View style={styles.message}>
+            <View style={styles.message} testID="library-empty">
               <Text style={styles.messageTitle}>No videos on this device</Text>
               <Text style={styles.messageBody}>
                 Copy a standard MP4 or MKV onto the phone, then pull to
@@ -370,7 +506,7 @@ export default function HomeScreen() {
                 onPress={() => void loadPage(offset, false, albumId)}
               >
                 <Text style={styles.loadMoreLabel}>
-                  {loading ? 'Loading…' : 'Load more'}
+                  {loading ? 'Loading' : 'Load more'}
                 </Text>
               </Pressable>
             ) : query.trim() && hasMore ? (
@@ -382,24 +518,34 @@ export default function HomeScreen() {
           }
           renderItem={({ item }) => (
             <Pressable
+              testID={qaVideoId(item.title)}
+              accessibilityLabel={item.title}
               style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-              onPress={() => void openVideo(item)}
+              onPress={() => openVideo(item)}
             >
-              <View style={styles.thumb}>
-                <Text style={styles.thumbLabel}>▶</Text>
-              </View>
+              <VideoThumb
+                request={{
+                  cacheId: item.id,
+                  version: item.modificationTime,
+                  assetId: item.id,
+                  durationSec: item.duration,
+                }}
+                durationSec={item.duration}
+                progress={resumeFraction(resume[item.id], item.duration)}
+              />
               <View style={styles.rowBody}>
                 <Text style={styles.rowTitle} numberOfLines={2}>
                   {item.title}
                 </Text>
                 <Text style={styles.rowMeta}>
                   {[
-                    item.duration != null
-                      ? formatTimecode(item.duration)
-                      : null,
                     item.width && item.height
                       ? `${item.width}×${item.height}`
                       : null,
+                    item.modificationTime
+                      ? new Date(item.modificationTime).toLocaleDateString()
+                      : null,
+                    formatBytes(sizes[item.id]),
                   ]
                     .filter(Boolean)
                     .join('  ·  ') || 'Video'}
@@ -488,6 +634,21 @@ const createStyles = (c: ThemeColors) =>
       borderRadius: 10,
       paddingHorizontal: 12,
       paddingVertical: 8,
+    },
+    sortRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 6,
+      marginTop: 8,
+    },
+    sortLabel: { color: c.textMuted, fontSize: 12, fontWeight: '700', marginRight: 2 },
+    sortChip: {
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 999,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
     },
     folderChip: { color: c.accent, fontWeight: '700', fontSize: 13, marginTop: 4 },
     list: {

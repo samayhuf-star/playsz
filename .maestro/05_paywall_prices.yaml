@@ -1,0 +1,16 @@
+appId: com.samayvashsht.playsz
+name: Assert StoreKit prices are visible
+---
+- assertVisible:
+    id: "paywall-screen"
+# displayPrice from the StoreKit config should be $2.99 / $9.99 / $29.99
+# (storefront USA). Accept the amount with or without a dollar sign.
+- assertVisible:
+    id: "paywall-price-playsz_pro_monthly"
+- assertVisible:
+    id: "paywall-price-playsz_pro_yearly"
+- assertVisible:
+    id: "paywall-price-playsz_pro_lifetime"
+- assertVisible: ".*2\\.99.*"
+- assertVisible: ".*9\\.99.*"
+- assertVisible: ".*29\\.99.*"
