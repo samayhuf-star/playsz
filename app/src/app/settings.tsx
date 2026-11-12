@@ -20,6 +20,7 @@ import {
   canAddPrivateItem,
   getPrivateFolderCount,
 } from '@/lib/private-folder';
+import { unlockPrivateFolder } from '@/lib/private-lock';
 import {
   importEncryptedPrivateFolder,
   shareEncryptedPrivateFolder,
@@ -92,7 +93,14 @@ export default function SettingsScreen() {
       setNote('Add at least one item to the private folder before exporting.');
       return;
     }
-    setVaultMode('export');
+    // Exporting the folder's contents needs the same Face ID / passcode unlock as opening it.
+    void unlockPrivateFolder().then((result) => {
+      if (result.ok) {
+        setVaultMode('export');
+      } else {
+        setNote(result.message);
+      }
+    });
   };
 
   const onEncryptedImport = () => {
@@ -144,7 +152,7 @@ export default function SettingsScreen() {
           </Pressable>
           <Text style={styles.cardBody}>
             Private folder: {isPro ? 'unlimited' : `${folder.count} of ${folder.cap} items`}.
-            Files are copied into app-private storage. The cap uses the real item count.
+            Files are copied into app-private storage and locked with Face ID or your passcode. The cap uses the real item count.
           </Text>
           <Pressable
             style={styles.secondary}

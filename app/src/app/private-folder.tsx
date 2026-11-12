@@ -1,12 +1,17 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { ThemeColors } from '@/constants/colors';
+import { VideoThumb } from '@/components/video-thumb';
+import { formatBytes } from '@/lib/format';
+import { unlockPrivateFolder, usePrivateUnlocked } from '@/lib/private-lock';
+import { getResumeFractions } from '@/lib/resume-position';
 import {
   listPrivateItems,
+  privateCacheId,
   privateItemUri,
   removePrivateItem,
   restorePrivateItemToLibrary,
@@ -15,13 +20,7 @@ import {
 import { useColorSchemeName, useThemedStyles } from '@/theme';
 
 function formatSize(size?: number): string {
-  if (!size) {
-    return 'File';
-  }
-  if (size < 1024 * 1024) {
-    return `${Math.max(1, Math.round(size / 1024))} KB`;
-  }
-  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  return formatBytes(size) ?? 'File';
 }
 
 export default function PrivateFolderScreen() {
@@ -30,23 +29,82 @@ export default function PrivateFolderScreen() {
   const styles = useThemedStyles(createStyles);
   const [items, setItems] = useState<PrivateItem[]>([]);
   const [note, setNote] = useState<string | null>(null);
+  const [resume, setResume] = useState<Record<string, number>>({});
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authNote, setAuthNote] = useState<string | null>(null);
+  const unlocked = usePrivateUnlocked();
 
   const reload = useCallback(async () => {
-    setItems(await listPrivateItems());
+    const next = await listPrivateItems();
+    setItems(next);
+    setResume(await getResumeFractions(next.map((item) => privateCacheId(item))));
   }, []);
+
+  const authenticate = useCallback(async () => {
+    setAuthBusy(true);
+    try {
+      const result = await unlockPrivateFolder();
+      setAuthNote(result.ok ? null : result.message);
+    } catch (err) {
+      setAuthNote(err instanceof Error ? err.message : 'Could not unlock.');
+    } finally {
+      setAuthBusy(false);
+    }
+  }, []);
+
+  // Ask for Face ID / passcode as soon as the locked screen opens.
+  useEffect(() => {
+    if (!unlocked) {
+      setItems([]);
+      void authenticate();
+    }
+  }, [authenticate, unlocked]);
 
   useFocusEffect(
     useCallback(() => {
-      void reload();
-    }, [reload])
+      if (unlocked) {
+        void reload();
+      }
+    }, [reload, unlocked])
   );
 
   const openItem = (item: PrivateItem) => {
+    // Plays from the sandbox copy: <documentDirectory>/private-folder/<storedName>.
     router.push({
       pathname: '/player',
-      params: { id: `private:${item.id}`, uri: privateItemUri(item), title: item.filename },
+      params: { id: privateCacheId(item), title: item.filename },
     });
   };
+
+  if (!unlocked) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top', 'left', 'right', 'bottom']}>
+        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+        <View style={styles.topBar}>
+          <Pressable onPress={() => router.back()} hitSlop={12}>
+            <Text style={styles.back}>Back</Text>
+          </Pressable>
+          <Text style={styles.topTitle}>Private folder</Text>
+          <View style={styles.backSpacer} />
+        </View>
+        <View style={styles.lockedBox}>
+          <Text style={styles.messageTitle}>Private folder is locked</Text>
+          <Text style={styles.messageBody}>
+            Unlock with Face ID, Touch ID, fingerprint or your device passcode. It locks
+            again whenever Playsz goes to the background.
+          </Text>
+          {authNote ? <Text style={styles.note}>{authNote}</Text> : null}
+          <Pressable
+            style={styles.unlockBtn}
+            disabled={authBusy}
+            onPress={() => void authenticate()}
+          >
+            <Text style={styles.unlockLabel}>{authBusy ? 'Checking…' : 'Unlock'}</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const onRestore = async (item: PrivateItem) => {
     try {
@@ -104,6 +162,16 @@ export default function PrivateFolderScreen() {
         }
         renderItem={({ item }) => (
           <View style={styles.row}>
+            <Pressable onPress={() => openItem(item)}>
+              <VideoThumb
+                request={{
+                  cacheId: privateCacheId(item),
+                  version: item.addedAt,
+                  fileUri: privateItemUri(item),
+                }}
+                progress={resume[privateCacheId(item)] ?? 0}
+              />
+            </Pressable>
             <Pressable style={styles.rowBody} onPress={() => openItem(item)}>
               <Text style={styles.rowTitle} numberOfLines={2}>
                 {item.filename}
@@ -174,5 +242,22 @@ const createStyles = (c: ThemeColors) =>
       gap: 8,
     },
     messageTitle: { color: c.text, fontSize: 18, fontWeight: '700' },
+    lockedBox: {
+      margin: 16,
+      padding: 20,
+      borderRadius: 16,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      gap: 10,
+    },
+    unlockBtn: {
+      alignSelf: 'flex-start',
+      backgroundColor: c.accent,
+      borderRadius: 999,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+    },
+    unlockLabel: { color: c.accentDim, fontWeight: '800' },
     messageBody: { color: c.textMuted, fontSize: 14, lineHeight: 21 },
   });
