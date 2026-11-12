@@ -31,9 +31,7 @@
     "production": {
       "ios": {
         "appleTeamId": "PGLT2QZX88",
-        "ascApiKeyPath": "/home/box/shared/app-monitor/secrets/asc-api-key.p8",
-        "ascApiKeyId": "PENDING",
-        "ascApiKeyIssuerId": "PENDING"
+        "ascApiKeyPath": "/home/box/shared/app-monitor/secrets/asc-api-key.p8"
       }
     }
   }

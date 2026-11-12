@@ -10,7 +10,7 @@
     "ios": {
       "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.allinone.videoplayer",
-      "supportsTablet": true,
+      "supportsTablet": false,
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Playsz needs access to your video library so you can play videos stored on this device.",
         "NSPhotoLibraryAddUsageDescription": "Playsz can save exported videos to your library when you choose to export a file.",
