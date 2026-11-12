@@ -59,12 +59,80 @@ The current app implements the library screen (folders, recents, search, paging 
 - Game hall, coin economy, content feeds
 - Any third-party or paid API listed in the section above
 
+## Player and library features (iOS TestFlight build 2 fixes)
+
+Branch `playsz/ios-playback-fixes`. Everything is on-device; no new network calls.
+
+**Fixed**
+
+- **Blank player.** The library resolved a URI with `Asset.getInfo()` and passed it as a route param; the
+  player then called `replaceAsync` and never listened for `statusChange`, so any load failure showed a
+  black screen with no error. Now the player receives only the asset id, resolves it itself with
+  `Asset.getUri()` (SDK 58's replacement for `getAssetInfoAsync().localUri`; on iOS it uses
+  `isNetworkAccessAllowed = true` + high-quality delivery, so iCloud-only videos download first, and
+  edited/slow-mo videos are exported to a temp file), shows a spinner and an "iCloud" notice, surfaces
+  player errors, and retries once by handing the raw `ph://` / `content://` id to expo-video (which
+  resolves PhotoKit sandbox access itself). `VideoView` fills the stage with `StyleSheet.absoluteFill`
+  and `contentFit="contain"`.
+- **Green placeholders.** Rows now show real thumbnails from `expo-video-thumbnails`, generated from the
+  resolved URI (never `ph://`), cached on disk in `<cacheDirectory>/thumbnails/` keyed by asset id +
+  `modificationTime`, loaded lazily per visible row with at most 3 at a time. iCloud-only videos are
+  skipped so the library never downloads whole videos for a thumbnail.
+- **Wrong durations (30:49:10).** expo-media-library's SDK 58 API returns `duration` in
+  **milliseconds** on iOS and Android (its d.ts says seconds). It was formatted as seconds. The library
+  now converts once in `mapAsset`, and all UI uses one helper, `formatDuration()` in
+  `src/lib/format.ts` (m:ss, or h:mm:ss from one hour). `npm test` runs the pure-function checks in
+  `scripts/check-format.mjs`.
+
+**Added / finished**
+
+- Resume: position saved per video in AsyncStorage (`playsz:resume:<id>`), resumes on open, and a
+  progress bar on library and private-folder thumbnails.
+- Gestures: left half vertical = brightness (expo-brightness, restored on exit), right half vertical =
+  playback volume (`player.volume`), horizontal swipe = relative seek (screen width = 90 s, preview
+  while dragging), double-tap left/right = −10 s / +10 s.
+- Speed 0.5x–2x (0.25 steps), pitch preserved, saved.
+- Loop (saved) and A-B repeat (tap A-B to set A, again to set B, again to clear; markers on the bar).
+- Screen lock: hides controls and ignores all gestures; tap shows "Tap to unlock".
+- Picture in picture (PiP button, and automatic on iOS when leaving the app) and background audio with
+  the now-playing controls. Both are off for private-folder videos.
+- .srt (and basic ASS/SSA) subtitles with saved styling: size S/M/L/XL, colour white/yellow/green/cyan,
+  background shadow/box/solid, plus per-file ±0.1 s sync.
+- Library sort: name, date, size, duration, ascending/descending, saved. Date and duration sort in the
+  media store (paged); name and size sort on the device across all videos. Media-library metadata has
+  no file size, so sizes are measured lazily (limited concurrency, cached per id + modificationTime);
+  iCloud-only videos sort last under size.
+- Private folder lock: Face ID / Touch ID / fingerprint via `expo-local-authentication`, with the device
+  passcode as a fallback (`disableDeviceFallback: false`). The folder locks whenever the app goes to the
+  background; an open private video stops and closes. Files live in
+  `<documentDirectory>/private-folder/` and play from there; thumbnails are cached the same way and
+  removed with the item. Behaviour is unchanged otherwise: adding copies (the original stays in
+  Photos/gallery), Restore copies back to the media library, free tier = 10 items
+  (`FREE_PRIVATE_FOLDER_ITEMS`), Pro unlimited through the existing paywall. The encrypted export also
+  asks for the unlock. Private titles are not added to Recents.
+
+**Config changes (app.json)**
+
+```json
+["expo-video", { "supportsPictureInPicture": true, "supportsBackgroundPlayback": true }],
+["expo-local-authentication", { "faceIDPermission": "Playsz uses Face ID to lock and unlock your private folder." }]
+```
+
+Resulting native config (`npx expo config --type introspect`): iOS `UIBackgroundModes: ["audio"]`
+(already set in `ios.infoPlist`, kept), `NSFaceIDUsageDescription` set; Android main activity
+`android:supportsPictureInPicture="true"`, `ExpoVideoPlaybackService` (mediaPlayback foreground
+service) added, `USE_BIOMETRIC` / `USE_FINGERPRINT` permissions added. `SYSTEM_ALERT_WINDOW` and
+`WRITE_SETTINGS` are still removed. In code: `VideoView allowsPictureInPicture`,
+`startsPictureInPictureAutomatically` (iOS), `player.staysActiveInBackground = true`,
+`player.showNowPlayingNotification = true` for library videos.
+
 ## Tech stack
 
 - Expo SDK 58, TypeScript, expo-router, React Native
 - expo-video for the scaffold player (ExoPlayer on Android, AVPlayer on iOS)
 - expo-media-library for the on-device video list
-- AsyncStorage for resume positions
+- AsyncStorage for resume positions, sort choice, subtitle style and player prefs
+- expo-video-thumbnails for library thumbnails; expo-local-authentication for the private-folder lock
 - react-native-gesture-handler for player gestures
 - Planned, not in this build: Media3/ExoPlayer + FFmpeg and/or libVLC for production playback; whisper.cpp for v2 on-device subtitles
 
@@ -208,6 +276,7 @@ Direct dependencies of the Expo app in `app/package.json`. Versions are what the
 | expo-iap | 6.4.3 | MIT |
 | expo-image | 58.0.18 | MIT |
 | expo-linking | 58.0.17 | MIT |
+| expo-local-authentication | 58.0.3 | MIT |
 | expo-media-library | 58.0.14 | MIT |
 | expo-router | 58.0.31 | MIT |
 | expo-splash-screen | 58.0.14 | MIT |
@@ -215,6 +284,7 @@ Direct dependencies of the Expo app in `app/package.json`. Versions are what the
 | expo-symbols | 58.0.5 | MIT |
 | expo-system-ui | 58.0.7 | MIT |
 | expo-video | 58.0.14 | MIT |
+| expo-video-thumbnails | 58.0.3 | MIT |
 | expo-web-browser | 58.0.8 | MIT |
 | react | 19.3.0 | MIT |
 | react-dom | 19.3.0 | MIT |
