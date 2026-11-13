@@ -212,15 +212,42 @@ for step_id, name, key, video_id in play_plan:
             f"Maestro could not open or play {video_id}. See maestro/02_{step_id}.log.",
         )
 
+def clear_resume_positions() -> None:
+    """Drop saved resume positions so the seek clip starts at 0:00, not near its end."""
+    subprocess.run(["xcrun", "simctl", "terminate", "booted", BUNDLE_ID], capture_output=True)
+    got = subprocess.run(
+        ["xcrun", "simctl", "get_app_container", "booted", BUNDLE_ID, "data"],
+        capture_output=True, text=True,
+    )
+    container = Path(got.stdout.strip()) if got.returncode == 0 else None
+    if not container or not container.exists():
+        print("clear_resume_positions: no data container", flush=True)
+        return
+    removed = 0
+    for manifest in container.glob("**/RCTAsyncLocalStorage*/manifest.json"):
+        try:
+            data = json.loads(manifest.read_text() or "{}")
+        except ValueError:
+            continue
+        keys = [k for k in data if k.startswith("playsz:resume:")]
+        for k in keys:
+            data.pop(k, None)
+        removed += len(keys)
+        manifest.write_text(json.dumps(data))
+    print(f"clear_resume_positions: removed {removed} saved position(s)", flush=True)
+
+
 # ---------------------------------------------------------------------------
 # 3. Seek
 # ---------------------------------------------------------------------------
 if photos.get("short_mp4", {}).get("ok"):
     seek_env = video_env("short_mp4", "library-video-playsz-qa-short")
+    clear_resume_positions()
     seek = run_flow("03_seek.yaml", "03_seek", extra=seek_env)
     if seek.returncode == 0:
         record("seek", "Seek (double-tap +10 s or seek bar)", "PASS", "Double-tap produced the player seek hint.")
     else:
+        clear_resume_positions()
         swipe = run_flow("03_seek_swipe.yaml", "03_seek_swipe", extra=seek_env)
         if swipe.returncode == 0:
             record("seek", "Seek (double-tap +10 s or seek bar)", "PASS", "Horizontal swipe produced the player seek hint.")

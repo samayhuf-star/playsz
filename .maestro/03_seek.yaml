@@ -1,6 +1,13 @@
 appId: com.samayvashsht.playsz
 name: Seek with double-tap +10s or a horizontal swipe
 ---
+# run-qa.py clears saved resume positions and stops the app first.
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "library-title"
+    timeout: 30000
 - runFlow: _open_video.yaml
 # player-back is a Pressable (always an accessibility element); the root
 # View's player-screen id is not reliably exposed to the iOS hierarchy.

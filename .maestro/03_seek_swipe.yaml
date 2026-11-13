@@ -2,6 +2,13 @@
 appId: com.samayvashsht.playsz
 name: Seek with a horizontal swipe
 ---
+# run-qa.py clears saved resume positions and stops the app first.
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "library-title"
+    timeout: 30000
 - runFlow:
     when:
       visible:
