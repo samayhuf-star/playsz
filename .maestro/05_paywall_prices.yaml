@@ -3,7 +3,7 @@ name: Assert StoreKit prices are visible
 ---
 - assertVisible:
     id: "paywall-screen"
-# displayPrice from the StoreKit config should be $2.99 / $9.99 / $29.99
+# displayPrice from the StoreKit config should be $2.99 / $19.99 / $39.99
 # (storefront USA). Accept the amount with or without a dollar sign.
 - assertVisible:
     id: "paywall-price-playsz_pro_monthly"
@@ -11,9 +11,9 @@ name: Assert StoreKit prices are visible
     id: "paywall-price-playsz_pro_yearly"
 - assertVisible:
     id: "paywall-price-playsz_pro_lifetime"
-- assertVisible: ".*2\.99.*"
-- assertVisible: ".*9\.99.*"
-- assertVisible: ".*29\.99.*"
+- assertVisible: '.*2\.99.*'
+- assertVisible: '.*19\.99.*'
+- assertVisible: '.*39\.99.*'
 - assertVisible:
     id: "paywall-period-playsz_pro_lifetime"
 - assertVisible: "one-time purchase"

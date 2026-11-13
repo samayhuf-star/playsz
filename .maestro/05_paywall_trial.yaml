@@ -9,8 +9,8 @@ name: Assert 7-day trial copy on monthly and yearly plans
     id: "paywall-period-playsz_pro_monthly"
 - assertVisible:
     id: "paywall-period-playsz_pro_yearly"
-- assertVisible: "7 days free, then .*2\.99.*/month"
-- assertVisible: "7 days free, then .*9\.99.*/year"
+- assertVisible: '7 days free, then .*2\.99.*/month'
+- assertVisible: '7 days free, then .*19\.99.*/year'
 # Lifetime stays a one-time purchase and must not pick up the trial sentence.
 - assertVisible: "one-time purchase"
-- assertNotVisible: "7 days free, then .*29\.99.*"
+- assertNotVisible: '7 days free, then .*39\.99.*'

@@ -391,7 +391,7 @@ else:
 results = {
     "app": "Playsz",
     "bundleId": BUNDLE_ID,
-    "commit": os.environ.get("GITHUB_SHA") or os.environ.get("QA_COMMIT") or "",
+    "commit": os.environ.get("QA_COMMIT") or os.environ.get("GITHUB_SHA") or "",
     "ref": os.environ.get("GITHUB_REF") or "",
     "simulator": os.environ.get("QA_SIMULATOR") or "",
     "startedAt": os.environ.get("QA_STARTED_AT") or "",

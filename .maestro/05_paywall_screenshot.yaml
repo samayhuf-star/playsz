@@ -9,4 +9,4 @@ name: Confirm paywall chrome for screenshots
     id: "paywall-restore"
 - assertVisible: "Terms"
 - assertVisible: "Privacy"
-- assertVisible: "Subscriptions automatically renew"
+- assertVisible: 'Subscriptions automatically renew.*'

@@ -35,11 +35,11 @@ fi
 echo "app: $APP"
 
 echo "==> Generate and seed test media"
-if command -v ffmpeg >/dev/null 2>&1; then
-  "$ROOT/scripts/ios-sim-qa/generate-media.sh" "$QA_MEDIA_DIR"
-else
-  echo "ffmpeg not on PATH; media generation skipped" | tee -a "$OUT/seed.txt"
+if ! command -v ffmpeg >/dev/null 2>&1; then
+  echo "ffmpeg not on PATH; installing with Homebrew" | tee -a "$OUT/seed.txt"
+  brew install ffmpeg
 fi
+"$ROOT/scripts/ios-sim-qa/generate-media.sh" "$QA_MEDIA_DIR"
 
 echo "==> Install and grant Photos"
 xcrun simctl install "$UDID" "$APP"
