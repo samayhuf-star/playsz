@@ -12,10 +12,11 @@ fi
 
 echo "Generating test media in $OUT"
 
-# 10 s H.264 + AAC MP4 (color bars + tone, no copyrighted content)
+# 60 s H.264 + AAC MP4 (color bars + tone, no copyrighted content). Long enough
+# that it is still playing when the seek flow double-taps or swipes.
 ffmpeg -y -hide_banner -loglevel error \
-  -f lavfi -i "testsrc2=size=1280x720:rate=30:duration=10" \
-  -f lavfi -i "sine=frequency=440:sample_rate=44100:duration=10" \
+  -f lavfi -i "testsrc2=size=1280x720:rate=30:duration=60" \
+  -f lavfi -i "sine=frequency=440:sample_rate=44100:duration=60" \
   -c:v libx264 -pix_fmt yuv420p -preset veryfast -crf 23 \
   -c:a aac -b:a 128k -shortest \
   -movflags +faststart \

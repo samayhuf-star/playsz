@@ -23,6 +23,3 @@ name: Open a seeded library video (helper)
       - tapOn:
           id: "library-video-.*"
           index: ${VIDEO_INDEX}
-- waitForAnimationToEnd:
-    timeout: 3000
-- takeScreenshot: ${OUT_SHOTS}/after-open-${VIDEO_INDEX}
