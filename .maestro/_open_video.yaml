@@ -1,0 +1,25 @@
+appId: com.samayvashsht.playsz
+name: Open a seeded library video (helper)
+---
+# Env: VIDEO_ID (testID from the original filename) and VIDEO_INDEX (row index,
+# top to bottom, of that clip in the default Date-newest-first library list).
+# iOS Photos renames addmedia imports to IMG_NNNN.MP4, so rows usually carry
+# testIDs like library-video-img_0008. Each row is one accessibility element
+# (accessibilityLabel = title), so its inner duration text is not tappable.
+- runFlow:
+    when:
+      visible:
+        id: ${VIDEO_ID}
+    commands:
+      - tapOn:
+          id: ${VIDEO_ID}
+- runFlow:
+    when:
+      visible:
+        id: "library-title"
+      notVisible:
+        id: ${VIDEO_ID}
+    commands:
+      - tapOn:
+          id: "library-video-.*"
+          index: ${VIDEO_INDEX}

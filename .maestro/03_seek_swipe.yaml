@@ -2,9 +2,11 @@
 appId: com.samayvashsht.playsz
 name: Seek with a horizontal swipe
 ---
-- tapOn:
-    id: "library-video-playsz-qa-short"
-    optional: true
+- runFlow:
+    when:
+      visible:
+        id: "library-title"
+    file: _open_video.yaml
 - extendedWaitUntil:
     visible:
       id: "player-screen"

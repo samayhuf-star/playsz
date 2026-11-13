@@ -1,8 +1,7 @@
 appId: com.samayvashsht.playsz
 name: Import SRT and show subtitle text
 ---
-- tapOn:
-    id: "library-video-playsz-qa-subs"
+- runFlow: _open_video.yaml
 - extendedWaitUntil:
     visible:
       id: "player-screen"

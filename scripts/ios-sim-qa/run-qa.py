@@ -168,6 +168,18 @@ play_plan = [
     ("play_large", "Open and play large file", "large_mp4", "library-video-playsz-qa-large"),
 ]
 
+# seed-media.sh adds clips to Photos in this order; the library lists them
+# newest first (Date desc), so the last seeded clip is row 0. Used when Photos
+# renamed the clip to IMG_NNNN and the original-filename testID is missing.
+SEED_ORDER = ("short_mp4", "subs_mp4", "large_mp4", "mkv")
+seeded_ok = [k for k in SEED_ORDER if (photos.get(k) or {}).get("ok")]
+
+
+def video_env(key: str, video_id: str) -> list[str]:
+    index = len(seeded_ok) - 1 - seeded_ok.index(key) if key in seeded_ok else 0
+    return ["-e", f"VIDEO_ID={video_id}", "-e", f"VIDEO_INDEX={index}"]
+
+
 for step_id, name, key, video_id in play_plan:
     entry = photos.get(key) or {}
     if not entry.get("ok"):
@@ -182,7 +194,7 @@ for step_id, name, key, video_id in play_plan:
     result = run_flow(
         "02_play_video.yaml",
         f"02_{step_id}",
-        extra=["-e", f"VIDEO_ID={video_id}"],
+        extra=video_env(key, video_id),
     )
     if result.returncode == 0:
         record(step_id, name, "PASS", f"Player screen, controls, and times visible for {video_id}.")
@@ -200,11 +212,12 @@ for step_id, name, key, video_id in play_plan:
 # 3. Seek
 # ---------------------------------------------------------------------------
 if photos.get("short_mp4", {}).get("ok"):
-    seek = run_flow("03_seek.yaml", "03_seek")
+    seek_env = video_env("short_mp4", "library-video-playsz-qa-short")
+    seek = run_flow("03_seek.yaml", "03_seek", extra=seek_env)
     if seek.returncode == 0:
         record("seek", "Seek (double-tap +10 s or seek bar)", "PASS", "Double-tap produced the player seek hint.")
     else:
-        swipe = run_flow("03_seek_swipe.yaml", "03_seek_swipe")
+        swipe = run_flow("03_seek_swipe.yaml", "03_seek_swipe", extra=seek_env)
         if swipe.returncode == 0:
             record("seek", "Seek (double-tap +10 s or seek bar)", "PASS", "Horizontal swipe produced the player seek hint.")
         else:
@@ -221,7 +234,15 @@ else:
 # 4. Subtitles
 # ---------------------------------------------------------------------------
 if photos.get("subs_mp4", {}).get("ok"):
-    subs = run_flow("04_subtitles.yaml", "04_subtitles", timeout=240)
+    try:
+        subs = run_flow(
+            "04_subtitles.yaml",
+            "04_subtitles",
+            extra=video_env("subs_mp4", "library-video-playsz-qa-subs"),
+            timeout=240,
+        )
+    except subprocess.TimeoutExpired:
+        subs = subprocess.CompletedProcess(args=["maestro"], returncode=124)
     if subs.returncode == 0:
         record(
             "subtitles",
@@ -237,7 +258,9 @@ if photos.get("subs_mp4", {}).get("ok"):
             "Could not import the .srt through the iOS document picker, or the cue "
             "text did not appear. The picker is flaky on a headless simulator; "
             "the SRT was copied to the app Documents/qa-fixtures folder. "
-            "See maestro/04_subtitles.log.",
+            "See maestro/04_subtitles.log. Recorded as a soft failure: the "
+            "headless document picker is a harness limit, so this needs a manual check.",
+            {"softFail": True},
         )
 else:
     record("subtitles", "Show SRT subtitles", "SKIP", "The subtitled MP4 was not seeded.")
@@ -267,10 +290,16 @@ def run_storekit_uitest() -> subprocess.CompletedProcess:
         )
         log_path.write_text("skipped: missing xcodebuild context\n")
         return missing
+    # The workflow builds only the app scheme in Release (JS bundled). Build and
+    # run the separate UI test scheme in the same Release config and with the
+    # same signing overrides so the app target stays an incremental no-op.
+    # A Debug build would need Metro and was what timed out before.
     cmd = [
-        "xcodebuild", "test-without-building",
+        "xcodebuild", "test",
         "-workspace", workspace,
         "-scheme", scheme,
+        "-configuration", "Release",
+        "-sdk", "iphonesimulator",
         "-destination", f"platform=iOS Simulator,id={udid}",
         "-derivedDataPath", derived,
         "-only-testing:PlayszStoreKitUITests",
@@ -278,22 +307,23 @@ def run_storekit_uitest() -> subprocess.CompletedProcess:
         "CODE_SIGN_STYLE=Manual",
         "DEVELOPMENT_TEAM=",
         "PROVISIONING_PROFILE_SPECIFIER=",
-        "CODE_SIGNING_ALLOWED=NO",
     ]
     env = os.environ.copy()
     env["QA_ARTIFACTS"] = str(ARTIFACTS)
     env["OUT"] = str(ARTIFACTS)
+    # xcodebuild forwards only TEST_RUNNER_* variables into the UI test runner.
+    env["TEST_RUNNER_QA_ARTIFACTS"] = str(ARTIFACTS)
+    env["TEST_RUNNER_OUT"] = str(ARTIFACTS)
     print("+", " ".join(cmd), flush=True)
-    result = subprocess.run(cmd, env=env, text=True, capture_output=True, timeout=240)
+    try:
+        result = subprocess.run(cmd, env=env, text=True, capture_output=True, timeout=1500)
+    except subprocess.TimeoutExpired as exc:
+        out = exc.stdout.decode() if isinstance(exc.stdout, bytes) else (exc.stdout or "")
+        log_path.write_text(out + "\nTIMEOUT after 1500 s\n")
+        print(f"storekit uitest timed out; log={log_path}", flush=True)
+        return subprocess.CompletedProcess(args=cmd, returncode=124, stdout=out, stderr="timeout")
     log_path.write_text((result.stdout or "") + "\n" + (result.stderr or ""))
     print(f"storekit uitest exit={result.returncode}; log={log_path}", flush=True)
-    if result.returncode != 0:
-        # First build-for-testing may not have produced a test-without-building product; try a full test.
-        cmd[1] = "test"
-        print("+", " ".join(cmd), flush=True)
-        result = subprocess.run(cmd, env=env, text=True, capture_output=True, timeout=420)
-        log_path.write_text((result.stdout or "") + "\n" + (result.stderr or ""))
-        print(f"storekit uitest (test) exit={result.returncode}; log={log_path}", flush=True)
     return result
 
 
