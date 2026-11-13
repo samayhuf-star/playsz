@@ -7,9 +7,11 @@ name: Seek with a horizontal swipe
       visible:
         id: "library-title"
     file: _open_video.yaml
+# player-back is a Pressable (always an accessibility element); the root
+# View's player-screen id is not reliably exposed to the iOS hierarchy.
 - extendedWaitUntil:
     visible:
-      id: "player-screen"
+      id: "player-back"
     timeout: 20000
 - swipe:
     start: "20%, 38%"

@@ -107,6 +107,15 @@ if [[ -f "$OUT/summary.md" ]]; then
   cat "$OUT/summary.md"
 fi
 
+# Maestro keeps its step screenshots under a hidden .maestro folder, which the
+# artifact upload skips. Copy them, plus any app crash reports, somewhere visible.
+mkdir -p "$OUT/maestro-shots" "$OUT/crash"
+find "$OUT/maestro" -path '*/.maestro/*' -name '*.png' 2>/dev/null | while read -r f; do
+  rel="${f#"$OUT/maestro/"}"; cp "$f" "$OUT/maestro-shots/$(echo "$rel" | tr '/ ' '__')" || true
+done
+cp "$HOME"/Library/Logs/DiagnosticReports/*PlayszAllInOne*.ips "$OUT/crash/" 2>/dev/null || true
+ls "$OUT/crash"
+
 # Final still of whatever is on screen (Restore / purchase result, or the home library).
 shot "04-final"
 exit $RC

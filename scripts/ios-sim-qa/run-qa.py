@@ -177,7 +177,11 @@ seeded_ok = [k for k in SEED_ORDER if (photos.get(k) or {}).get("ok")]
 
 def video_env(key: str, video_id: str) -> list[str]:
     index = len(seeded_ok) - 1 - seeded_ok.index(key) if key in seeded_ok else 0
-    return ["-e", f"VIDEO_ID={video_id}", "-e", f"VIDEO_INDEX={index}"]
+    return [
+        "-e", f"VIDEO_ID={video_id}",
+        "-e", f"VIDEO_INDEX={index}",
+        "-e", f"OUT_SHOTS={SHOT_DIR}",
+    ]
 
 
 for step_id, name, key, video_id in play_plan:
@@ -406,13 +410,13 @@ else:
                 "paywall_restore",
                 "Restore purchases",
                 "FAIL",
-                "StoreKit UI test did not complete Restore. See storekit-uitest.log.",
+                "StoreKit UI test did not complete Restore. See storekit-uitest.log. If the screen shows 'Sign in to Apple Account', xcodebuild did not apply Playsz.storekit (known Xcode CLI limit on iOS 26 simulators), so the real sandbox was used.",
             )
             record(
                 "paywall_purchase",
                 "Test purchase",
                 "FAIL",
-                "StoreKit UI test did not complete the yearly purchase. See storekit-uitest.log.",
+                "StoreKit UI test did not complete the yearly purchase. See storekit-uitest.log. If the screen shows 'Sign in to Apple Account', xcodebuild did not apply Playsz.storekit (known Xcode CLI limit on iOS 26 simulators), so the real sandbox was used.",
             )
     else:
         unavailable = run_flow("05_paywall_unavailable.yaml", "05_paywall_unavailable")

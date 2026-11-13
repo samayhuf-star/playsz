@@ -2,9 +2,11 @@ appId: com.samayvashsht.playsz
 name: Seek with double-tap +10s or a horizontal swipe
 ---
 - runFlow: _open_video.yaml
+# player-back is a Pressable (always an accessibility element); the root
+# View's player-screen id is not reliably exposed to the iOS hierarchy.
 - extendedWaitUntil:
     visible:
-      id: "player-screen"
+      id: "player-back"
     timeout: 20000
 - tapOn:
     id: "player-stage"
