@@ -43,17 +43,17 @@ else
 
   target.build_configurations.each do |config|
     s = config.build_settings
+    s['PRODUCT_NAME'] = target_name
     s['PRODUCT_BUNDLE_IDENTIFIER'] = 'com.samayvashsht.playsz.storekituitests'
     s['GENERATE_INFOPLIST_FILE'] = 'YES'
     s['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
     s['TARGETED_DEVICE_FAMILY'] = '1'
+    s['SWIFT_VERSION'] = '5.0'
     s['CODE_SIGNING_ALLOWED'] = 'NO'
     s['CODE_SIGN_IDENTITY'] = '-'
     s['CODE_SIGN_STYLE'] = 'Manual'
     s['DEVELOPMENT_TEAM'] = ''
     s['TEST_TARGET_NAME'] = app_target.name
-    s['BUNDLE_LOADER'] = ''
-    s['TEST_HOST'] = ''
   end
   project.save
   puts "Added UI test target #{target_name} hosted by #{app_target.name}"
