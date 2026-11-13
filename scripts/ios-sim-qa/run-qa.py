@@ -246,7 +246,18 @@ else:
 def run_storekit_uitest() -> subprocess.CompletedProcess:
     """Purchase and Restore via xcodebuild test so the .storekit file is injected."""
     workspace = os.environ.get("WORKSPACE", "")
-    scheme = os.environ.get("SCHEME", "")
+    scheme = "PlayszStoreKitUITests"
+    if workspace:
+        candidate = Path(workspace).parent / "PlayszAllInOnePlayer.xcodeproj/xcshareddata/xcschemes/PlayszStoreKitUITests.xcscheme"
+        if not candidate.exists():
+            # Workspace lives next to the xcodeproj.
+            for alt in Path(workspace).parent.glob("*.xcodeproj/xcshareddata/xcschemes/PlayszStoreKitUITests.xcscheme"):
+                candidate = alt
+                break
+        if not candidate.exists():
+            scheme = os.environ.get("SCHEME", "")
+    else:
+        scheme = os.environ.get("SCHEME", "")
     udid = os.environ.get("UDID") or os.environ.get("SIM_UDID") or ""
     derived = os.environ.get("DERIVED_DATA", "")
     log_path = ARTIFACTS / "storekit-uitest.log"

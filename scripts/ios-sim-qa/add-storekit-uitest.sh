@@ -21,6 +21,7 @@ cp "$SRC_SWIFT" "$TEST_DIR/PurchaseRestoreTests.swift"
 export IOS_DIR
 ruby << 'RUBY'
 require 'xcodeproj'
+require 'fileutils'
 
 ios_dir = ENV['IOS_DIR']
 proj_path = Dir.glob(File.join(ios_dir, '*.xcodeproj')).first
@@ -38,7 +39,7 @@ else
   group = project.main_group.find_subpath('PlayszStoreKitUITests', true)
   group.set_source_tree('<group>')
   group.set_path('PlayszStoreKitUITests')
-  file_ref = group.new_file('PlayszStoreKitUITests/PurchaseRestoreTests.swift')
+  file_ref = group.new_file('PurchaseRestoreTests.swift')
   target.add_file_references([file_ref])
 
   target.build_configurations.each do |config|
@@ -59,16 +60,16 @@ else
   puts "Added UI test target #{target_name} hosted by #{app_target.name}"
 end
 
+# Keep the main app scheme unchanged so the runner still does a regular
+# `xcodebuild build` (not build-for-testing). Purchase runs later against
+# this dedicated scheme via `xcodebuild test`.
 schemes_dir = File.join(proj_path, 'xcshareddata', 'xcschemes')
-Dir.glob(File.join(schemes_dir, '*.xcscheme')).each do |scheme_path|
-  xml = File.read(scheme_path)
-  if xml.include?(%Q{BlueprintName = "#{target_name}"})
-    puts "Testable #{target_name} already in #{scheme_path}"
-    next
-  end
-  scheme = Xcodeproj::XCScheme.new(scheme_path)
-  scheme.test_action.add_testable(Xcodeproj::XCScheme::TestAction::TestableReference.new(target))
-  scheme.save!
-  puts "Added #{target_name} testable to #{scheme_path}"
-end
+FileUtils.mkdir_p(schemes_dir)
+scheme_path = File.join(schemes_dir, "#{target_name}.xcscheme")
+scheme = Xcodeproj::XCScheme.new
+scheme.add_build_target(app_target)
+scheme.set_launch_target(app_target)
+scheme.test_action.add_testable(Xcodeproj::XCScheme::TestAction::TestableReference.new(target))
+scheme.save_as(proj_path, target_name)
+puts "Wrote scheme #{scheme_path}"
 RUBY
