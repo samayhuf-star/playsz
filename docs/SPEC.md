@@ -65,7 +65,7 @@ Primary: Android and iPhone users in **India**, **Southeast Asia** (Indonesia, P
 
 Free is a complete local player: all playback, gestures, resume, background play, local subtitles, and standard-format exports, with **caps on a small set of extras**. There are no ads in any tier. Pro (monthly, yearly, or lifetime) lifts those caps and unlocks the remaining extras as they ship (unlimited exports, unlimited private folder, local encrypted vault export/import, on-device AI subtitles in v2, SMB/DLNA in v2).
 
-**Final USD prices:** $2.99 / month, $9.99 / year, $29.99 lifetime. Suggested regional equivalents may be listed in the paywall plan and are suggestions only. Details in `docs/PAYWALL_PLAN.md`.
+**Final USD prices:** $2.99 / month, $19.99 / year, $39.99 lifetime. Suggested regional equivalents may be listed in the paywall plan and are suggestions only. Details in `docs/PAYWALL_PLAN.md`.
 
 ## Success metrics
 

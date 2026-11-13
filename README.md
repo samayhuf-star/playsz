@@ -246,8 +246,8 @@ Final USD prices (not proposals):
 | Product id (final) | Type | Price |
 | --- | --- | --- |
 | `playsz_pro_monthly` | Auto-renewing subscription | $2.99 / month |
-| `playsz_pro_yearly` | Auto-renewing subscription | $9.99 / year |
-| `playsz_pro_lifetime` | One-time unlock | $29.99 |
+| `playsz_pro_yearly` | Auto-renewing subscription | $19.99 / year |
+| `playsz_pro_lifetime` | One-time unlock | $39.99 |
 
 Suggested regional equivalents (INR, IDR, PHP, AED, SAR) are in [docs/PAYWALL_PLAN.md](docs/PAYWALL_PLAN.md) and are suggestions only.
 

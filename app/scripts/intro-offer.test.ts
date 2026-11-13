@@ -54,10 +54,10 @@ describe('7-day free trial copy', () => {
       planPeriodText({
         kind: 'yearly',
         currentPeriod: 'per year, auto-renews',
-        price: '9,99 €',
+        price: '19,99 €',
         trialDays: 7,
       }),
-      '7 days free, then 9,99 €/year'
+      '7 days free, then 19,99 €/year'
     );
   });
 
@@ -75,7 +75,7 @@ describe('7-day free trial copy', () => {
       planPeriodText({
         kind: 'yearly',
         currentPeriod: 'per year, auto-renews',
-        price: '$9.99',
+        price: '$19.99',
       }),
       'per year, auto-renews'
     );
@@ -98,7 +98,7 @@ describe('7-day free trial copy', () => {
       planPeriodText({
         kind: 'lifetime',
         currentPeriod: 'one-time purchase',
-        price: '$29.99',
+        price: '$39.99',
         trialDays: 7,
       }),
       'one-time purchase'
@@ -131,5 +131,14 @@ describe('7-day free trial copy', () => {
     assert.ok(lifetime);
     assert.equal(lifetime.introductoryOffer, undefined);
     assert.equal(lifetime.type, 'NonConsumable');
+  });
+
+  it('StoreKit test prices match standard pricing: $2.99/month, $19.99/year, $39.99 lifetime', () => {
+    const sk = JSON.parse(read('ios-storekit/Playsz.storekit'));
+    const subs = sk.subscriptionGroups[0].subscriptions;
+    const price = (id: string) => subs.find((x: { productID: string }) => x.productID === id)?.displayPrice;
+    assert.equal(price('playsz_pro_monthly'), '2.99');
+    assert.equal(price('playsz_pro_yearly'), '19.99');
+    assert.equal(sk.products.find((x: { productID: string }) => x.productID === 'playsz_pro_lifetime').displayPrice, '39.99');
   });
 });

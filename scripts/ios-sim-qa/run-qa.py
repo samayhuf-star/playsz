@@ -276,7 +276,7 @@ else:
             "paywall_prices",
             "Paywall shows StoreKit prices",
             "PASS",
-            "Displayed $2.99 / $9.99 / $29.99 from the StoreKit configuration.",
+            "Displayed $2.99 / $19.99 / $39.99 from the StoreKit configuration.",
         )
         trial = run_flow("05_paywall_trial.yaml", "05_paywall_trial")
         if trial.returncode == 0:
@@ -349,7 +349,7 @@ else:
                 "paywall_prices",
                 "Paywall shows StoreKit prices",
                 "FAIL",
-                "Paywall opened, but neither the expected $2.99/$9.99/$29.99 prices "
+                "Paywall opened, but neither the expected $2.99/$19.99/$39.99 prices "
                 "nor the 'Prices unavailable' state could be confirmed. "
                 "See maestro/05_paywall_*.log.",
             )

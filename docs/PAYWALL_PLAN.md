@@ -2,7 +2,7 @@
 
 **App name (final):** Playsz - All In One Player. Android application id `com.allinone.videoplayer`; iOS bundle identifier `com.samayvashsht.playsz` (com.allinone.videoplayer was taken on Apple) (final).
 
-**USD prices are final:** $2.99 a month, $9.99 a year, $29.99 lifetime. Regional prices below are **suggestions only** for store pricing templates; they have not been tested.
+**USD prices are final:** $2.99 a month, $19.99 a year, $39.99 lifetime (standard pricing, 13 Nov 2026). Regional prices below are **suggestions only** for store pricing templates; they have not been tested.
 
 **Hard constraint:** no third-party APIs and no paid services. No RevenueCat, no ad networks, no billing backend, no cloud entitlements. Revenue is subscriptions and lifetime only.
 
@@ -49,10 +49,10 @@ USD is final. Other currencies are suggestions to seed Play / App Store pricing 
 | SKU (final) | USD (final) | India INR (suggestion) | Indonesia IDR (suggestion) | Philippines PHP (suggestion) | UAE AED (suggestion) | Saudi SAR (suggestion) |
 | --- | --- | --- | --- | --- | --- | --- |
 | `playsz_pro_monthly` | **$2.99** / month | ₹299 / month | Rp49,000 / month | ₱179 / month | AED 10.99 / month | SAR 10.99 / month |
-| `playsz_pro_yearly` | **$9.99** / year | ₹999 / year | Rp165,000 / year | ₱579 / year | AED 36.99 / year | SAR 37.99 / year |
-| `playsz_pro_lifetime` | **$29.99** once | ₹2,499 once | Rp499,000 once | ₱1,749 once | AED 109.99 once | SAR 112.99 once |
+| `playsz_pro_yearly` | **$19.99** / year | Apple equalized from USD | Apple equalized | Apple equalized | Apple equalized | Apple equalized |
+| `playsz_pro_lifetime` | **$39.99** once | Apple equalized from USD | Apple equalized | Apple equalized | Apple equalized | Apple equalized |
 
-Lifetime pays for itself versus yearly after three years at the USD list prices. Monthly matches a familiar competitor price; yearly is the habitual plan; lifetime is the "best value" plan.
+Lifetime pays for itself versus yearly after two years at the USD list prices. Monthly matches a familiar competitor price; yearly is the habitual plan; lifetime is the "best value" plan.
 
 Use the same product ids on Play and App Store where the stores allow it. Create the products in each store console; do not use a third-party product catalog.
 
@@ -82,7 +82,7 @@ Do not: auto-start a trial, put a paywall behind play, interrupt pause/resume, o
 ## Trial rules
 
 - Trial applies to the **yearly** SKU only, not to lifetime, and not to monthly at launch.
-- Length: **7 days**, opt-in. The user must tap a clearly labeled "Start 7-day free trial" that also shows the post-trial price and renewal ("Then $9.99/year, cancel anytime"; localize the amount).
+- Length: **7 days**, opt-in. The user must tap a clearly labeled "Start 7-day free trial" that also shows the post-trial price and renewal ("Then $19.99/year, cancel anytime"; localize the amount).
 - Do not start a trial on app open, on an accidental tap, or as the default selected plan. Default selected plan on the paywall is **yearly**, with lifetime marked "Best value."
 - **Reminder 24 hours before first charge** using a local notification (permission requested at trial start) and an in-app banner if notifications were denied. This is a hard product rule after PLAYit reviews about surprise trial charges.
 - Cancel any time during the trial from a paywall link to the store's subscription management screen, explained in one sentence.

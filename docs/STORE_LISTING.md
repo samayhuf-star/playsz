@@ -51,7 +51,7 @@ BUILT FOR PRIVACY
 Playsz asks for access to your videos so it can play them. It does not ask for location, camera, or a list of running apps. Picture-in-picture is requested only if you turn it on. There is no account to create, no cloud, and no analytics service. Your playback position and preferences stay on the device. You can delete in-app data from Settings. The private folder is built so hidden files cannot silently disappear, with a recovery path and a local encrypted export you control.
 
 SIMPLE, HONEST PRICING
-The player is free. Optional Playsz Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-M4A exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
+The player is free. Optional Playsz Pro is $2.99 per month, $19.99 per year, or $39.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-M4A exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
 
 WHAT PLAYSZ IS NOT
 Playsz does not include a YouTube or social-video downloader. It does not bundle a game hall, a content feed, or sample videos. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA). Playsz does not claim to remove or bypass DRM.
@@ -84,7 +84,7 @@ Character count: 2778 (limit 4,000).
 5. Resume where you left off. Playlists that actually continue.
 6. A private folder with a recovery path — files don't vanish.
 7. Opens files other apps lock in.
-8. Optional Pro: $2.99/month, $9.99/year, or $29.99 once.
+8. Optional Pro: $2.99/month, $19.99/year, or $39.99 once.
 
 Use dark-UI screenshots on mid-range Android and current iPhone frames. Show a real library and a mid-playback screen with no ad units. Screenshot 7 should only be used after lock-in-format playback is verified. Do not bundle or show third-party sample clips or artwork.
 
@@ -158,7 +158,7 @@ Character count: 27 (limit 30).
 ### Promotional text (161/170 characters)
 
 ```
-The offline video player with no ads at all. Pause, resume, and skip in peace. Standard files, no lock-in. Optional Pro: $2.99/month, $9.99/year, or $29.99 once.
+The offline video player with no ads at all. Pause, resume, and skip in peace. Standard files, no lock-in. Optional Pro: $2.99/month, $19.99/year, or $39.99 once.
 ```
 
 Character count: 161 (limit 170). Promotional text can be updated without a new binary.
@@ -184,7 +184,7 @@ BUILT FOR PRIVACY
 Playsz asks for access to your videos so it can play them. It does not ask for location, camera, or a list of running apps. Picture-in-picture is requested only if you turn it on. There is no account to create, no cloud, and no analytics service. Your playback position and preferences stay on the device. You can delete in-app data from Settings. The private folder is built so hidden files cannot silently disappear, with a recovery path and a local encrypted export you control.
 
 SIMPLE, HONEST PRICING
-The player is free. Optional Playsz Pro is $2.99 per month, $9.99 per year, or $29.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-M4A exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
+The player is free. Optional Playsz Pro is $2.99 per month, $19.99 per year, or $39.99 once for life (prices may vary by country). Pro lifts caps on extras such as video-to-M4A exports and the private folder, and unlocks local encrypted backup export plus later on-device extras as they ship. Trials show the price up front and remind you before any charge. Restore purchases at any time. Purchases go through Google Play or the App Store only.
 
 WHAT PLAYSZ IS NOT
 Playsz does not include a YouTube or social-video downloader. It does not bundle a game hall, a content feed, or sample videos. It does not use third-party cloud or advertising services. It is a player for videos already on your phone and, in a later update, on your own home network over open protocols (SMB, DLNA). Playsz does not claim to remove or bypass DRM.
