@@ -1,0 +1,17 @@
+appId: com.samayvashsht.playsz
+name: Leave the player for the library
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "player-back"
+    commands:
+      - tapOn:
+          id: "player-stage"
+- tapOn:
+    id: "player-back"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "library-title"
+    timeout: 10000

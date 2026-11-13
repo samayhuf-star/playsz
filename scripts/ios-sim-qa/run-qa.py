@@ -235,6 +235,26 @@ else:
     record("seek", "Seek (double-tap +10 s or seek bar)", "SKIP", "Short MP4 was not seeded, so seek was not attempted.")
 
 # ---------------------------------------------------------------------------
+# 3b. Store stills (not gating): player mid-play, speed panel, subtitles panel.
+# Screenshots come from simctl, so Maestro takeScreenshot paths do not matter.
+# ---------------------------------------------------------------------------
+if photos.get("short_mp4", {}).get("ok"):
+    try:
+        still = run_flow("06_player_shot.yaml", "06_player_shot",
+                         extra=video_env("short_mp4", "library-video-playsz-qa-short"))
+        if still.returncode == 0:
+            screenshot("02-player-playing")
+            for chip, name in (("player-speed", "06-feature-speed"), ("player-subs", "07-feature-subs")):
+                panel = run_flow("07_feature_panel.yaml", f"07_{chip}", extra=["-e", f"CHIP={chip}"])
+                if panel.returncode == 0:
+                    screenshot(name)
+                    # Close the panel again so the next chip starts clean.
+                    run_flow("07_feature_panel.yaml", f"07_{chip}_close", extra=["-e", f"CHIP={chip}"])
+        run_flow("06_player_back.yaml", "06_player_back")
+    except subprocess.TimeoutExpired:
+        print("store stills timed out", flush=True)
+
+# ---------------------------------------------------------------------------
 # 4. Subtitles
 # ---------------------------------------------------------------------------
 if photos.get("subs_mp4", {}).get("ok"):

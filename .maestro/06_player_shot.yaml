@@ -1,0 +1,14 @@
+appId: com.samayvashsht.playsz
+name: Open the short clip and leave it playing for a still
+---
+- runFlow: _open_video.yaml
+- extendedWaitUntil:
+    visible:
+      id: "player-back"
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 2000
+# Controls hide after ~2.8 s; tap the stage last so they show in the still.
+- tapOn:
+    id: "player-stage"
+    optional: true

@@ -1,0 +1,19 @@
+appId: com.samayvashsht.playsz
+name: Open a player feature panel for a still
+---
+# Env: CHIP is player-speed or player-subs. The player is already open.
+- runFlow:
+    when:
+      notVisible:
+        id: ${CHIP}
+    commands:
+      - tapOn:
+          id: "player-stage"
+- extendedWaitUntil:
+    visible:
+      id: ${CHIP}
+    timeout: 6000
+- tapOn:
+    id: ${CHIP}
+- waitForAnimationToEnd:
+    timeout: 1500
