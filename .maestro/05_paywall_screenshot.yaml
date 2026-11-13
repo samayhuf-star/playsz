@@ -1,0 +1,12 @@
+appId: com.samayvashsht.playsz
+name: Confirm paywall chrome for screenshots
+---
+- assertVisible:
+    id: "paywall-screen"
+- assertVisible:
+    id: "paywall-close"
+- assertVisible:
+    id: "paywall-restore"
+- assertVisible: "Terms"
+- assertVisible: "Privacy"
+- assertVisible: "Subscriptions automatically renew"

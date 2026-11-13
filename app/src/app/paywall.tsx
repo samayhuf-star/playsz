@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { ThemeColors } from '@/constants/colors';
 import { LEGAL_URLS, PENDING_HOSTING, hasLegalUrl } from '@/constants/legal';
 import { PLAN_COPY, PLAN_ORDER, type ProductId } from '@/constants/products';
+import { planKindForProductId, planPeriodText } from '@/lib/intro-offer';
 import { useIapContext } from '@/providers/iap-provider';
 import { useColorSchemeName, useThemedStyles } from '@/theme';
 
@@ -109,7 +110,14 @@ export default function PaywallScreen() {
                 <Text style={styles.planPrice} testID={`paywall-price-${id}`}>
                   {available && price ? price : 'Unavailable from the store'}
                 </Text>
-                <Text style={styles.planPeriod}>{copy.period}</Text>
+                <Text style={styles.planPeriod} testID={`paywall-period-${id}`}>
+                  {planPeriodText({
+                    kind: planKindForProductId(id),
+                    currentPeriod: copy.period,
+                    price: available ? price : null,
+                    trialDays: iap.trialDays(id),
+                  })}
+                </Text>
               </Pressable>
             );
           })}

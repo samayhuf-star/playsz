@@ -38,6 +38,31 @@ def record(step_id: str, name: str, status: str, detail: str = "", extra: dict |
     return item
 
 
+SHOT_DIR = ARTIFACTS / "screenshots"
+SHOT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def screenshot(name: str) -> Path | None:
+    dest = SHOT_DIR / f"{name}.png"
+    udid = os.environ.get("UDID") or os.environ.get("SIM_UDID") or "booted"
+    result = subprocess.run(
+        ["xcrun", "simctl", "io", udid, "screenshot", str(dest)],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        result = subprocess.run(
+            ["xcrun", "simctl", "io", "booted", "screenshot", str(dest)],
+            capture_output=True,
+            text=True,
+        )
+    if result.returncode == 0 and dest.exists():
+        print(f"screenshot: {dest}", flush=True)
+        return dest
+    print(f"screenshot failed for {name}: {(result.stderr or result.stdout or '').strip()}", flush=True)
+    return None
+
+
 def maestro(*args: str, env: dict | None = None, timeout: int = 180) -> subprocess.CompletedProcess:
     cmd = ["maestro", "test", *args]
     print("+", " ".join(cmd), flush=True)
@@ -122,6 +147,8 @@ else:
         {"launchMs": launch_ms},
     )
 
+screenshot("01-launch")
+
 # After first launch the data container exists; copy the SRT in for the picker.
 copy_srt = ROOT / "scripts/ios-sim-qa/copy-srt-to-app.sh"
 if copy_srt.exists():
@@ -159,6 +186,8 @@ for step_id, name, key, video_id in play_plan:
     )
     if result.returncode == 0:
         record(step_id, name, "PASS", f"Player screen, controls, and times visible for {video_id}.")
+        if step_id == "play_mp4":
+            screenshot("02-playing")
     else:
         record(
             step_id,
@@ -235,8 +264,12 @@ if opened.returncode != 0:
         "FAIL",
         "The paywall screen did not open. See maestro/05_paywall_open.log.",
     )
+    record("paywall_trial", "Paywall shows 7-day trial copy", "SKIP", "Paywall did not open.")
+    record("paywall_restore", "Restore purchases", "SKIP", "Paywall did not open.")
     record("paywall_purchase", "Test purchase", "SKIP", "Paywall did not open.")
 else:
+    screenshot("03-paywall")
+    run_flow("05_paywall_screenshot.yaml", "05_paywall_screenshot")
     prices = run_flow("05_paywall_prices.yaml", "05_paywall_prices")
     if prices.returncode == 0:
         record(
@@ -245,9 +278,41 @@ else:
             "PASS",
             "Displayed $2.99 / $9.99 / $29.99 from the StoreKit configuration.",
         )
+        trial = run_flow("05_paywall_trial.yaml", "05_paywall_trial")
+        if trial.returncode == 0:
+            record(
+                "paywall_trial",
+                "Paywall shows 7-day trial copy",
+                "PASS",
+                "Monthly and yearly show '7 days free, then <price>/month' (or /year). Lifetime stays a one-time purchase.",
+            )
+        else:
+            record(
+                "paywall_trial",
+                "Paywall shows 7-day trial copy",
+                "FAIL",
+                "Prices were visible but the 7-day trial sentence was not. See maestro/05_paywall_trial.log.",
+            )
+        restore = run_flow("05_paywall_restore.yaml", "05_paywall_restore")
+        if restore.returncode == 0:
+            record(
+                "paywall_restore",
+                "Restore purchases",
+                "PASS",
+                "Restore completed and the paywall showed a restore result.",
+            )
+            screenshot("04-restore")
+        else:
+            record(
+                "paywall_restore",
+                "Restore purchases",
+                "FAIL",
+                "Restore did not show a result message. See maestro/05_paywall_restore.log.",
+            )
         purchase = run_flow("05_paywall_purchase.yaml", "05_paywall_purchase")
         if purchase.returncode == 0:
             record("paywall_purchase", "Test purchase", "PASS", "Yearly plan purchase completed; Pro unlocked in the UI.")
+            screenshot("05-purchase")
         else:
             record(
                 "paywall_purchase",
@@ -261,6 +326,18 @@ else:
         unavailable = run_flow("05_paywall_unavailable.yaml", "05_paywall_unavailable")
         if unavailable.returncode == 0:
             record("paywall_prices", "Paywall shows StoreKit prices", "SKIP", STOREKIT_SKIP_REASON)
+            record(
+                "paywall_trial",
+                "Paywall shows 7-day trial copy",
+                "SKIP",
+                "Skipped because StoreKit test products were not loaded in this simctl/Maestro session.",
+            )
+            record(
+                "paywall_restore",
+                "Restore purchases",
+                "SKIP",
+                "Skipped because StoreKit test products were not loaded in this simctl/Maestro session.",
+            )
             record(
                 "paywall_purchase",
                 "Test purchase",
@@ -276,6 +353,8 @@ else:
                 "nor the 'Prices unavailable' state could be confirmed. "
                 "See maestro/05_paywall_*.log.",
             )
+            record("paywall_trial", "Paywall shows 7-day trial copy", "SKIP", "Could not confirm prices, so trial copy was not asserted.")
+            record("paywall_restore", "Restore purchases", "SKIP", "Could not confirm prices, so Restore was not asserted.")
             record("paywall_purchase", "Test purchase", "SKIP", "Could not confirm prices, so no purchase was attempted.")
     run_flow("05_paywall_close.yaml", "05_paywall_close")
 
@@ -290,6 +369,8 @@ functional_ids = {
     "seek",
     "subtitles",
     "paywall_prices",
+    "paywall_trial",
+    "paywall_restore",
     "paywall_purchase",
 }
 hard_fails = [
@@ -329,6 +410,7 @@ results = {
         "simulator timing is approximate and that alone does not fail the job.",
         "StoreKit Configuration is wired into the generated Xcode scheme, but it may not "
         "take effect for a simctl + Maestro launch. That case is recorded as SKIP.",
+        "Monthly and yearly trial copy is asserted only when StoreKit prices load.",
     ],
 }
 
@@ -340,7 +422,7 @@ print(f"Wrote {results_path}", flush=True)
 def md_row(s: dict) -> str:
     detail = (s.get("detail") or "").replace("\n", " ").replace("|", "\\|")
     if len(detail) > 280:
-        detail = detail[:277] + "..."
+        detail = detail[:277] + " [truncated]"
     return f"| `{s['id']}` | {s['name']} | **{s['status']}** | {detail} |"
 
 lines = [
@@ -363,6 +445,8 @@ lines += [
     "- Standard `macos-latest` runner only. No large/xlarge runners.",
     "- StoreKit products are defined in `app/ios-storekit/Playsz.storekit` and attached to the scheme after prebuild.",
     "- A StoreKit Configuration purchase is local and simulated; it is not an App Store sandbox purchase.",
+    "- Monthly and yearly include a 7-day free intro offer in Playsz.storekit; lifetime does not.",
+    f"- Screenshots: `{SHOT_DIR}`",
 ]
 summary = "\n".join(lines) + "\n"
 (ARTIFACTS / "summary.md").write_text(summary)

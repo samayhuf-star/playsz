@@ -11,6 +11,9 @@ name: Assert StoreKit prices are visible
     id: "paywall-price-playsz_pro_yearly"
 - assertVisible:
     id: "paywall-price-playsz_pro_lifetime"
-- assertVisible: ".*2\\.99.*"
-- assertVisible: ".*9\\.99.*"
-- assertVisible: ".*29\\.99.*"
+- assertVisible: ".*2\.99.*"
+- assertVisible: ".*9\.99.*"
+- assertVisible: ".*29\.99.*"
+- assertVisible:
+    id: "paywall-period-playsz_pro_lifetime"
+- assertVisible: "one-time purchase"

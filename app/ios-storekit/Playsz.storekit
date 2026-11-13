@@ -81,7 +81,11 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "6833746162",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "A7C1E2F3",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
           "localizations" : [
             {
               "description" : "Playsz Pro yearly subscription.",
@@ -103,7 +107,11 @@
           "familyShareable" : false,
           "groupNumber" : 2,
           "internalID" : "6833746161",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "B8D2F3A4",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
           "localizations" : [
             {
               "description" : "Playsz Pro monthly subscription.",

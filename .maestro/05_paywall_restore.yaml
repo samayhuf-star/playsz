@@ -1,0 +1,14 @@
+appId: com.samayvashsht.playsz
+name: Tap Restore purchases on the paywall
+---
+- assertVisible:
+    id: "paywall-restore"
+- tapOn:
+    id: "paywall-restore"
+- waitForAnimationToEnd:
+    timeout: 5000
+# Either a previous test purchase is restored, or no purchase is on this store account.
+- extendedWaitUntil:
+    visible:
+      text: ".*(Pro is unlocked|Purchases restored|No Pro purchase was found).*"
+    timeout: 15000

@@ -11,6 +11,7 @@ import {
 import { Platform } from 'react-native';
 import {
   fetchProducts as queryStoreProducts,
+  isEligibleForIntroOfferIOS,
   isUserCancelledError,
   useIAP,
   type Product,
@@ -30,6 +31,7 @@ import {
   saveEntitlement,
   type Entitlement,
 } from '@/lib/entitlement';
+import { freeTrialDays, type ProductLike } from '@/lib/intro-offer';
 import { friendlyStoreMessage, isStoreUserCancel } from '@/lib/store-errors';
 
 type OfferProduct = Product | ProductSubscription;
@@ -43,6 +45,7 @@ type IapContextValue = {
   selectedId: ProductId;
   setSelectedId: (id: ProductId) => void;
   priceLabel: (id: ProductId) => string | null;
+  trialDays: (id: ProductId) => number | null;
   productAvailable: (id: ProductId) => boolean;
   anyPriceLoaded: boolean;
   busy: boolean;
@@ -57,6 +60,18 @@ const IapContext = createContext<IapContextValue | null>(null);
 
 const FETCH_ATTEMPTS = 3;
 const FETCH_RETRY_MS = 800;
+
+async function introEligible(product: OfferProduct | undefined): Promise<boolean> {
+  if (!product) return false;
+  if (Platform.OS !== 'ios') return true;
+  const group = (product as { subscriptionGroupIdIOS?: string | null }).subscriptionGroupIdIOS;
+  if (!group) return false;
+  try {
+    return !!(await isEligibleForIntroOfferIOS(group));
+  } catch {
+    return false;
+  }
+}
 
 function offerTokenFor(product: OfferProduct): string | undefined {
   if ('subscriptionOffers' in product && Array.isArray(product.subscriptionOffers)) {
@@ -136,6 +151,7 @@ export function IapProvider({ children }: { children: ReactNode }) {
   const [catalogBusy, setCatalogBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [catalog, setCatalog] = useState<OfferProduct[]>([]);
+  const [trialDaysById, setTrialDaysById] = useState<Partial<Record<ProductId, number | null>>>({});
   const [restorePending, setRestorePending] = useState(false);
   const fetchingRef = useRef(false);
 
@@ -217,6 +233,19 @@ export function IapProvider({ children }: { children: ReactNode }) {
     }
   }, [connected, getActiveSubscriptions, getAvailablePurchases]);
 
+  const resolveTrialDays = useCallback(async (items: OfferProduct[]) => {
+    const next: Partial<Record<ProductId, number | null>> = {
+      [PRODUCT_IDS.lifetime]: null,
+    };
+    for (const id of SUBSCRIPTION_IDS) {
+      const item = items.find((entry) => entry.id === id);
+      const daysFromOffer = freeTrialDays(item as ProductLike | undefined);
+      const days = daysFromOffer && (await introEligible(item)) ? daysFromOffer : null;
+      next[id] = days;
+    }
+    setTrialDaysById(next);
+  }, []);
+
   const loadCatalogOnce = useCallback(async (): Promise<number> => {
     const lifetime = (await queryStoreProducts({
       skus: [PRODUCT_IDS.lifetime],
@@ -228,8 +257,9 @@ export function IapProvider({ children }: { children: ReactNode }) {
     })) as OfferProduct[] | null;
     const merged = mergeCatalog(lifetime, subs);
     setCatalog(merged);
+    await resolveTrialDays(merged);
     return merged.filter((item) => ALL_PRODUCT_IDS.includes(item.id as ProductId)).length;
-  }, []);
+  }, [resolveTrialDays]);
 
   const refreshProducts = useCallback(async () => {
     if (Platform.OS === 'web') {
@@ -307,8 +337,9 @@ export function IapProvider({ children }: { children: ReactNode }) {
     const merged = mergeCatalog(products, subscriptions);
     if (merged.length > 0) {
       setCatalog(merged);
+      void resolveTrialDays(merged);
     }
-  }, [products, subscriptions]);
+  }, [products, resolveTrialDays, subscriptions]);
 
   useEffect(() => {
     const owned = collectKnownIds(availablePurchases, activeSubscriptions);
@@ -337,6 +368,11 @@ export function IapProvider({ children }: { children: ReactNode }) {
       return item?.displayPrice ?? null;
     },
     [catalog]
+  );
+
+  const trialDays = useCallback(
+    (id: ProductId) => trialDaysById[id] ?? null,
+    [trialDaysById]
   );
 
   const anyPriceLoaded = catalog.some((item) =>
@@ -422,6 +458,7 @@ export function IapProvider({ children }: { children: ReactNode }) {
       selectedId,
       setSelectedId,
       priceLabel,
+      trialDays,
       productAvailable,
       anyPriceLoaded,
       busy,
@@ -441,6 +478,7 @@ export function IapProvider({ children }: { children: ReactNode }) {
       entitlement,
       message,
       priceLabel,
+      trialDays,
       productAvailable,
       refreshProducts,
       restore,
