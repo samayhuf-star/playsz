@@ -242,6 +242,50 @@ if photos.get("subs_mp4", {}).get("ok"):
 else:
     record("subtitles", "Show SRT subtitles", "SKIP", "The subtitled MP4 was not seeded.")
 
+
+def run_storekit_uitest() -> subprocess.CompletedProcess:
+    """Purchase and Restore via xcodebuild test so the .storekit file is injected."""
+    workspace = os.environ.get("WORKSPACE", "")
+    scheme = os.environ.get("SCHEME", "")
+    udid = os.environ.get("UDID") or os.environ.get("SIM_UDID") or ""
+    derived = os.environ.get("DERIVED_DATA", "")
+    log_path = ARTIFACTS / "storekit-uitest.log"
+    if not (workspace and scheme and udid and derived and Path(workspace).exists()):
+        missing = subprocess.CompletedProcess(
+            args=["xcodebuild"], returncode=1, stdout="", stderr="WORKSPACE/SCHEME/UDID/DERIVED_DATA not set or workspace missing"
+        )
+        log_path.write_text("skipped: missing xcodebuild context\n")
+        return missing
+    cmd = [
+        "xcodebuild", "test-without-building",
+        "-workspace", workspace,
+        "-scheme", scheme,
+        "-destination", f"platform=iOS Simulator,id={udid}",
+        "-derivedDataPath", derived,
+        "-only-testing:PlayszStoreKitUITests",
+        "CODE_SIGN_IDENTITY=-",
+        "CODE_SIGN_STYLE=Manual",
+        "DEVELOPMENT_TEAM=",
+        "PROVISIONING_PROFILE_SPECIFIER=",
+        "CODE_SIGNING_ALLOWED=NO",
+    ]
+    env = os.environ.copy()
+    env["QA_ARTIFACTS"] = str(ARTIFACTS)
+    env["OUT"] = str(ARTIFACTS)
+    print("+", " ".join(cmd), flush=True)
+    result = subprocess.run(cmd, env=env, text=True, capture_output=True, timeout=240)
+    log_path.write_text((result.stdout or "") + "\n" + (result.stderr or ""))
+    print(f"storekit uitest exit={result.returncode}; log={log_path}", flush=True)
+    if result.returncode != 0:
+        # First build-for-testing may not have produced a test-without-building product; try a full test.
+        cmd[1] = "test"
+        print("+", " ".join(cmd), flush=True)
+        result = subprocess.run(cmd, env=env, text=True, capture_output=True, timeout=420)
+        log_path.write_text((result.stdout or "") + "\n" + (result.stderr or ""))
+        print(f"storekit uitest (test) exit={result.returncode}; log={log_path}", flush=True)
+    return result
+
+
 # ---------------------------------------------------------------------------
 # 5. Paywall / StoreKit
 # ---------------------------------------------------------------------------
@@ -293,34 +337,41 @@ else:
                 "FAIL",
                 "Prices were visible but the 7-day trial sentence was not. See maestro/05_paywall_trial.log.",
             )
-        restore = run_flow("05_paywall_restore.yaml", "05_paywall_restore")
-        if restore.returncode == 0:
+        # Maestro + simctl cannot inject the .storekit file; a real App Store
+        # sign-in sheet appears instead. Purchase and Restore run under
+        # xcodebuild test so StoreKit Testing is applied.
+        storekit = run_storekit_uitest()
+        restore_shot = SHOT_DIR / "05-restore.png"
+        purchase_shot = SHOT_DIR / "04-purchase.png"
+        if storekit.returncode == 0:
             record(
                 "paywall_restore",
                 "Restore purchases",
                 "PASS",
-                "Restore completed and the paywall showed a restore result.",
+                "Restore completed under xcodebuild test with Playsz.storekit.",
             )
-            screenshot("04-restore")
+            record(
+                "paywall_purchase",
+                "Test purchase",
+                "PASS",
+                "Yearly plan purchase completed under xcodebuild test; Pro unlocked in the UI.",
+            )
+            if not restore_shot.exists():
+                screenshot("05-restore")
+            if not purchase_shot.exists():
+                screenshot("04-purchase")
         else:
             record(
                 "paywall_restore",
                 "Restore purchases",
                 "FAIL",
-                "Restore did not show a result message. See maestro/05_paywall_restore.log.",
+                "StoreKit UI test did not complete Restore. See storekit-uitest.log.",
             )
-        purchase = run_flow("05_paywall_purchase.yaml", "05_paywall_purchase")
-        if purchase.returncode == 0:
-            record("paywall_purchase", "Test purchase", "PASS", "Yearly plan purchase completed; Pro unlocked in the UI.")
-            screenshot("05-purchase")
-        else:
             record(
                 "paywall_purchase",
                 "Test purchase",
                 "FAIL",
-                "Prices were visible but the test purchase did not complete "
-                "(sheet wording may differ, or the buy button stayed disabled). "
-                "See maestro/05_paywall_purchase.log.",
+                "StoreKit UI test did not complete the yearly purchase. See storekit-uitest.log.",
             )
     else:
         unavailable = run_flow("05_paywall_unavailable.yaml", "05_paywall_unavailable")

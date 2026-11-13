@@ -3,8 +3,24 @@ name: Open and play a seeded library video
 ---
 # Expects env VIDEO_ID (testID, e.g. library-video-playsz-qa-short)
 # and optional VIDEO_TITLE (filename visible in the row).
-- tapOn:
-    id: ${VIDEO_ID}
+# iOS Photos renames addmedia imports to IMG_XXXX.MP4, so the original
+# filename testID is often missing. Fall back to a visible 10-second clip.
+- runFlow:
+    when:
+      visible:
+        id: ${VIDEO_ID}
+    commands:
+      - tapOn:
+          id: ${VIDEO_ID}
+- runFlow:
+    when:
+      visible:
+        id: "library-title"
+      notVisible:
+        id: ${VIDEO_ID}
+    commands:
+      - tapOn:
+          text: "0:10"
 - extendedWaitUntil:
     visible:
       id: "player-screen"

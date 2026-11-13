@@ -10,6 +10,7 @@ OUT="${OUT:-$PWD/artifacts}"
 mkdir -p "$OUT"
 cd "$ROOT"
 APP_DIR="$ROOT/app" "$ROOT/scripts/ios-sim-qa/attach-storekit-scheme.sh" | tee -a "$OUT/prepare.log"
+APP_DIR="$ROOT/app" "$ROOT/scripts/ios-sim-qa/add-storekit-uitest.sh" | tee -a "$OUT/prepare.log"
 {
   echo "==> StoreKit scheme references"
   grep -n "StoreKitConfigurationFileReference" -A1 app/ios/*.xcodeproj/xcshareddata/xcschemes/*.xcscheme 2>/dev/null || \
