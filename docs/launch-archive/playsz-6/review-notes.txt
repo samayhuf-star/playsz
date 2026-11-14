@@ -1,0 +1,30 @@
+PURPOSE AND AUDIENCE
+Playsz is an offline video player for iPhone. It is for anyone who keeps videos on their phone and wants to watch them with better controls than the built-in viewer: playback speed, loop, A-B repeat, subtitles, picture in picture and gesture seeking, with no ads and no account.
+
+SETUP AND MAIN FEATURES (no login, no demo account, no sample files needed)
+1. Launch the app and allow Photos access. The Library tab lists the videos already on the device. Folders shows Photos albums, Recents shows recently played videos.
+2. Tap any video to play it. In the player: double-tap or swipe to seek, tap 1x for playback speed (0.5x to 2x), Loop, A-B repeat, Subs (choose subtitle size and colour, or load an .srt file from Files), PiP for picture in picture, and Lock to lock the controls.
+3. Settings (top right of the Library) has the extras: export a video to audio (M4A), the private folder protected by Face ID, and a local encrypted export and restore of private items.
+4. Paywall: tap Unlock Pro on the Library screen. Restore purchases is on the same paywall screen.
+Video playback is free. Pro removes the free limits of 3 audio exports per day and 10 private folder items, and unlocks the local encrypted export.
+
+EXTERNAL SERVICES
+The only external service is Apple In-App Purchase (StoreKit 2) for the Pro purchases. The app has no backend, no accounts, no analytics, no crash reporting, no advertising and no tracking. Videos and settings stay on the device. The Terms and Privacy links open our web pages in the browser.
+
+REGIONS
+Features and content are the same in every region. Prices are the App Store prices for each storefront.
+
+CONTENT AND RIGHTS
+Playsz ships no media and streams nothing. It only plays videos the user already has on their own device, from Photos or Files. The user is responsible for having the rights to their own files. The app is not in a regulated industry.
+
+SUBSCRIPTIONS AND PURCHASES
+The app is a free download. Playsz Pro is optional:
+- Monthly: $2.99 per month, auto-renewing, with a 7-day free trial.
+- Yearly: $19.99 per year, auto-renewing, with a 7-day free trial.
+- Lifetime: $39.99 one-time purchase, no trial, does not renew.
+Cancel at least 24 hours before the trial or period ends to avoid being charged.
+
+SCREEN RECORDING
+A screen recording of the app on a device is available on request.
+
+Contact: Samay Vashsht, +91 9953710111, samayhuf@gmail.com
