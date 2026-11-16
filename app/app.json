@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Playsz - All In One Player",
+    "name": "Playsz Vault",
     "slug": "openplay",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
-    "scheme": "openplay",
+    "scheme": "playszvault",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/icon.png",
@@ -17,11 +17,11 @@
         "UIBackgroundModes": [
           "audio"
         ],
-        "CFBundleDisplayName": "Playsz",
-        "CFBundleName": "Playsz"
+        "CFBundleDisplayName": "Playsz Vault",
+        "CFBundleName": "Playsz Vault"
       },
       "appleTeamId": "PGLT2QZX88",
-      "buildNumber": "5"
+      "buildNumber": "6"
     },
     "android": {
       "package": "com.allinone.videoplayer",

@@ -14,6 +14,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { requestPermissionsAsync } from 'expo-media-library';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { ThemeColors } from '@/constants/colors';
 import { VideoThumb } from '@/components/video-thumb';
@@ -37,6 +38,7 @@ import {
   type RecentItem,
 } from '@/lib/resume-position';
 import { getKnownSizes, measureSizes } from '@/lib/thumbnails';
+import { listPrivateItems } from '@/lib/private-folder';
 import { useIapContext } from '@/providers/iap-provider';
 import { useColorSchemeName, useColors, useThemedStyles } from '@/theme';
 
@@ -77,7 +79,20 @@ export default function HomeScreen() {
   const [resume, setResume] = useState<Record<string, number>>({});
   const [sizes, setSizes] = useState<Record<string, number>>({});
   const [measuring, setMeasuring] = useState(false);
+  const [vaultCount, setVaultCount] = useState(0);
   const sortRef = useRef<SortOrder>(DEFAULT_SORT);
+
+  // First launch: show the vault welcome screen once.
+  useEffect(() => {
+    void AsyncStorage.getItem('playsz.welcomeSeen').then((seen) => {
+      if (!seen) router.replace('/welcome');
+    });
+  }, [router]);
+  useFocusEffect(
+    useCallback(() => {
+      void listPrivateItems().then((l) => setVaultCount(l.length)).catch(() => setVaultCount(0));
+    }, [])
+  );
   if (sort) {
     sortRef.current = sort;
   }
@@ -285,7 +300,7 @@ export default function HomeScreen() {
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <Text style={styles.title} testID="library-title">Playsz</Text>
+          <Text style={styles.title} testID="library-title">Playsz Vault</Text>
           <View style={styles.headerActions}>
             <Pressable style={styles.headerBtn} testID="library-settings-button" onPress={() => router.push('/settings')}>
               <Text style={styles.headerBtnLabel}>Settings</Text>
@@ -296,8 +311,22 @@ export default function HomeScreen() {
           </View>
         </View>
         <Text style={styles.subtitle}>
-          No ads. Your files stay standard and yours.
+          Private videos behind Face ID. No ads, no cloud.
         </Text>
+        <Pressable
+          testID="library-vault-card"
+          style={styles.vaultCard}
+          onPress={() => router.push('/private-folder')}
+          accessibilityRole="button"
+          accessibilityLabel="Open your private vault"
+        >
+          <Text style={styles.vaultTitle}>🔒 Private Vault</Text>
+          <Text style={styles.vaultBody}>
+            {vaultCount > 0
+              ? `${vaultCount} hidden video${vaultCount === 1 ? '' : 's'} · Face ID protected`
+              : 'Move videos out of Photos and lock them behind Face ID.'}
+          </Text>
+        </Pressable>
         {permission === 'granted' ? (
           <>
             <View style={styles.tabs}>
@@ -562,6 +591,17 @@ export default function HomeScreen() {
 const createStyles = (c: ThemeColors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.background },
+    vaultCard: {
+      backgroundColor: c.accentDim,
+      borderColor: c.accent,
+      borderWidth: 1,
+      borderRadius: 16,
+      padding: 14,
+      marginTop: 10,
+      marginBottom: 6,
+    },
+    vaultTitle: { color: c.accent, fontSize: 17, fontWeight: '800' },
+    vaultBody: { color: c.text, fontSize: 13, marginTop: 4 },
     header: {
       paddingHorizontal: 20,
       paddingTop: 8,

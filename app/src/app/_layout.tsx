@@ -28,7 +28,11 @@ export default function RootLayout() {
         >
           <Stack.Screen
             name="index"
-            options={{ headerShown: false, title: 'Playsz' }}
+            options={{ headerShown: false, title: 'Playsz Vault' }}
+          />
+          <Stack.Screen
+            name="welcome"
+            options={{ headerShown: false, title: 'Welcome' }}
           />
           <Stack.Screen
             name="player"

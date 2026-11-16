@@ -1,6 +1,6 @@
 # Playsz
 
-**App name (final): Playsz - All In One Player.** Still clear trademark and store uniqueness before any store submit.
+**iOS name: Playsz Vault: Private Videos** (repositioned after Apple Guideline 4.3(a), see docs/STORE_LISTING_VAULT.md). Android store name is unchanged until decided.
 
 Playsz is an offline video player for **Android and iOS**, launching on both platforms together. It is built to beat PLAYit by never interrupting playback, never showing ads, saving only standard file formats (no lock-in), and asking for as few permissions as possible.
 

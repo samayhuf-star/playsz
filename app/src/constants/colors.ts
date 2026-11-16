@@ -14,33 +14,33 @@ export type ThemeColors = {
 };
 
 export const DarkColors: ThemeColors = {
-  background: '#0B0D12',
-  surface: '#151922',
-  surfaceElevated: '#1C2230',
-  border: '#2A3142',
+  background: '#0E0B1F',
+  surface: '#171330',
+  surfaceElevated: '#211B42',
+  border: '#352C63',
   text: '#F4F6FB',
   textMuted: '#9AA3B5',
-  accent: '#6EE7A0',
-  accentDim: '#164A32',
+  accent: '#F5B544',
+  accentDim: '#3D2D0E',
   danger: '#F07167',
   overlay: 'rgba(0, 0, 0, 0.55)',
   playerBg: '#000000',
-  inputBackground: '#1C2230',
+  inputBackground: '#211B42',
 };
 
 export const LightColors: ThemeColors = {
-  background: '#F4F6FB',
+  background: '#F6F3FF',
   surface: '#FFFFFF',
-  surfaceElevated: '#EEF1F7',
-  border: '#D5DAE6',
+  surfaceElevated: '#ECE7FA',
+  border: '#D8D0F0',
   text: '#12141A',
   textMuted: '#5B6475',
-  accent: '#0F8A4B',
-  accentDim: '#D6F5E4',
+  accent: '#B3650A',
+  accentDim: '#FBE9CC',
   danger: '#C0392B',
   overlay: 'rgba(0, 0, 0, 0.45)',
   playerBg: '#000000',
-  inputBackground: '#EEF1F7',
+  inputBackground: '#ECE7FA',
 };
 
 /** @deprecated Use useColors() so light and dark both work. */
