@@ -300,7 +300,7 @@ export default function HomeScreen() {
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <Text style={styles.title} testID="library-title">Playsz Vault</Text>
+          <Text style={styles.title} testID="library-title">Dimmer</Text>
           <View style={styles.headerActions}>
             <Pressable style={styles.headerBtn} testID="library-settings-button" onPress={() => router.push('/settings')}>
               <Text style={styles.headerBtnLabel}>Settings</Text>
@@ -397,7 +397,7 @@ export default function HomeScreen() {
         <View style={styles.message} testID="library-permission-denied">
           <Text style={styles.messageTitle}>Allow access to your videos</Text>
           <Text style={styles.messageBody}>
-            Playsz only asks for video access so it can play files already on
+            Dimmer only asks for video access so it can play files already on
             this device. No location, no camera, no contacts.
           </Text>
           <Pressable style={styles.cta} testID="library-grant-access" onPress={() => void refreshLibrary()}>
@@ -524,7 +524,7 @@ export default function HomeScreen() {
               <Text style={styles.messageTitle}>No videos on this device</Text>
               <Text style={styles.messageBody}>
                 Copy a standard MP4 or MKV onto the phone, then pull to
-                refresh. Playsz does not bundle sample videos.
+                refresh. Dimmer does not bundle sample videos.
               </Text>
             </View>
           }

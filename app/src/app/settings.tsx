@@ -163,7 +163,7 @@ export default function SettingsScreen() {
       </View>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Playsz Pro</Text>
+          <Text style={styles.cardTitle}>Dimmer Pro</Text>
           <Text style={styles.cardBody}>
             {isPro
               ? 'Pro is unlocked on this device. Caps on extras are lifted.'
@@ -246,7 +246,7 @@ export default function SettingsScreen() {
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>About</Text>
-          <Text style={styles.cardBody}>Playsz - All In One Player</Text>
+          <Text style={styles.cardBody}>Dimmer — private camera and video vault</Text>
           <Text style={styles.cardBody}>© 2026 Samay Vashsht</Text>
         </View>
 

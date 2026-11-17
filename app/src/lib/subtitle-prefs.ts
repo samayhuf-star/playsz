@@ -98,7 +98,7 @@ export async function importSubtitleFile(
   const cues = parseSubtitleFile(name, source);
   if (cues.length === 0) {
     throw new Error(
-      'No subtitle cues were found. Playsz can import SRT and basic ASS/SSA dialogue lines.'
+      'No subtitle cues were found. Dimmer can import SRT and basic ASS/SSA dialogue lines.'
     );
   }
   const selection: SubtitleSelection = { name, storedUri, offset: 0 };

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Playsz Vault",
+    "name": "Dimmer",
     "slug": "openplay",
     "version": "1.0.0",
     "orientation": "default",
@@ -12,15 +12,17 @@
       "bundleIdentifier": "com.samayvashsht.playsz",
       "supportsTablet": false,
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Playsz Vault reads your video library so you can play videos, and moves videos you choose into your private vault. After you confirm, the originals are deleted from Photos.",
-        "NSPhotoLibraryAddUsageDescription": "Playsz can save exported videos to your library when you choose to export a file.",
+        "NSPhotoLibraryUsageDescription": "Dimmer reads your video library so you can play videos, and moves videos you choose into your private vault. After you confirm, the originals are deleted from Photos.",
+        "NSPhotoLibraryAddUsageDescription": "Dimmer can save exported videos to your library when you choose to export a file.",
         "UIBackgroundModes": [
           "audio"
         ],
-        "CFBundleDisplayName": "Playsz Vault",
-        "CFBundleName": "Playsz Vault",
+        "CFBundleDisplayName": "Dimmer",
+        "CFBundleName": "Dimmer",
         "ITSAppUsesNonExemptEncryption": false,
-        "NSFaceIDUsageDescription": "Playsz Vault uses Face ID to lock and unlock your private vault."
+        "NSFaceIDUsageDescription": "Dimmer uses Face ID to lock and unlock your private vault.",
+        "NSCameraUsageDescription": "Dimmer uses the camera so you can capture photos and videos straight into your private vault. Nothing is saved to your Photos library.",
+        "NSMicrophoneUsageDescription": "Dimmer uses the microphone to record sound with videos you capture into your private vault."
       },
       "appleTeamId": "PGLT2QZX88",
       "buildNumber": "7",
@@ -97,14 +99,14 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Playsz Vault uses Face ID to lock and unlock your private vault."
+          "faceIDPermission": "Dimmer uses Face ID to lock and unlock your private vault."
         }
       ],
       [
         "expo-media-library",
         {
-          "photosPermission": "Playsz Vault reads your video library so you can play videos, and moves videos you choose into your private vault. After you confirm, the originals are deleted from Photos.",
-          "savePhotosPermission": "Playsz can save exported videos to your library when you choose to export a file.",
+          "photosPermission": "Dimmer reads your video library so you can play videos, and moves videos you choose into your private vault. After you confirm, the originals are deleted from Photos.",
+          "savePhotosPermission": "Dimmer can save exported videos to your library when you choose to export a file.",
           "granularPermissions": [
             "video"
           ],
@@ -112,6 +114,14 @@
         }
       ],
       "expo-iap",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Dimmer uses the camera so you can capture photos and videos straight into your private vault. Nothing is saved to your Photos library.",
+          "microphonePermission": "Dimmer uses the microphone to record sound with videos you capture into your private vault.",
+          "recordAudioAndroid": true
+        }
+      ],
       "./plugins/with-launcher-label.js",
       "expo-sharing",
       "expo-document-picker",

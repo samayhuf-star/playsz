@@ -1,15 +1,15 @@
-# Playsz Vault — App Store listing (repositioned after Guideline 4.3(a) rejection)
+# Dimmer — App Store listing (repositioned after Guideline 4.3(a) rejection)
 
 Supersedes the iOS parts of STORE_LISTING.md. Every claim below is implemented in the current build. No MKV, 4K, Dolby/EAC3, streaming or AI-subtitle claims, and no competitor names.
 
-**Name (App Store Connect, 30 max):** Playsz Vault: Private Videos
+**Name (App Store Connect, 30 max):** Dimmer: Private Camera Vault
 **Subtitle (30 max):** Face ID video vault
 **Promotional text (170 max):** Hide private videos behind Face ID, pull the audio out of any video, and back up your vault as an encrypted file. No ads, no account, no cloud.
 **Keywords (100 max):** private,vault,hide videos,face id,lock,secure,audio extractor,m4a,encrypted backup,subtitles
 
 ## Description
 
-Playsz Vault keeps your private videos private.
+Dimmer keeps your private videos private.
 
 PRIVATE VAULT
 Move videos out of your Photos library into a vault that opens only with Face ID or your passcode. Vault videos never appear in your library or in Recents.
@@ -38,7 +38,7 @@ Free: a player plus a vault for up to 10 videos and 3 audio exports a day. Pro l
 6. Pro paywall
 
 ## App Review notes
-Playsz Vault plays videos from the user's own Photos library and a Face ID-protected on-device vault. It uses Apple frameworks only for playback (AVPlayer). It is not a template or repackaged app; its vault, M4A export and encrypted archive features are implemented in a custom native module (app/modules/playsz-native).
+Dimmer plays videos from the user's own Photos library and a Face ID-protected on-device vault. It uses Apple frameworks only for playback (AVPlayer). It is not a template or repackaged app; its vault, M4A export and encrypted archive features are implemented in a custom native module (app/modules/playsz-native).
 
 ## Before resubmission
 - Rename the app in App Store Connect to match the name above.

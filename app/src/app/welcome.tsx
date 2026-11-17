@@ -7,9 +7,10 @@ import type { ThemeColors } from '@/constants/colors';
 import { useThemedStyles } from '@/theme';
 
 const POINTS = [
-  ['🔒', 'Lock videos away', 'Move private videos out of Photos into a vault that opens only with Face ID or your passcode.'],
-  ['🎧', 'Pull out the audio', 'Turn any video into an M4A file, right on your phone.'],
-  ['💾', 'Back up on your terms', 'Export an encrypted vault file and keep it wherever you choose. No cloud, no account.'],
+  ['📷', 'Private camera', 'Capture photos and videos straight into the vault. They never touch your Photos library.'],
+  ['🔒', 'Face ID vault', 'Move existing videos out of Photos into a vault that opens only with Face ID or your passcode.'],
+  ['🕵️', 'Failed-unlock log', 'See when someone tried and failed to open your vault. Times only, kept on your phone.'],
+  ['💾', 'Encrypted backup', 'Export an encrypted vault file and keep it wherever you choose. No cloud, no account.'],
 ] as const;
 
 export default function WelcomeScreen() {
@@ -22,8 +23,8 @@ export default function WelcomeScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="welcome-screen">
       <View style={styles.body}>
-        <Text style={styles.brand}>Playsz Vault</Text>
-        <Text style={styles.tagline}>Your private video vault.</Text>
+        <Text style={styles.brand}>Dimmer</Text>
+        <Text style={styles.tagline}>Shoot it. Keep it. Nobody else sees it.</Text>
         {POINTS.map(([icon, title, text]) => (
           <View key={title} style={styles.row}>
             <Text style={styles.icon}>{icon}</Text>

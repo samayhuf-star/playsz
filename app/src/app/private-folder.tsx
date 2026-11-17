@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -17,6 +18,7 @@ import {
   restorePrivateItemToLibrary,
   type PrivateItem,
 } from '@/lib/private-folder';
+import { clearFailedUnlocks, listFailedUnlocks, type UnlockAttempt } from '@/lib/unlock-log';
 import { useColorSchemeName, useThemedStyles } from '@/theme';
 
 function formatSize(size?: number): string {
@@ -33,10 +35,12 @@ export default function PrivateFolderScreen() {
   const [authBusy, setAuthBusy] = useState(false);
   const [authNote, setAuthNote] = useState<string | null>(null);
   const unlocked = usePrivateUnlocked();
+  const [attempts, setAttempts] = useState<UnlockAttempt[]>([]);
 
   const reload = useCallback(async () => {
     const next = await listPrivateItems();
     setItems(next);
+    setAttempts(await listFailedUnlocks());
     setResume(await getResumeFractions(next.map((item) => privateCacheId(item))));
   }, []);
 
@@ -68,7 +72,10 @@ export default function PrivateFolderScreen() {
     }, [reload, unlocked])
   );
 
+  const isPhoto = (item: PrivateItem) => /\.(jpe?g|png|heic)$/i.test(item.filename);
+
   const openItem = (item: PrivateItem) => {
+    if (isPhoto(item)) return;
     // Plays from the sandbox copy: <documentDirectory>/private-folder/<storedName>.
     router.push({
       pathname: '/player',
@@ -91,7 +98,7 @@ export default function PrivateFolderScreen() {
           <Text style={styles.messageTitle}>Private folder is locked</Text>
           <Text style={styles.messageBody}>
             Unlock with Face ID, Touch ID, fingerprint or your device passcode. It locks
-            again whenever Playsz goes to the background.
+            again whenever Dimmer goes to the background.
           </Text>
           {authNote ? <Text style={styles.note}>{authNote}</Text> : null}
           <Pressable
@@ -144,9 +151,27 @@ export default function PrivateFolderScreen() {
           <Text style={styles.back}>Back</Text>
         </Pressable>
         <Text style={styles.topTitle}>Private folder</Text>
-        <View style={styles.backSpacer} />
+        <Pressable onPress={() => router.push('/camera')} hitSlop={12} testID="open-camera">
+          <Text style={styles.back}>Camera</Text>
+        </Pressable>
       </View>
       {note ? <Text style={styles.note}>{note}</Text> : null}
+      {attempts.length > 0 ? (
+        <View style={styles.breakIn}>
+          <Text style={styles.rowTitle}>
+            {attempts.length} failed unlock attempt{attempts.length === 1 ? '' : 's'}
+          </Text>
+          <Text style={styles.rowMeta}>
+            Latest: {new Date(attempts[0].at).toLocaleString()}. Times only, stored on this device.
+          </Text>
+          <Pressable
+            onPress={() => void clearFailedUnlocks().then(() => setAttempts([]))}
+            style={styles.smallBtn}
+          >
+            <Text style={styles.smallLabel}>Clear log</Text>
+          </Pressable>
+        </View>
+      ) : null}
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
@@ -155,22 +180,26 @@ export default function PrivateFolderScreen() {
           <View style={styles.message}>
             <Text style={styles.messageTitle}>No private items yet</Text>
             <Text style={styles.messageBody}>
-              Use Settings to copy a video into app-private storage. The free
-              cap counts the real items in this folder.
+              Tap Camera to capture photos and videos straight into this vault, or move
+              videos in from Settings. Nothing captured here touches your Photos library.
             </Text>
           </View>
         }
         renderItem={({ item }) => (
           <View style={styles.row}>
             <Pressable onPress={() => openItem(item)}>
-              <VideoThumb
-                request={{
-                  cacheId: privateCacheId(item),
-                  version: item.addedAt,
-                  fileUri: privateItemUri(item),
-                }}
-                progress={resume[privateCacheId(item)] ?? 0}
-              />
+              {isPhoto(item) ? (
+                <Image source={{ uri: privateItemUri(item) }} style={styles.photoThumb} contentFit="cover" />
+              ) : (
+                <VideoThumb
+                  request={{
+                    cacheId: privateCacheId(item),
+                    version: item.addedAt,
+                    fileUri: privateItemUri(item),
+                  }}
+                  progress={resume[privateCacheId(item)] ?? 0}
+                />
+              )}
             </Pressable>
             <Pressable style={styles.rowBody} onPress={() => openItem(item)}>
               <Text style={styles.rowTitle} numberOfLines={2}>
@@ -194,6 +223,8 @@ export default function PrivateFolderScreen() {
 const createStyles = (c: ThemeColors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.background },
+    photoThumb: { width: 96, height: 64, borderRadius: 8 },
+    breakIn: { margin: 16, padding: 14, borderRadius: 14, backgroundColor: c.surface, borderWidth: 1, borderColor: c.danger, gap: 6 },
     topBar: {
       flexDirection: 'row',
       alignItems: 'center',

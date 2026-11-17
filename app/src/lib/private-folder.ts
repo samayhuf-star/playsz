@@ -239,7 +239,7 @@ export type DeleteOriginalsResult =
 /**
  * Delete the Photos / gallery originals of videos that were copied into the private folder.
  * ONE batched call, so the OS shows a single confirmation:
- * - iOS: PHAssetChangeRequest.deleteAssets -> one system "Allow Playsz to delete N videos?" sheet.
+ * - iOS: PHAssetChangeRequest.deleteAssets -> one system "Allow Dimmer to delete N videos?" sheet.
  * - Android 11+: MediaStore.createDeleteRequest -> one system confirmation (no extra permission).
  *   Android 10 and lower use the WRITE_EXTERNAL_STORAGE grant (declared, maxSdkVersion 32).
  * (SDK 58's `Asset.delete(assets)` is the `next` API's replacement for `deleteAssetsAsync`.)

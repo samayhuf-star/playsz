@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 
+import { PrivacyShield } from '@/components/privacy-shield';
 import { IapProvider } from '@/providers/iap-provider';
 import { useColorSchemeName, useColors, useNavTheme } from '@/theme';
 
@@ -28,7 +29,7 @@ export default function RootLayout() {
         >
           <Stack.Screen
             name="index"
-            options={{ headerShown: false, title: 'Playsz Vault' }}
+            options={{ headerShown: false, title: 'Dimmer' }}
           />
           <Stack.Screen
             name="welcome"
@@ -46,17 +47,22 @@ export default function RootLayout() {
           />
           <Stack.Screen
             name="paywall"
-            options={{ headerShown: false, title: 'Playsz Pro', presentation: 'modal' }}
+            options={{ headerShown: false, title: 'Dimmer Pro', presentation: 'modal' }}
           />
           <Stack.Screen
             name="settings"
             options={{ headerShown: false, title: 'Settings' }}
           />
           <Stack.Screen
+            name="camera"
+            options={{ headerShown: false, title: 'Private camera', animation: 'slide_from_bottom' }}
+          />
+          <Stack.Screen
             name="private-folder"
             options={{ headerShown: false, title: 'Private folder' }}
           />
         </Stack>
+        <PrivacyShield />
         </IapProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

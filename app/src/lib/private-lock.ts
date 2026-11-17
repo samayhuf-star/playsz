@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { AppState, Platform } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { recordFailedUnlock } from '@/lib/unlock-log';
 
 /**
  * Face ID / Touch ID / fingerprint lock for the private folder (expo-local-authentication, MIT).
@@ -77,6 +78,9 @@ export async function unlockPrivateFolder(): Promise<UnlockResult> {
   }
   const cancelled =
     result.error === 'user_cancel' || result.error === 'system_cancel' || result.error === 'app_cancel';
+  if (!cancelled) {
+    void recordFailedUnlock();
+  }
   return {
     ok: false,
     reason: cancelled ? 'cancelled' : 'failed',

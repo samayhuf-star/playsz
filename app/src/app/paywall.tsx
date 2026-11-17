@@ -47,7 +47,7 @@ export default function PaywallScreen() {
         <Pressable testID="paywall-close" onPress={() => router.back()} hitSlop={12}>
           <Text style={styles.close}>Close</Text>
         </Pressable>
-        <Text style={styles.topTitle} testID="paywall-title">Playsz Pro</Text>
+        <Text style={styles.topTitle} testID="paywall-title">Dimmer Pro</Text>
         <View style={styles.closeSpacer} />
       </View>
 
