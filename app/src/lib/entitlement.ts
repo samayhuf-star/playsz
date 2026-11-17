@@ -46,6 +46,7 @@ export async function clearEntitlement(): Promise<void> {
 
 export function isKnownProductId(id: string | null | undefined): id is ProductId {
   return (
+    id === PRODUCT_IDS.weekly ||
     id === PRODUCT_IDS.monthly ||
     id === PRODUCT_IDS.yearly ||
     id === PRODUCT_IDS.lifetime

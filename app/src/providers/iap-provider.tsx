@@ -19,7 +19,7 @@ import {
 } from 'expo-iap';
 
 import {
-  ALL_PRODUCT_IDS,
+  OFFERED_IDS,
   PRODUCT_IDS,
   SUBSCRIPTION_IDS,
   type ProductId,
@@ -131,7 +131,7 @@ export function IapProvider({ children }: { children: ReactNode }) {
     productId: null,
     updatedAt: 0,
   });
-  const [selectedId, setSelectedId] = useState<ProductId>(PRODUCT_IDS.yearly);
+  const [selectedId, setSelectedId] = useState<ProductId>(PRODUCT_IDS.weekly);
   const [busy, setBusy] = useState(false);
   const [catalogBusy, setCatalogBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -218,17 +218,14 @@ export function IapProvider({ children }: { children: ReactNode }) {
   }, [connected, getActiveSubscriptions, getAvailablePurchases]);
 
   const loadCatalogOnce = useCallback(async (): Promise<number> => {
-    const lifetime = (await queryStoreProducts({
-      skus: [PRODUCT_IDS.lifetime],
-      type: 'in-app',
-    })) as OfferProduct[] | null;
+    // Only the weekly plan is offered. Retired plans are recognised through purchase history, not the catalog.
     const subs = (await queryStoreProducts({
-      skus: [...SUBSCRIPTION_IDS],
+      skus: [...OFFERED_IDS],
       type: 'subs',
     })) as OfferProduct[] | null;
-    const merged = mergeCatalog(lifetime, subs);
+    const merged = mergeCatalog(null, subs);
     setCatalog(merged);
-    return merged.filter((item) => ALL_PRODUCT_IDS.includes(item.id as ProductId)).length;
+    return merged.filter((item) => OFFERED_IDS.includes(item.id as ProductId)).length;
   }, []);
 
   const refreshProducts = useCallback(async () => {
@@ -267,7 +264,7 @@ export function IapProvider({ children }: { children: ReactNode }) {
         try {
           loaded = await loadCatalogOnce();
           lastError = undefined;
-          if (loaded >= ALL_PRODUCT_IDS.length) {
+          if (loaded >= OFFERED_IDS.length) {
             break;
           }
         } catch (err) {
@@ -340,7 +337,7 @@ export function IapProvider({ children }: { children: ReactNode }) {
   );
 
   const anyPriceLoaded = catalog.some((item) =>
-    ALL_PRODUCT_IDS.includes(item.id as ProductId)
+    OFFERED_IDS.includes(item.id as ProductId)
   );
 
   const buy = useCallback(
