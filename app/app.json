@@ -12,16 +12,48 @@
       "bundleIdentifier": "com.samayvashsht.playsz",
       "supportsTablet": false,
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Playsz needs access to your video library so you can play videos stored on this device.",
+        "NSPhotoLibraryUsageDescription": "Playsz Vault reads your video library so you can play videos, and moves videos you choose into your private vault. After you confirm, the originals are deleted from Photos.",
         "NSPhotoLibraryAddUsageDescription": "Playsz can save exported videos to your library when you choose to export a file.",
         "UIBackgroundModes": [
           "audio"
         ],
         "CFBundleDisplayName": "Playsz Vault",
-        "CFBundleName": "Playsz Vault"
+        "CFBundleName": "Playsz Vault",
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSFaceIDUsageDescription": "Playsz Vault uses Face ID to lock and unlock your private vault."
       },
       "appleTeamId": "PGLT2QZX88",
-      "buildNumber": "6"
+      "buildNumber": "7",
+      "privacyManifests": {
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "C617.1",
+              "3B52.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryDiskSpace",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "E174.1",
+              "85F4.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategorySystemBootTime",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "35F9.1"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "package": "com.allinone.videoplayer",
@@ -65,13 +97,13 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Playsz uses Face ID to lock and unlock your private folder."
+          "faceIDPermission": "Playsz Vault uses Face ID to lock and unlock your private vault."
         }
       ],
       [
         "expo-media-library",
         {
-          "photosPermission": "Playsz needs access to your video library so you can play videos stored on this device.",
+          "photosPermission": "Playsz Vault reads your video library so you can play videos, and moves videos you choose into your private vault. After you confirm, the originals are deleted from Photos.",
           "savePhotosPermission": "Playsz can save exported videos to your library when you choose to export a file.",
           "granularPermissions": [
             "video"
