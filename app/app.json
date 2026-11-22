@@ -18,10 +18,30 @@
           "audio"
         ],
         "CFBundleDisplayName": "Playsz",
-        "CFBundleName": "Playsz"
+        "CFBundleName": "Playsz",
+        "NSFaceIDUsageDescription": "Playsz uses Face ID to lock and unlock your private folder."
       },
       "appleTeamId": "PGLT2QZX88",
-      "buildNumber": "5"
+      "buildNumber": "5",
+      "privacyManifests": {
+        "NSPrivacyTracking": false,
+        "NSPrivacyTrackingDomains": [],
+        "NSPrivacyCollectedDataTypes": [],
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "C617.1"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "package": "com.allinone.videoplayer",
@@ -97,8 +117,10 @@
       },
       "eas": {
         "projectId": "102274b2-1330-4a79-b23a-b6ddfbdd87c4"
-      }
+      },
+      "privacyPolicyUrl": "https://samayhuf-star.github.io/app-legal/playsz/privacy.html"
     },
-    "owner": "krosz"
+    "owner": "krosz",
+    "description": "Playsz is an offline video player with no ads and a private folder locked by Face ID."
   }
 }
