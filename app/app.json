@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Playsz - All In One Player",
+    "name": "Playsz: Private Video Vault",
     "slug": "openplay",
     "version": "1.0.0",
     "orientation": "default",
@@ -121,6 +121,6 @@
       "privacyPolicyUrl": "https://samayhuf-star.github.io/app-legal/playsz/privacy.html"
     },
     "owner": "krosz",
-    "description": "Playsz is an offline video player with no ads and a private folder locked by Face ID."
+    "description": "Playsz is a private video vault: hide personal videos behind Face ID in an on-device encrypted vault, then play them offline with no ads. Your files stay yours and never leave the device."
   }
 }

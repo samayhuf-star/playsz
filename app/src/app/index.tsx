@@ -296,8 +296,22 @@ export default function HomeScreen() {
           </View>
         </View>
         <Text style={styles.subtitle}>
-          No ads. Your files stay standard and yours.
+          Your private video vault, locked by Face ID — plus an ad-free offline player.
         </Text>
+        <Pressable
+          testID="home-open-vault"
+          style={styles.vaultCard}
+          onPress={() => router.push('/private-folder')}
+          accessibilityRole="button"
+          accessibilityLabel="Open your private vault, locked by Face ID"
+        >
+          <Text style={styles.vaultIcon}>🔒</Text>
+          <View style={styles.vaultBody}>
+            <Text style={styles.vaultTitle}>Private Vault</Text>
+            <Text style={styles.vaultMeta}>Hide videos behind Face ID · kept encrypted on this device</Text>
+          </View>
+          <Text style={styles.vaultChevron}>›</Text>
+        </Pressable>
         {permission === 'granted' ? (
           <>
             <View style={styles.tabs}>
@@ -614,6 +628,22 @@ const createStyles = (c: ThemeColors) =>
       lineHeight: 22,
       maxWidth: 360,
     },
+    vaultCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginTop: 10,
+      padding: 14,
+      borderRadius: 14,
+      backgroundColor: c.surfaceElevated,
+      borderWidth: 1,
+      borderColor: c.accent,
+    },
+    vaultIcon: { fontSize: 22 },
+    vaultBody: { flex: 1, gap: 2 },
+    vaultTitle: { color: c.text, fontSize: 16, fontWeight: '800' },
+    vaultMeta: { color: c.textMuted, fontSize: 12.5, lineHeight: 17 },
+    vaultChevron: { color: c.accent, fontSize: 24, fontWeight: '700' },
     tabs: { flexDirection: 'row', gap: 8, marginTop: 8 },
     tab: {
       borderWidth: 1,

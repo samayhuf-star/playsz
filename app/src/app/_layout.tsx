@@ -50,7 +50,7 @@ export default function RootLayout() {
           />
           <Stack.Screen
             name="private-folder"
-            options={{ headerShown: false, title: 'Private folder' }}
+            options={{ headerShown: false, title: 'Private Vault' }}
           />
         </Stack>
         </IapProvider>
